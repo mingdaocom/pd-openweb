@@ -47,19 +47,19 @@ const RadioWidget = props => {
         verticalArrangement: direction === '1',
       })}
     >
-      {displayOptions.map((item, index) => {
+      {displayOptions.map(item => {
         return (
           <div
+            key={item.key}
             className="flexColumn"
             style={{ width: item.key === 'other' && checkIds.includes('other') && !disabled ? '100%' : 'auto' }}
           >
             <Radio
-              key={index}
               disabled={disabled}
               value={item.key}
               checked={_.includes(checkIds, item.key)}
               title={item.value}
-              onChange={event => onChange(event.target.value, event)}
+              onClick={() => !disabled && onChange(item.key)}
             >
               {renderItem(item, checkIds)}
             </Radio>

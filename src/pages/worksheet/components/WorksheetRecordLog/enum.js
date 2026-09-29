@@ -42,12 +42,12 @@ export const GET_SYSTEM_USER = () => {
     'user-workflow': {
       accountId: 'user-workflow',
       avatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/workflow.png?imageView2/1/w/48/h/48/q/90',
-      fullname: '工作流',
+      fullname: _l('工作流'),
     },
     'user-publicform': {
       accountId: 'user-publicform',
       avatar: md.global.FileStoreConfig.pictureHost + '/UserAvatar/publicform.png?imageView2/1/w/100/h/100/q/90',
-      fullname: '公开表单',
+      fullname: _l('公开表单'),
     },
     'user-api': {
       accountId: 'user-api',

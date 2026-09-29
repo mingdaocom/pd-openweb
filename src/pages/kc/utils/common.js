@@ -368,7 +368,7 @@ export function handleRemoveNode(args) {
         message = { success: _l('删除成功') };
         break;
       case NODE_STATUS.DELETED:
-        message = { success: '彻底删除成功' };
+        message = { success: _l('彻底删除成功') };
         break;
     }
 

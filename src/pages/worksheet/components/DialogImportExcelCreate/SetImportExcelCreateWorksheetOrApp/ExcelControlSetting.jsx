@@ -237,7 +237,7 @@ export default class ExcelControlSetting extends Component {
             value={controlName}
             onBlur={() => {
               if (!controlName && !_.includes([22, 10010], type)) {
-                this.handleChange({ controlName: '字段名称' });
+                this.handleChange({ controlName: _l('字段名称') });
               }
             }}
             onChange={e => this.handleChange({ controlName: e.target.value })}

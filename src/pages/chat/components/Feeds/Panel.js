@@ -30,9 +30,9 @@ const splitFeeds = list => {
     }
 
     if (feedTime.isAfter(moment().startOf('year'))) {
-      sTime = feedTime.format('M月');
+      sTime = feedTime.format(_l('M月'));
     } else {
-      sTime = feedTime.format('YYYY年M月');
+      sTime = feedTime.format(_l('YYYY年M月'));
     }
 
     if (!oSplit[sTime]) {

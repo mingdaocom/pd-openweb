@@ -169,7 +169,9 @@ export const UPLOAD_COUNT = [
     limit: 'limitVectorKnowledgeCount',
     text: _l('向量知识库数'),
     unit: _l('个'),
-    numUnit: '个',
+    get numUnit() {
+      return _l('个');
+    },
     isLocalFilter: true,
   },
   {
@@ -178,7 +180,9 @@ export const UPLOAD_COUNT = [
     text: _l('向量知识库分块数'),
     unit: _l('块'),
     click: 'chunks',
-    numUnit: '块',
+    get numUnit() {
+      return _l('块');
+    },
     PurchaseExpandPack: true,
     isLocalFilter: true,
   },

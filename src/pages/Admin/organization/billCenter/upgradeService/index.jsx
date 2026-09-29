@@ -227,7 +227,7 @@ let UpgradeService = class UpgradeService extends Component {
                   <div className="mTop8 mBottom8">
                     <div className="oneStepLeft">{_l('到期时间：')}</div>
                     <span className="color_b">
-                      {moment(versionData.currentLicenseEndDate).format('YYYY年MM月DD日')}
+                      {moment(versionData.currentLicenseEndDate).format(_l('YYYY年MM月DD日'))}
                     </span>
                   </div>
                   <div>
@@ -254,7 +254,7 @@ let UpgradeService = class UpgradeService extends Component {
                   <div className="infoShowRow">
                     <div className="infoShowLabel">{_l('到期时间:')}</div>
                     <div className="infoShowResult">
-                      {moment(versionData.currentLicenseEndDate).format('YYYY年MM月DD日')}
+                      {moment(versionData.currentLicenseEndDate).format(_l('YYYY年MM月DD日'))}
                     </div>
                   </div>
                   <div className="infoShowRow">

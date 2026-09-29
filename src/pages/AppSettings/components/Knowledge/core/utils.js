@@ -54,7 +54,7 @@ const isValidValue = v => v !== undefined && v !== null && v !== '';
  * @returns {string} 中文描述
  */
 export const formatFilterConditionToText = (filters = [], controls = []) => {
-  const spliceText = type => SPLICE_TYPE[type] || '且';
+  const spliceText = type => SPLICE_TYPE[type] || _l('且');
 
   const controlMap = new Map(controls.map(c => [c.controlId, c]));
   const getControl = id => controlMap.get(id);

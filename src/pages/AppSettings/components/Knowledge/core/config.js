@@ -136,8 +136,12 @@ export const RRF_K_RANGE = {
 };
 
 export const SPLICE_TYPE = {
-  1: '且',
-  2: '或',
+  get 1() {
+    return _l('且');
+  },
+  get 2() {
+    return _l('或');
+  },
 };
 
 export const FILTER_CONDITION_TYPE = {

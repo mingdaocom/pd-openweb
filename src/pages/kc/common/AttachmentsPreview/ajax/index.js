@@ -58,20 +58,20 @@ export function fetchViewUrl(attachment) {
         }
 
         if (resp.error) {
-          reject('获取预览链接失败');
+          reject(_l('获取预览链接失败'));
         } else {
           if (resp.viewUrl) {
             attachment.viewUrl = resp.viewUrl;
             attachment.previewType = resp.viewType;
           } else {
-            reject('获取预览链接失败');
+            reject(_l('获取预览链接失败'));
           }
 
           resolve(attachment);
         }
       })
       .catch(() => {
-        reject('获取预览链接失败');
+        reject(_l('获取预览链接失败'));
       });
   });
 }

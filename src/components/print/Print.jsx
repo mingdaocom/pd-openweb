@@ -314,7 +314,7 @@ export default class Print extends Component {
             : JSON.parse(value).departmentName
           : '';
       case 28:
-        return value ? (item.enumDefault === 1 ? value + '星' : value + '/10') : '';
+        return value ? (item.enumDefault === 1 ? _l('%0星', value) : value + '/10') : '';
       case 29:
         if (item.enumDefault === 1) {
           let records = [];

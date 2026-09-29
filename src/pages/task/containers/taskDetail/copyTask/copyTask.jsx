@@ -1,5 +1,5 @@
-﻿import React, { Component } from 'react';
-import { Modal, Tooltip } from 'ming-ui/antd-components';
+import React, { Component } from 'react';
+import { Checkbox, Modal, Tooltip } from 'ming-ui/antd-components';
 import { dialogSelectUser } from 'ming-ui/functions';
 import ajaxRequest from 'src/api/taskCenter';
 import { errorMessage } from '../../../utils/utils';
@@ -12,59 +12,56 @@ export default class CopyTask extends Component {
       accountId: md.global.Account.accountId,
       avatar: md.global.Account.avatar,
       visible: true,
+      taskName: props.name,
+      copyChargeUser: false,
+      folderID: !!props.folderID,
+      taskDesc: true,
+      taskAtts: true,
+      tag: true,
+      members: false,
+      time: false,
+      subTask: true,
+      checklist: true,
+      hasSubTasksChargeUser: false,
     };
   }
 
-  componentDidMount() {
-    const that = this;
-    $('.copyTask').on('click', '.checkOperation:not(.noClick)', function () {
-      $(this).toggleClass('checked');
-      if ($(this).is($('#copyChargeUser'))) {
-        $('#copyOperation .chargeUserBox').toggleClass('Hidden');
-      }
-
-      if ($(this).is($('#copySubTask'))) {
-        $('#hasSubTasksChargeUser').toggleClass('noClick').removeClass('checked');
-      }
-    });
-
-    $('.copyTask').on('click', '#chargeUserBtn', function () {
-      dialogSelectUser({
-        sourceId: that.props.taskId,
-        title: _l('选择负责人'),
-        showMoreInvite: false,
-        fromType: 2,
-        SelectUserSettings: {
-          includeUndefinedAndMySelf: true,
-          selectedAccountIds: [that.state.accountId],
-          projectId: that.props.projectId,
-          unique: true,
-          callback: users => {
-            that.setState({
-              accountId: users[0].accountId,
-              avatar: users[0].avatar,
-            });
-          },
+  selectChargeUser = () => {
+    dialogSelectUser({
+      sourceId: this.props.taskId,
+      title: _l('选择负责人'),
+      showMoreInvite: false,
+      fromType: 2,
+      SelectUserSettings: {
+        includeUndefinedAndMySelf: true,
+        selectedAccountIds: [this.state.accountId],
+        projectId: this.props.projectId,
+        unique: true,
+        callback: users => {
+          this.setState({
+            accountId: users[0].accountId,
+            avatar: users[0].avatar,
+          });
         },
-      });
+      },
     });
-  }
+  };
 
   submit() {
     ajaxRequest
       .duplicateTask({
         taskID: this.props.taskId,
-        taskName: $('#copyTaskName').val(),
-        chargeUser: $('#copyChargeUser').hasClass('checked') ? this.props.chargeUser : this.state.accountId,
-        folderID: $('#copyFolderID').hasClass('checked'),
-        taskDesc: $('#copyTaskDesc').hasClass('checked'),
-        taskAtts: $('#copyTaskAtts').hasClass('checked'),
-        tag: $('#copyCategory').hasClass('checked'),
-        members: $('#copyMembers').hasClass('checked'),
-        time: $('#copyDeadline').hasClass('checked'),
-        subTask: $('#copySubTask').hasClass('checked'),
-        checklist: $('#copyChecklist').hasClass('checked'),
-        hasSubTasksChargeUser: $('#hasSubTasksChargeUser').hasClass('checked'),
+        taskName: this.state.taskName,
+        chargeUser: this.state.copyChargeUser ? this.props.chargeUser : this.state.accountId,
+        folderID: this.state.folderID,
+        taskDesc: this.state.taskDesc,
+        taskAtts: this.state.taskAtts,
+        tag: this.state.tag,
+        members: this.state.members,
+        time: this.state.time,
+        subTask: this.state.subTask,
+        checklist: this.state.checklist,
+        hasSubTasksChargeUser: this.state.hasSubTasksChargeUser,
       })
       .then(source => {
         if (source.status) {
@@ -94,65 +91,103 @@ export default class CopyTask extends Component {
         <div className="copyDesc">{_l('通过复制任务，您可以将日常的任务计划快速复用')}</div>
         <div className="copyTitleBox">
           <div className="copyTitle">{_l('任务标题')}</div>
-          <input type="text" id="copyTaskName" defaultValue={this.props.name} className="borderColorPrimary" />
+          <input
+            type="text"
+            id="copyTaskName"
+            value={this.state.taskName}
+            onChange={event => this.setState({ taskName: event.target.value })}
+            className="borderColorPrimary"
+          />
         </div>
         <div id="copyOperation">
           <div className="copyTitle">{_l('同步复制')}</div>
           <ul>
             <li>
-              <div
-                className={this.props.folderID ? 'checked checkOperation' : 'noClick checkOperation'}
+              <Checkbox
+                className="checkOperation"
                 id="copyFolderID"
+                checked={this.state.folderID}
+                disabled={!this.props.folderID}
+                onChange={event => this.setState({ folderID: event.target.checked })}
               >
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
                 {_l('所属项目')}
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checked checkOperation" id="copyChecklist">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyChecklist"
+                checked={this.state.checklist}
+                onChange={event => this.setState({ checklist: event.target.checked })}
+              >
                 {_l('清单')}
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checked checkOperation" id="copyTaskDesc">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyTaskDesc"
+                checked={this.state.taskDesc}
+                onChange={event => this.setState({ taskDesc: event.target.checked })}
+              >
                 {_l('描述')}
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checkOperation" id="copyChargeUser">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyChargeUser"
+                checked={this.state.copyChargeUser}
+                onChange={event => this.setState({ copyChargeUser: event.target.checked })}
+              >
                 {_l('负责人')}
-              </div>
-              <div className="chargeUserBox">
-                <img src={this.state.avatar} className="circle chargeAvatar" />
-                <i className="icon-task-folder-charge pointer" id="chargeUserBtn" />
-              </div>
+              </Checkbox>
+              {!this.state.copyChargeUser && (
+                <div className="chargeUserBox">
+                  <img src={this.state.avatar} className="circle chargeAvatar" />
+                  <i className="icon-task-folder-charge pointer" id="chargeUserBtn" onClick={this.selectChargeUser} />
+                </div>
+              )}
             </li>
             <li>
-              <div className="checked checkOperation" id="copyTaskAtts">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyTaskAtts"
+                checked={this.state.taskAtts}
+                onChange={event => this.setState({ taskAtts: event.target.checked })}
+              >
                 {_l('附件')}
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checkOperation" id="copyMembers">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyMembers"
+                checked={this.state.members}
+                onChange={event => this.setState({ members: event.target.checked })}
+              >
                 {_l('任务参与者')}
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checked checkOperation" id="copyCategory">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyCategory"
+                checked={this.state.tag}
+                onChange={event => this.setState({ tag: event.target.checked })}
+              >
                 {_l('标签')}
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checkOperation" id="copyDeadline">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copyDeadline"
+                checked={this.state.time}
+                onChange={event => this.setState({ time: event.target.checked })}
+              >
                 {_l('计划起止时间')}
-              </div>
+              </Checkbox>
             </li>
           </ul>
 
@@ -160,21 +195,30 @@ export default class CopyTask extends Component {
 
           <ul>
             <li>
-              <div className="checked checkOperation" id="copySubTask">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="copySubTask"
+                checked={this.state.subTask}
+                onChange={event => this.setState({ subTask: event.target.checked, hasSubTasksChargeUser: false })}
+              >
                 {_l('子任务')}
                 <Tooltip title={_l('子任务将包含以上所选的复制内容')}>
                   <span className="mLeft5 copyTip">
                     <i className="icon-info" />
                   </span>
                 </Tooltip>
-              </div>
+              </Checkbox>
             </li>
             <li>
-              <div className="checkOperation" id="hasSubTasksChargeUser">
-                <i className="operationCheckbox icon-ok bgColorPrimary borderColorPrimary" />
+              <Checkbox
+                className="checkOperation"
+                id="hasSubTasksChargeUser"
+                checked={this.state.hasSubTasksChargeUser}
+                disabled={!this.state.subTask}
+                onChange={event => this.setState({ hasSubTasksChargeUser: event.target.checked })}
+              >
                 {_l('子任务负责人')}
-              </div>
+              </Checkbox>
             </li>
           </ul>
         </div>

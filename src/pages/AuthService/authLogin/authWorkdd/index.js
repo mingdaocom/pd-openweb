@@ -95,7 +95,7 @@ if (code) {
 
                 if (dd.pc && !isPcSlide) {
                   if (clientWorkingPattern === 1) {
-                    document.body.innerText = '已在默认浏览器打开';
+                    document.body.innerText = window.getStaticLanguageText('已在默认浏览器打开');
                     window.open(dingdingLoginUrl);
                     window.close();
                     dd.biz.navigation.quit({ message: '' });

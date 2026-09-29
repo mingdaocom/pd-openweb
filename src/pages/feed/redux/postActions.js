@@ -294,7 +294,7 @@ export function getPostDetail(postId, knowledgeId, projectId) {
           dispatch({
             type: 'POST_GET_POST_DETAIL_FAIL',
             postId,
-            errorMessage: '您的权限不足或此动态已被删除，无法查看',
+            errorMessage: _l('您的权限不足或此动态已被删除，无法查看'),
           });
         }
       },

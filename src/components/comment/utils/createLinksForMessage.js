@@ -120,7 +120,9 @@ export default args => {
         } else {
           if (rGroup.isDelete) {
             replaceStr +=
-              ' <span class="textDisabled" title="群组已删除">@' + htmlEncodeReg(rGroup.groupName) + '</span> ';
+              ` <span class="textDisabled" title="${htmlEncodeReg(_l('群组已删除'))}">@` +
+              htmlEncodeReg(rGroup.groupName) +
+              '</span> ';
           } else {
             replaceStr += ` <a target="_blank" data-groupid="${rGroup.groupID}" href="${pathCompletion('/group/groupValidate?gID=' + rGroup.groupID, { hasDomain: false })}">@${htmlEncodeReg(rGroup.groupName)}</a> `;
           }

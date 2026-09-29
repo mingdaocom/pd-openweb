@@ -160,7 +160,7 @@ function getValueToShow({ formData, reference, control, envIsMobile, envIsDisabl
       text: _l('currentControl[当前字段控件]'),
       value: 'currentControl',
       type: SHOW_TYPE.CURRENT,
-      valueToShow: '-保存值格式-',
+      valueToShow: _l('-保存值格式-'),
     },
     {
       text: _l('formData[记录字段值]'),

@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: "
-"POT-Creation-Date: 2026-09-23 13:45:03"
+"POT-Creation-Date: 2026-09-29 10:12:56"
 "Language-Team: Japanese"
 "Language: ja"
 "MIME-Version: 1.0"
@@ -4404,6 +4404,10 @@ msgid "从联系人中选择用户，邀请加入到当前组织"
 msgstr "連絡先からユーザーを選択して、現在の組織に招待します"
 
 #: Disabled references:1
+msgid "头像"
+msgstr "アバター"
+
+#: Disabled references:1
 msgid "选择"
 msgstr "選択"
 
@@ -4442,6 +4446,10 @@ msgstr "リンクの期限："
 #: Disabled references:1
 msgid "永久有效"
 msgstr "常設"
+
+#: Disabled references:1
+msgid "YYYY年MM月DD日 HH:mm"
+msgstr "YYYY年MM月DD日 HH:mm"
 
 #: Disabled references:1
 msgid "已加入"
@@ -4830,6 +4838,10 @@ msgstr "全参加者"
 #: Disabled references:1
 msgid "无法解析"
 msgstr "解析できません"
+
+#: Disabled references:1
+msgid "群组已删除"
+msgstr "グループが削除されました"
 
 #: Disabled references:1
 msgid "未知话题"
@@ -5424,6 +5436,18 @@ msgid "表情分类"
 msgstr "絵文字カテゴリ"
 
 #: Disabled references:1
+msgid "拥有者"
+msgstr "オーナー"
+
+#: Disabled references:1
+msgid "可编辑"
+msgstr "編集可能"
+
+#: Disabled references:1
+msgid "只读"
+msgstr "読み取り専用"
+
+#: Disabled references:1
 msgid "共享文件夹不存在或已被删除"
 msgstr "共有フォルダーが見つからない、または削除されています"
 
@@ -5460,6 +5484,10 @@ msgid "操作失败,请稍后重试"
 msgstr "操作が失敗しました。後ほど再度お試しください。"
 
 #: Disabled references:1
+msgid "未加入其他网络"
+msgstr "他のネットワークに未参加です"
+
+#: Disabled references:1
 msgid "归属变更"
 msgstr "所属変更"
 
@@ -5474,6 +5502,10 @@ msgstr "メンバーをクリア"
 #: Disabled references:1
 msgid "保留"
 msgstr "予約済み"
+
+#: Disabled references:1
+msgid "是否确定退出该共享文件夹?"
+msgstr "この共有フォルダーから退出しますか？"
 
 #: Disabled references:1
 msgid "是否确定移除该成员"
@@ -5528,18 +5560,6 @@ msgid "%0 邀请"
 msgstr "%0 招待"
 
 #: Disabled references:1
-msgid "拥有者"
-msgstr "オーナー"
-
-#: Disabled references:1
-msgid "可编辑"
-msgstr "編集可能"
-
-#: Disabled references:1
-msgid "只读"
-msgstr "読み取り専用"
-
-#: Disabled references:1
 msgid "托付文件夹"
 msgstr "委任フォルダー"
 
@@ -5566,6 +5586,18 @@ msgstr "フォルダーの所有権"
 #: Disabled references:1
 msgid "添加协作者"
 msgstr "コラボレーターを追加"
+
+#: Disabled references:1
+msgid "可管理共享成员，管理文件"
+msgstr "共有メンバーの管理およびファイルの管理ができます"
+
+#: Disabled references:1
+msgid "可添加共享者，添加修改文件"
+msgstr "共有者を追加できます。ファイルの追加・編集が可能です。"
+
+#: Disabled references:1
+msgid "可查看和下载允许下载的文件"
+msgstr "ダウンロードが許可されているファイルを閲覧およびダウンロードできます"
 
 #: Disabled references:1
 msgid "允许"
@@ -5636,6 +5668,10 @@ msgid "您无权限修改该文件的分享权限"
 msgstr "このファイルの共有権限を変更する権限がありません"
 
 #: Disabled references:1
+msgid "我"
+msgstr "私"
+
+#: Disabled references:1
 msgid "没有子文件夹"
 msgstr "サブフォルダーはありません"
 
@@ -5650,6 +5686,14 @@ msgstr "作成に失敗しました"
 #: Disabled references:1
 msgid "更改"
 msgstr "変更"
+
+#: Disabled references:1
+msgid "文件未开启分享，他人无法查看"
+msgstr "公開共有は無効になっています。他のユーザーはこのファイルを閲覧できません。"
+
+#: Disabled references:1
+msgid "任何人可查看"
+msgstr "全員が閲覧できます"
 
 #: Disabled references:1
 msgid "%0的联系人可预览"
@@ -7109,6 +7153,10 @@ msgid "重复日程"
 msgstr "予定の繰り返し"
 
 #: Disabled references:1
+msgid "%0星"
+msgstr "%0 スター"
+
+#: Disabled references:1
 msgid "求和"
 msgstr "合計"
 
@@ -7163,6 +7211,10 @@ msgstr "印刷フィールドは空にすることはできません"
 #: Disabled references:1
 msgid "自定义字段内容"
 msgstr "カスタムフィールドの内容"
+
+#: Disabled references:1
+msgid "%0统计"
+msgstr "%0 統計"
 
 #: Disabled references:1
 msgid "母任务"
@@ -7545,6 +7597,14 @@ msgid "请选择要发送到的任务"
 msgstr "送信するタスクを選択してください"
 
 #: Disabled references:1
+msgid "分享了知识下的文件"
+msgstr "ナレッジセンターで共有されたファイル"
+
+#: Disabled references:1
+msgid "添加了文件："
+msgstr "追加されたmdyファイル："
+
+#: Disabled references:1
 msgid "分享失败"
 msgstr "共有に失敗しました"
 
@@ -7687,6 +7747,10 @@ msgstr "ズームイン"
 #: Disabled references:1
 msgid "对方不是您的联系人，无法查看"
 msgstr "この人はあなたの連絡先ではないので閲覧できません"
+
+#: Disabled references:1
+msgid "下拉刷新"
+msgstr "プルして更新"
 
 #: Disabled references:1
 msgid "选择地区"
@@ -7891,10 +7955,6 @@ msgstr "明日 %0"
 #: Disabled references:1
 msgid "MM月DD日 HH:mm"
 msgstr "MM/DD HH:mm"
-
-#: Disabled references:1
-msgid "YYYY年MM月DD日 HH:mm"
-msgstr "YYYY年MM月DD日 HH:mm"
 
 #: Disabled references:1
 msgid "搜索地区或区号"
@@ -8414,6 +8474,10 @@ msgstr "部門のすべてのメンバーが参加しました"
 #: Disabled references:1
 msgid "群组下所有人已加入"
 msgstr "グループ内の全員が参加しました"
+
+#: Disabled references:1
+msgid "（%0人）"
+msgstr "(%0人)"
 
 #: Disabled references:1
 msgid "仅当前部门"
@@ -10261,12 +10325,12 @@ msgid "API"
 msgstr "API"
 
 #: Disabled references:1
-msgid "获取用户所在组织列表"
-msgstr "ユーザーの所属組織一覧を取得"
+msgid "获取当前用户所在组织列表"
+msgstr "現在のユーザーの所属組織一覧を取得"
 
 #: Disabled references:1
-msgid "获取用户信息"
-msgstr "ユーザー情報を取得"
+msgid "获取当前用户信息"
+msgstr "現在のユーザー情報を取得"
 
 #: Disabled references:1
 msgid "获取应用列表"
@@ -21798,12 +21862,12 @@ msgid "配置已更改，请重新预览"
 msgstr "設定が変更されました。再度プレビューしてください"
 
 #: Disabled references:1
-msgid "%0 项"
-msgstr "%0"
-
-#: Disabled references:1
 msgid "筛选"
 msgstr "絞り込み"
+
+#: Disabled references:1
+msgid "%0 项"
+msgstr "%0"
 
 #: Disabled references:1
 msgid "无权限查看"
@@ -21984,6 +22048,22 @@ msgstr "パブリッシャー"
 #: Disabled references:1
 msgid "版本管理"
 msgstr "バージョン管理"
+
+#: Disabled references:1
+msgid "发布后不需要审核，再操作升级，适用于需快速迭代更新场景"
+msgstr "公開後のレビューは不要です。迅速なイテレーションが求められる場合は、直接アップグレードできます。"
+
+#: Disabled references:1
+msgid "发布后需管理员审核通过后，再操作升级"
+msgstr "テナント管理者による承認後にアップグレードします"
+
+#: Disabled references:1
+msgid "沙盒环境开发中，所有变更必须通过发布更新至生产"
+msgstr "サンドボックス環境で行ったすべての変更は、本番環境へデプロイする必要があります。"
+
+#: Disabled references:1
+msgid "当前处于生产环境，请前往沙盒环境进行开发"
+msgstr "現在は本番環境です。開発を行う場合は、サンドボックス環境に切り替えてください。"
 
 #: Disabled references:1
 msgid "开启应用沙盒失败，请稍后重试"
@@ -22941,6 +23021,10 @@ msgstr "セマンティック検索"
 #: Disabled references:1
 msgid "关键词检索"
 msgstr "キーワード検索"
+
+#: Disabled references:1
+msgid "且"
+msgstr "および"
 
 #: Disabled references:1
 msgid "是其中一个"
@@ -25902,10 +25986,6 @@ msgid "%0不允许为空"
 msgstr "%0を空欄にすることはできません"
 
 #: Disabled references:1
-msgid "头像"
-msgstr "アバター"
-
-#: Disabled references:1
 msgid "欢迎语"
 msgstr "挨拶メッセージ"
 
@@ -27585,10 +27665,6 @@ msgid "部分字段仅支持对字段名称生效（如定位等）。选择多�
 msgstr "「ロケーション」など一部のフィールドは、名前のスタイリングのみ対応しています。複数のフィールドを選択した場合、未対応のフィールドには値のスタイリングは適用されません。"
 
 #: Disabled references:1
-msgid "且"
-msgstr "および"
-
-#: Disabled references:1
 msgid "锁定记录"
 msgstr "レコードをロック"
 
@@ -28735,10 +28811,6 @@ msgstr "グループ変換後、次の機能が利用可能になります（よ
 #: Disabled references:1
 msgid "同事群组进入到通讯录中方便管理并能支持到更多应用。"
 msgstr "同僚グループは連絡先に入ることで管理が便利になり、さらに多くのアプリケーションをサポートします。"
-
-#: Disabled references:1
-msgid "（%0人）"
-msgstr "(%0人)"
 
 #: Disabled references:1
 msgid "组织成员离职后自动退出群组"
@@ -30132,10 +30204,6 @@ msgid "部门选择"
 msgstr "部署選択"
 
 #: Disabled references:1
-msgid "我"
-msgstr "私"
-
-#: Disabled references:1
 msgid "流程未启用"
 msgstr "プロセスは有効になっていません"
 
@@ -30534,6 +30602,10 @@ msgstr "システム設定"
 #: Disabled references:1
 msgid "认证"
 msgstr "認証"
+
+#: Disabled references:1
+msgid "千问办公"
+msgstr "Qianwen Office（千問オフィス）"
 
 #: Disabled references:1
 msgid "对话安装"
@@ -31489,6 +31561,10 @@ msgstr "%0件の結果が見つかりました"
 #: Disabled references:1
 msgid "没有查询结果"
 msgstr "検索結果はありません"
+
+#: Disabled references:1
+msgid "关闭提示"
+msgstr "ポップアップを閉じる"
 
 #: Disabled references:1
 msgid "当前表单已过期"
@@ -36607,6 +36683,14 @@ msgid "转为长期群组 >"
 msgstr "正式グループに変換する >"
 
 #: Disabled references:1
+msgid "M月"
+msgstr "月（M）"
+
+#: Disabled references:1
+msgid "YYYY年M月"
+msgstr "YYYY年M月"
+
+#: Disabled references:1
 msgid "动态详情"
 msgstr "動的詳細情報"
 
@@ -37227,6 +37311,10 @@ msgstr "セッションを閉じる"
 #: Disabled references:1
 msgid "您最多可输入%0个字符"
 msgstr "最大で%0文字を入力できます"
+
+#: Disabled references:1
+msgid "上传于YYYY-MM-DD HH时mm分"
+msgstr "YYYY-MM-DD HH:mm にアップロードしました"
 
 #: Disabled references:1
 msgid "名称不能包含以下字符:"
@@ -40167,6 +40255,14 @@ msgid "将API配置导出为文件，之后可以将此文件导入其他组织�
 msgstr "API 設定をファイルとしてエクスポートし、その後、このファイルを他の組織にインポートして API の移行またはアップグレードを実現できます"
 
 #: Disabled references:1
+msgid "请求参数"
+msgstr "リクエストパラメータ"
+
+#: Disabled references:1
+msgid "返回值"
+msgstr "戻り値"
+
+#: Disabled references:1
 msgid "查看 API 请求日志详情"
 msgstr "APIリクエストログの詳細を表示"
 
@@ -40257,6 +40353,10 @@ msgstr "APIライブラリ"
 #: Disabled references:1
 msgid "服务价格"
 msgstr "サービス価格"
+
+#: Disabled references:1
+msgid "¥ %0/次"
+msgstr "¥  %0／回"
 
 #: Disabled references:1
 msgid "授权回调地址"
@@ -40445,14 +40545,6 @@ msgstr "隠されたパラメータは暗号化されて保存され、非表示
 #: Disabled references:1
 msgid "请选择类型"
 msgstr "タイプを選択してください"
-
-#: Disabled references:1
-msgid "请求参数"
-msgstr "リクエストパラメータ"
-
-#: Disabled references:1
-msgid "返回值"
-msgstr "戻り値"
 
 #: Disabled references:1
 msgid "暂无相关日志记录"
@@ -41381,6 +41473,10 @@ msgstr "SSH サーバーの authorized_keys ファイルに追加する"
 #: Disabled references:1
 msgid "数据源名称"
 msgstr "データソース名"
+
+#: Disabled references:1
+msgid "名称不能包含换行符、空格或-"
+msgstr "名前には改行、空白、または「-」を含めることはできません。"
 
 #: Disabled references:1
 msgid "作为"
@@ -43227,6 +43323,10 @@ msgid "保存失败, 您无法选择文件路径"
 msgstr "保存に失敗しました。ファイルパスを選択できません。"
 
 #: Disabled references:1
+msgid "获取预览链接失败"
+msgstr "プレビューリンクの取得に失敗しました"
+
+#: Disabled references:1
 msgid "大小："
 msgstr "サイズ:"
 
@@ -43339,6 +43439,10 @@ msgid "在“%0”中搜索"
 msgstr "「%0」で検索する"
 
 #: Disabled references:1
+msgid "在知识中心中搜索"
+msgstr "ナレッジセンターで検索"
+
+#: Disabled references:1
 msgid "共享设置"
 msgstr "共有設定"
 
@@ -43415,6 +43519,26 @@ msgid "(外部用户)"
 msgstr "外部ユーザー"
 
 #: Disabled references:1
+msgid "文件夹"
+msgstr "フォルダ"
+
+#: Disabled references:1
+msgid "创建了%0"
+msgstr "作成日時 %0"
+
+#: Disabled references:1
+msgid "将此共享文件夹放入了回收站"
+msgstr "この共有フォルダーはゴミ箱に移動されました。"
+
+#: Disabled references:1
+msgid "彻底删除了此共享文件夹"
+msgstr "この共有フォルダーは完全に削除されました。"
+
+#: Disabled references:1
+msgid "还原了此共享文件夹"
+msgstr "この共有フォルダーを復元しました"
+
+#: Disabled references:1
 msgid "添加了成员"
 msgstr "メンバーが追加されました"
 
@@ -43439,8 +43563,40 @@ msgid "的权限"
 msgstr "権限"
 
 #: Disabled references:1
+msgid "从 %0"
+msgstr "%0から翻訳"
+
+#: Disabled references:1
 msgid "调整为 %0"
 msgstr "%0に設定"
+
+#: Disabled references:1
+msgid "重命名了共享文件夹 %0 为 %1"
+msgstr "共有フォルダー「%0」の名前を「%1」に変更しました"
+
+#: Disabled references:1
+msgid "退出了此共享文件夹"
+msgstr "この共有フォルダーから退出しました"
+
+#: Disabled references:1
+msgid "添加了%0%1"
+msgstr "%0%1 を追加しました"
+
+#: Disabled references:1
+msgid "移动了%0%1"
+msgstr "%0 を %1 に移動しました"
+
+#: Disabled references:1
+msgid "将%0%1放入回收站"
+msgstr "%0%1 をゴミ箱に移動します"
+
+#: Disabled references:1
+msgid "彻底删除了%0%1"
+msgstr "%0%1は完全に削除されました"
+
+#: Disabled references:1
+msgid "恢复了%0%1"
+msgstr "%0%1 を復元しました"
 
 #: Disabled references:1
 msgid "%0的日志"
@@ -43511,6 +43667,10 @@ msgid "文件格式不支持"
 msgstr "ファイル形式はサポートされていません"
 
 #: Disabled references:1
+msgid "有文件正在上传中，确定要放弃上传？"
+msgstr "ファイルをアップロード中です。アップロードを破棄しますか？"
+
+#: Disabled references:1
 msgid "上传到"
 msgstr "アップロード先"
 
@@ -43531,12 +43691,12 @@ msgid "文件上传到:"
 msgstr "ファイルをアップロード先："
 
 #: Disabled references:1
-msgid "操作失败，请稍后重试！"
-msgstr "操作に失敗しました。後でもう一度お試しください！"
+msgid "位置不可见"
+msgstr "位置情報非表示"
 
 #: Disabled references:1
-msgid "文件夹"
-msgstr "フォルダ"
+msgid "操作失败，请稍后重试！"
+msgstr "操作に失敗しました。後でもう一度お試しください！"
 
 #: Disabled references:1
 msgid "我的文件根目录"
@@ -43881,10 +44041,6 @@ msgstr "未スター"
 #: Disabled references:1
 msgid "您权限不足，无法下载。请联系文件夹管理员或文件上传者"
 msgstr "権限が不足しているため、ダウンロードできません。フォルダの管理者またはファイルのアップロード者に連絡してください。"
-
-#: Disabled references:1
-msgid "获取预览链接失败"
-msgstr "プレビューリンクの取得に失敗しました"
 
 #: Disabled references:1
 msgid "链接有效期至%0"
@@ -45859,6 +46015,10 @@ msgid "正在整理要导出的数据，请稍候..."
 msgstr "エクスポートするデータをソート中です、お待ちください...。"
 
 #: Disabled references:1
+msgid "%0-%1日 %2周"
+msgstr "日付 %0～%1 ・ 週 %2"
+
+#: Disabled references:1
 msgid "完成："
 msgstr "仕上げます。"
 
@@ -46281,6 +46441,10 @@ msgstr "お気に入りのタスク - タスク"
 #: Disabled references:1
 msgid "下属任务-任务"
 msgstr "下位タスク - タスク"
+
+#: Disabled references:1
+msgid "%0-任务"
+msgstr "%0-タスク"
 
 #: Disabled references:1
 msgid "无法添加，单个任务下至多添加100个检查清单"
@@ -47555,6 +47719,10 @@ msgid "内容由 AI 生成，可能存在错误，仅供参考"
 msgstr "AI 生成コンテンツにはエラーが含まれている可能性があります。参考としてご利用ください。"
 
 #: Disabled references:1
+msgid "字段控件"
+msgstr "フィールドコントロール"
+
+#: Disabled references:1
 msgid "代码无法保存，代码长度不能超过%0KB"
 msgstr "コードブロックの保存に失敗しました。長さは%0KBを超えることはできません。"
 
@@ -47653,6 +47821,10 @@ msgstr "コードエディターに入る"
 #: Disabled references:1
 msgid "currentControl[当前字段控件]"
 msgstr "currentControl[現在のフィールド制御]"
+
+#: Disabled references:1
+msgid "-保存值格式-"
+msgstr "-値の保存形式-"
 
 #: Disabled references:1
 msgid "formData[记录字段值]"
@@ -47793,6 +47965,10 @@ msgstr "今週の月曜日から始まる7日間のデートピッカーを生�
 #: Disabled references:1
 msgid "生成一个电子时钟"
 msgstr "電子時計を生成する"
+
+#: Disabled references:1
+msgid "生成一个现代科技风格的电子时钟，展示小时和分钟，用户可以分别设置小时与分钟，修改其中任意一个时，都将时间以\"00:00\"的格式保存。如果载入时有值，将值回显到时钟上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止设置时钟，只能展示时间。"
+msgstr "現代的なデジタル時計を生成し、時と分を個別に設定できます。どちらかの値が変更されると、「00:00」形式で時刻を保存します。読み込み時に値が存在する場合は、その時刻を時計に表示します。コンポーネントパラメータ env.isDisabled が true の場合、編集を無効にし、時刻のみを表示します。"
 
 #: Disabled references:1
 msgid "生成一个仓库选择器"
@@ -50196,6 +50372,10 @@ msgid "任意选择"
 msgstr "任意の選択"
 
 #: Disabled references:1
+msgid "%0层"
+msgstr "レベル %0"
+
+#: Disabled references:1
 msgid "过滤数据源"
 msgstr "データソースをフィルタリングする"
 
@@ -50394,6 +50574,26 @@ msgstr "指定された組織的な役割"
 #: Disabled references:1
 msgid "设置为成员字段时，取成员所在的所有部门"
 msgstr "メンバーフィールドとして設定すると、メンバーが所属するすべての部門が取得されます。"
+
+#: Disabled references:1
+msgid "很差"
+msgstr "不十分"
+
+#: Disabled references:1
+msgid "差"
+msgstr "不十分"
+
+#: Disabled references:1
+msgid "一般"
+msgstr "一般"
+
+#: Disabled references:1
+msgid "好"
+msgstr "OK"
+
+#: Disabled references:1
+msgid "非常好"
+msgstr "優れた"
 
 #: Disabled references:1
 msgid "显示选中结果"
@@ -58309,6 +58509,14 @@ msgid "传递触发者"
 msgstr "トリガーを渡す"
 
 #: Disabled references:1
+msgid "%0（新版比较到时间）"
+msgstr "%0（新バージョンの比較時刻）"
+
+#: Disabled references:1
+msgid "%0（旧版比较到日期）"
+msgstr "%0（前バージョンの日付と比較）"
+
+#: Disabled references:1
 msgid "条件异常时忽略"
 msgstr "条件異常時は無視"
 
@@ -64084,6 +64292,10 @@ msgid "最大数量"
 msgstr "最大数"
 
 #: Disabled references:1
+msgid "请填写数值"
+msgstr "値を入力してください"
+
+#: Disabled references:1
 msgid "自定义视图"
 msgstr "カスタムビュー"
 
@@ -67788,6 +68000,10 @@ msgid "职位Id"
 msgstr "職位Id"
 
 #: Disabled references:1
+msgid "组织角色ID"
+msgstr "組織ロールID"
+
+#: Disabled references:1
 msgid "具体错误信息"
 msgstr "具体的なエラー情報"
 
@@ -67904,8 +68120,70 @@ msgid "权限方式：分发所有应用项，80：可查看、编辑、删除�
 msgstr "権限モード：すべてのアプリケーションアイテムを配布、80：すべてのレコードを表示、編集、削除できます、60：すべてのレコードを表示できますが、自分が所有するレコードのみ編集および削除できます、30：追加されたレコードを表示でき、編集および削除のみできます自分のレコードを削除 所有レコード、20: すべてのレコードの表示権限のみ、0: 権限を持つアプリケーションを配布"
 
 #: Disabled references:1
+msgid "工作表 id"
+msgstr "ワークシートID"
+
+#: Disabled references:1
+msgid "新增权限"
+msgstr "権限を追加"
+
+#: Disabled references:1
+msgid "20：用户加入的，30：包含下属，100：全部"
+msgstr "20: 参加ユーザー  
+30: 部下を含む  
+100: すべて"
+
+#: Disabled references:1
+msgid "字段权限控制"
+msgstr "フィールド権限コントロール"
+
+#: Disabled references:1
+msgid "字段id"
+msgstr "フィールドID"
+
+#: Disabled references:1
+msgid "查看权限，false：有权限，true："
+msgstr "閲覧権限、false：許可しない、true：許可"
+
+#: Disabled references:1
+msgid "工作表添加记录"
+msgstr "ワークシートレコードを追加"
+
+#: Disabled references:1
+msgid "工作表分享"
+msgstr "ワークシート共有"
+
+#: Disabled references:1
+msgid "工作表导入"
+msgstr "ワークシートのインポート"
+
+#: Disabled references:1
+msgid "工作表导出"
+msgstr "ワークシートのエクスポート"
+
+#: Disabled references:1
+msgid "工作表讨论"
+msgstr "ワークシートディスカッション"
+
+#: Disabled references:1
+msgid "工作表日志"
+msgstr "ワークシートログ"
+
+#: Disabled references:1
+msgid "工作表批量操作"
+msgstr "バッチワークシート操作"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "レコード共有"
+
+#: Disabled references:1
 msgid "页面列表"
 msgstr "ページリスト"
+
+#: Disabled references:1
+msgid "自定义页面 id"
+msgstr "カスタムページID"
 
 #: Disabled references:1
 msgid "页面名称"
@@ -69634,10 +69912,6 @@ msgstr "テキスト内容を入力してください"
 #: Disabled references:1
 msgid "请填写邮箱地址"
 msgstr "メールアドレスを入力してください"
-
-#: Disabled references:1
-msgid "请填写数值"
-msgstr "値を入力してください"
 
 #: Disabled references:1
 msgid "请填写身份证"

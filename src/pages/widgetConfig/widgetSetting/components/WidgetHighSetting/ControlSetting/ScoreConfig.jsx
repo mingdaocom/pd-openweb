@@ -35,12 +35,12 @@ const ItemName = styled.div`
   }
 `;
 
-const defaultNames = [
-  { key: '1', value: '很差' },
-  { key: '2', value: '差' },
-  { key: '3', value: '一般' },
-  { key: '4', value: '好' },
-  { key: '5', value: '非常好' },
+const getDefaultNames = () => [
+  { key: '1', value: _l('很差') },
+  { key: '2', value: _l('差') },
+  { key: '3', value: _l('一般') },
+  { key: '4', value: _l('好') },
+  { key: '5', value: _l('非常好') },
 ];
 
 export default function ScoreConfig({ data, onChange }) {
@@ -61,7 +61,7 @@ export default function ScoreConfig({ data, onChange }) {
 
   useEffect(() => {
     if (Number(max) === 5 && itemnames.length !== 5) {
-      setNames(defaultNames);
+      setNames(getDefaultNames());
       return;
     }
 
@@ -100,7 +100,7 @@ export default function ScoreConfig({ data, onChange }) {
           onChange={event => {
             if (event.target.checked) {
               if (!names.length && Number(max) === 5) {
-                setNames(defaultNames);
+                setNames(getDefaultNames());
               }
 
               setVisible(true);

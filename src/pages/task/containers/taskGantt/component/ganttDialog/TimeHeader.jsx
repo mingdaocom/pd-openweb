@@ -66,7 +66,7 @@ export default class TimeHeader extends Component {
 
                   return (
                     <div key={`sub-${index}`} style={{ width: subWidth }} className={cx({ isToday }, 'subTime')}>
-                      {sub}
+                      {type === 'month' ? _l('%0月', parseInt(sub, 10)) : sub}
                     </div>
                   );
                 })}

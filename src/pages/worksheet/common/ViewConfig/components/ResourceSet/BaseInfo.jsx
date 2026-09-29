@@ -109,7 +109,7 @@ export default function BaseInfo(props) {
           sheetSwitchPermit,
         )}
         key="viewControl"
-        addName={'资源'}
+        addName={_l('资源')}
         title={_l('资源')}
       />
       {!!viewControl && ![1, 2].includes(type) && (

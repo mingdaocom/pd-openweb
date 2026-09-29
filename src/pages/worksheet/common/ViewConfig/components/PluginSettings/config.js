@@ -130,7 +130,7 @@ export const defaultData = (type, info) => {
     case 2:
       data = {
         type: 2,
-        hint: '请填写',
+        hint: _l('请填写'),
         default: '',
         dot: 0,
         unit: '',
@@ -174,7 +174,7 @@ export const defaultData = (type, info) => {
     case 6:
       data = {
         type: 6,
-        hint: '请填写数值',
+        hint: _l('请填写数值'),
         default: '',
         dot: 0,
         unit: '',
@@ -221,7 +221,7 @@ export const defaultData = (type, info) => {
     case 11:
       data = {
         type: 11,
-        hint: '请选择',
+        hint: _l('请选择'),
         default: '[]',
         dot: 0,
         unit: '',

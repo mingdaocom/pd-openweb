@@ -164,7 +164,7 @@ export default function Overview({
     loadSummary: !sandboxEnvironment,
     onDisabled: handleDisabled,
   });
-  const reviewRuleText = _l((REVIEW_RULE_CONFIG[reviewRule] || REVIEW_RULE_CONFIG[REVIEW_MODE.ADMIN]).label);
+  const reviewRuleText = (REVIEW_RULE_CONFIG[reviewRule] || REVIEW_RULE_CONFIG[REVIEW_MODE.ADMIN]).label;
   const environmentConfig = sandboxEnvironment ? ENVIRONMENT_CONFIG.SANDBOX : ENVIRONMENT_CONFIG.PRODUCTION;
   const handlePublishSuccess = useCallback(() => {
     setReleaseDraft(null);
@@ -201,7 +201,7 @@ export default function Overview({
           </div>
           <div className="appContent">
             <div className="appName">{appName}</div>
-            <div className="description">{_l(environmentConfig.description)}</div>
+            <div className="description">{environmentConfig.description}</div>
           </div>
         </AppInfo>
         {!sandboxEnvironment && (
@@ -298,8 +298,8 @@ export default function Overview({
               >
                 <Radio checked={selectedReviewRule === item.value} />
                 <div className="reviewRuleText">
-                  <div className="title">{_l(item.label)}</div>
-                  <div className="description">{_l(item.description)}</div>
+                  <div className="title">{item.label}</div>
+                  <div className="description">{item.description}</div>
                 </div>
               </button>
             ))}

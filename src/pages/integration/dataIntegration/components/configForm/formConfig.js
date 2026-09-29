@@ -51,7 +51,7 @@ export const customFormData = (databaseType, dbRoleType, isCreateConnector, form
       size: 6,
       value: _.get(formData, 'name') || '',
       advancedSetting: {
-        regex: '{"type":"custom","regex":"^[^\\\\r\\\\n\\\\s-]+$","err":"名称不能包含换行符、空格或-"}',
+        regex: JSON.stringify({ type: 'custom', regex: '^[^\\r\\n\\s-]+$', err: _l('名称不能包含换行符、空格或-') }),
       },
     },
     {

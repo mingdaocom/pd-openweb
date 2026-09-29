@@ -243,7 +243,7 @@ export default function Log(props) {
           return '';
         }
 
-        return `${moment(record.completeDate).diff(moment(record.createdDate), 'seconds')} 秒`;
+        return _l('%0 秒', moment(record.completeDate).diff(moment(record.createdDate), 'seconds'));
       },
     },
     {

@@ -120,7 +120,9 @@ const appRoleSuccessData = {
           jobName: _l('职位名称'),
         },
       ],
-      projectOrganizes: ['组织角色ID'],
+      get projectOrganizes() {
+        return [_l('组织角色ID')];
+      },
     },
   ],
   error_code: 1,
@@ -277,14 +279,15 @@ export const MENU_LIST_APPROLE = [
         name: 'sheets',
         required: _l('否'),
         type: 'array',
-        desc: `[
+        get desc() {
+          return `[
             {
-              "sheetId": "",//工作表 id
-              "sheetName": "",//工作表名称
-              "canAdd": false,//新增权限
-              "readLevel": 20,//20：用户加入的，30：包含下属，100：全部
-              "editLevel": 20,//20：用户加入的，30：包含下属，100：全部
-              "removeLevel": 20,//20：用户加入的，30：包含下属，100：全部
+              "sheetId": "",//${_l('工作表 id')}
+              "sheetName": "",//${_l('工作表名称')}
+              "canAdd": false,//${_l('新增权限')}
+              "readLevel": 20,//${_l('20：用户加入的，30：包含下属，100：全部')}
+              "editLevel": 20,//${_l('20：用户加入的，30：包含下属，100：全部')}
+              "removeLevel": 20,//${_l('20：用户加入的，30：包含下属，100：全部')}
               "views": [
                 {
                   "viewId": "67cff5821131169abf7ef615",
@@ -295,14 +298,14 @@ export const MENU_LIST_APPROLE = [
                   "type": 0
                 }
               ],
-              "fields": [//字段权限控制
+              "fields": [//${_l('字段权限控制')}
                 {
-                  "fieldId": "ownerid",//字段id
-                  "type": 26,//字段类型
-                  "fieldName": "拥有者",//字段名称
-                  "notRead": false,//查看权限，false：有权限，true：
-                  "notEdit": false,//编辑权限
-                  "notAdd": false,//新增权限
+                  "fieldId": "ownerid",//${_l('字段id')}
+                  "type": 26,//${_l('字段类型')}
+                  "fieldName": "拥有者",//${_l('字段名称')}
+                  "notRead": false,//${_l('查看权限，false：有权限，true：')}
+                  "notEdit": false,//${_l('编辑权限')}
+                  "notAdd": false,//${_l('新增权限')}
                   "isDecrypt": false,
                   "isReadField": false,
                   "hideWhenAdded": true,
@@ -310,46 +313,47 @@ export const MENU_LIST_APPROLE = [
                 }
               ],
               "worksheetAddRecord": {
-                "enable": true //工作表添加记录
+                "enable": true //${_l('工作表添加记录')}
               },
               "worksheetShareView": {
-                "enable": true//工作表分享
+                "enable": true//${_l('工作表分享')}
               },
               "worksheetImport": {
-                "enable": true//工作表导入
+                "enable": true//${_l('工作表导入')}
               },
               "worksheetExport": {
-                "enable": true//工作表导出
+                "enable": true//${_l('工作表导出')}
               },
               "worksheetDiscuss": {
-                "enable": true//工作表讨论
+                "enable": true//${_l('工作表讨论')}
               },
               "worksheetLogging": {
-                "enable": true//工作表日志
+                "enable": true//${_l('工作表日志')}
               },
               "worksheetBatchOperation": {
-                "enable": true//工作表批量操作
+                "enable": true//${_l('工作表批量操作')}
               },
               "recordShare": {
-                "enable": true//记录分享
+                "enable": true//${_l('记录分享')}
               },
               "recordDiscussion": {
-                "enable": true//记录讨论
+                "enable": true//${_l('记录讨论')}
               },
               "recordSystemPrinting": {
-                "enable": true//系统打印
+                "enable": true//${_l('系统打印')}
               },
               "recordAttachmentDownload": {
-                "enable": true//附件下载
+                "enable": true//${_l('附件下载')}
               },
               "recordLogging": {
-                "enable": true//日志
+                "enable": true//${_l('日志')}
               },
               "payment": {
-                "enable": true//支付
+                "enable": true//${_l('支付')}
               }
             }
-          ]`,
+          ]`;
+        },
         example: [
           {
             sheetId: '',
@@ -431,7 +435,9 @@ export const MENU_LIST_APPROLE = [
         desc: _l('页面列表'),
         example: [
           {
-            pageId: '自定义页面 id',
+            get pageId() {
+              return _l('自定义页面 id');
+            },
             name: _l('页面名称'),
             checked: false, //查看权限
             navigateHide: false, //是否隐藏导航

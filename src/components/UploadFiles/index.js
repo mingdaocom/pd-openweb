@@ -598,7 +598,7 @@ class UploadFiles extends Component {
         {
           attachments: quData.map(item => {
             const result = {
-              name: `${item.originalFileName || '未命名'}${item.fileExt}`,
+              name: `${item.originalFileName || _l('未命名')}${item.fileExt}`,
               // 文档的 previewUrl 是缩略图/OWA 地址，Office 预览接口需要原文件地址。
               path:
                 RegExpValidator.fileIsPicture(item.fileExt) && item.previewUrl

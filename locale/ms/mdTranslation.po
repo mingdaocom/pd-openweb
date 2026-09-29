@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: "
-"POT-Creation-Date: 2026-09-23 13:45:03"
+"POT-Creation-Date: 2026-09-29 10:12:56"
 "Language-Team: Malay"
 "Language: ms"
 "MIME-Version: 1.0"
@@ -4540,6 +4540,10 @@ msgid "从联系人中选择用户，邀请加入到当前组织"
 msgstr "Pilih pengguna dari kenalan anda dan jemput mereka sertai Org semasa anda"
 
 #: Disabled references:1
+msgid "头像"
+msgstr "Avatar"
+
+#: Disabled references:1
 msgid "选择"
 msgstr "Pilih"
 
@@ -4578,6 +4582,10 @@ msgstr "Pautan akan tamat pada:"
 #: Disabled references:1
 msgid "永久有效"
 msgstr "Kekal"
+
+#: Disabled references:1
+msgid "YYYY年MM月DD日 HH:mm"
+msgstr "DD/MMM/YYYY HH:mm"
 
 #: Disabled references:1
 msgid "已加入"
@@ -4966,6 +4974,10 @@ msgstr "Semua peserta"
 #: Disabled references:1
 msgid "无法解析"
 msgstr "Gagal untuk parse"
+
+#: Disabled references:1
+msgid "群组已删除"
+msgstr "Kumpulan dipadam"
 
 #: Disabled references:1
 msgid "未知话题"
@@ -5560,6 +5572,18 @@ msgid "表情分类"
 msgstr "Kategori Emoji"
 
 #: Disabled references:1
+msgid "拥有者"
+msgstr "Pemilik"
+
+#: Disabled references:1
+msgid "可编辑"
+msgstr "Sunting"
+
+#: Disabled references:1
+msgid "只读"
+msgstr "Hanya-baca"
+
+#: Disabled references:1
 msgid "共享文件夹不存在或已被删除"
 msgstr "Folder Dikongsi Hilang atau Dipadam"
 
@@ -5596,6 +5620,10 @@ msgid "操作失败,请稍后重试"
 msgstr "Operasi Gagal. Cuba Lagi Nanti."
 
 #: Disabled references:1
+msgid "未加入其他网络"
+msgstr "Tidak disambung ke rangkaian lain"
+
+#: Disabled references:1
 msgid "归属变更"
 msgstr "Tukar Pemilikan"
 
@@ -5610,6 +5638,10 @@ msgstr "Kosongkan Ahli"
 #: Disabled references:1
 msgid "保留"
 msgstr "Direservkan"
+
+#: Disabled references:1
+msgid "是否确定退出该共享文件夹?"
+msgstr "Tinggalkan folder kongsi ini?"
 
 #: Disabled references:1
 msgid "是否确定移除该成员"
@@ -5664,18 +5696,6 @@ msgid "%0 邀请"
 msgstr "Jemput %0"
 
 #: Disabled references:1
-msgid "拥有者"
-msgstr "Pemilik"
-
-#: Disabled references:1
-msgid "可编辑"
-msgstr "Sunting"
-
-#: Disabled references:1
-msgid "只读"
-msgstr "Hanya-baca"
-
-#: Disabled references:1
 msgid "托付文件夹"
 msgstr "Folder Diwakilkan"
 
@@ -5702,6 +5722,18 @@ msgstr "Pemilikan Folder"
 #: Disabled references:1
 msgid "添加协作者"
 msgstr "Tambah Rakan Kerja"
+
+#: Disabled references:1
+msgid "可管理共享成员，管理文件"
+msgstr "Boleh mengurus ahli bersama dan fail"
+
+#: Disabled references:1
+msgid "可添加共享者，添加修改文件"
+msgstr "Boleh tambah pihak kongsi, tambah dan sunting fail"
+
+#: Disabled references:1
+msgid "可查看和下载允许下载的文件"
+msgstr "Boleh lihat dan muat turun fail yang dibenarkan untuk muat turun"
 
 #: Disabled references:1
 msgid "允许"
@@ -5772,6 +5804,10 @@ msgid "您无权限修改该文件的分享权限"
 msgstr "Anda tiada kebenaran untuk ubah sharing permissions fail ini"
 
 #: Disabled references:1
+msgid "我"
+msgstr "Saya"
+
+#: Disabled references:1
 msgid "没有子文件夹"
 msgstr "Tiada subfolder"
 
@@ -5786,6 +5822,14 @@ msgstr "Gagal buat"
 #: Disabled references:1
 msgid "更改"
 msgstr "Ubah"
+
+#: Disabled references:1
+msgid "文件未开启分享，他人无法查看"
+msgstr "Perkongsian umum dilumpuhkan. Orang lain tidak dapat melihat fail ini."
+
+#: Disabled references:1
+msgid "任何人可查看"
+msgstr "Sesiapa boleh lihat"
 
 #: Disabled references:1
 msgid "%0的联系人可预览"
@@ -7244,6 +7288,10 @@ msgid "重复日程"
 msgstr "Berulang"
 
 #: Disabled references:1
+msgid "%0星"
+msgstr "%0 Bintang"
+
+#: Disabled references:1
 msgid "求和"
 msgstr "Jumlah"
 
@@ -7298,6 +7346,10 @@ msgstr "Medan print tidak boleh kosong"
 #: Disabled references:1
 msgid "自定义字段内容"
 msgstr "Kandungan Medan Tersuai"
+
+#: Disabled references:1
+msgid "%0统计"
+msgstr "%0 Statistik"
 
 #: Disabled references:1
 msgid "母任务"
@@ -7680,6 +7732,14 @@ msgid "请选择要发送到的任务"
 msgstr "Sila pilih task untuk dihantar"
 
 #: Disabled references:1
+msgid "分享了知识下的文件"
+msgstr "Fail yang dikongsi di bawah Pusat Pengetahuan"
+
+#: Disabled references:1
+msgid "添加了文件："
+msgstr "Fail ditambah:"
+
+#: Disabled references:1
 msgid "分享失败"
 msgstr "Kongsi gagal"
 
@@ -7822,6 +7882,10 @@ msgstr "Zoom Masuk"
 #: Disabled references:1
 msgid "对方不是您的联系人，无法查看"
 msgstr "Orang ini bukan contact anda dan tak boleh paparan"
+
+#: Disabled references:1
+msgid "下拉刷新"
+msgstr "Tarik untuk muat semula"
 
 #: Disabled references:1
 msgid "选择地区"
@@ -8026,10 +8090,6 @@ msgstr "Esok %0"
 #: Disabled references:1
 msgid "MM月DD日 HH:mm"
 msgstr "MM/DD HH:mm"
-
-#: Disabled references:1
-msgid "YYYY年MM月DD日 HH:mm"
-msgstr "DD/MMM/YYYY HH:mm"
 
 #: Disabled references:1
 msgid "搜索地区或区号"
@@ -8546,6 +8606,10 @@ msgstr "Semua ahli jabatan telah join"
 #: Disabled references:1
 msgid "群组下所有人已加入"
 msgstr "Semua ahli group telah join"
+
+#: Disabled references:1
+msgid "（%0人）"
+msgstr "(%0 orang)"
 
 #: Disabled references:1
 msgid "仅当前部门"
@@ -10392,12 +10456,12 @@ msgid "API"
 msgstr "API"
 
 #: Disabled references:1
-msgid "获取用户所在组织列表"
-msgstr "Dapatkan Senarai Organisasi Pengguna"
+msgid "获取当前用户所在组织列表"
+msgstr "Dapatkan Senarai Organisasi Pengguna Semasa"
 
 #: Disabled references:1
-msgid "获取用户信息"
-msgstr "Dapatkan Maklumat Pengguna"
+msgid "获取当前用户信息"
+msgstr "Dapatkan maklumat pengguna semasa"
 
 #: Disabled references:1
 msgid "获取应用列表"
@@ -21915,12 +21979,12 @@ msgid "配置已更改，请重新预览"
 msgstr "Konfigurasi telah diubah, sila pratonton semula"
 
 #: Disabled references:1
-msgid "%0 项"
-msgstr "%0"
-
-#: Disabled references:1
 msgid "筛选"
 msgstr "Tapis"
+
+#: Disabled references:1
+msgid "%0 项"
+msgstr "%0"
 
 #: Disabled references:1
 msgid "无权限查看"
@@ -22101,6 +22165,22 @@ msgstr "Penerbit"
 #: Disabled references:1
 msgid "版本管理"
 msgstr "Pengurusan Versi"
+
+#: Disabled references:1
+msgid "发布后不需要审核，再操作升级，适用于需快速迭代更新场景"
+msgstr "Tiada semakan diperlukan selepas diterbitkan. Naik taraf terus untuk senario iterasi pantas."
+
+#: Disabled references:1
+msgid "发布后需管理员审核通过后，再操作升级"
+msgstr "Tingkat taraf selepas kelulusan Pentadbir Tenant"
+
+#: Disabled references:1
+msgid "沙盒环境开发中，所有变更必须通过发布更新至生产"
+msgstr "Semua perubahan dalam persekitaran sandboks mesti digunakan ke produksi"
+
+#: Disabled references:1
+msgid "当前处于生产环境，请前往沙盒环境进行开发"
+msgstr "Anda berada dalam persekitaran pengeluaran. Sila tukar ke persekitaran sandbox untuk pembangunan."
 
 #: Disabled references:1
 msgid "开启应用沙盒失败，请稍后重试"
@@ -23053,6 +23133,10 @@ msgstr "Carian Semantik"
 #: Disabled references:1
 msgid "关键词检索"
 msgstr "Cari Kata Kunci"
+
+#: Disabled references:1
+msgid "且"
+msgstr "dan"
 
 #: Disabled references:1
 msgid "是其中一个"
@@ -26019,10 +26103,6 @@ msgid "%0不允许为空"
 msgstr "%0 tidak boleh kosong"
 
 #: Disabled references:1
-msgid "头像"
-msgstr "Avatar"
-
-#: Disabled references:1
 msgid "欢迎语"
 msgstr "Mesej Salam"
 
@@ -27699,10 +27779,6 @@ msgid "部分字段仅支持对字段名称生效（如定位等）。选择多�
 msgstr "Beberapa medan, seperti Location, hanya sokong gaya nama. Jika pilih banyak medan, gaya nilai tidak akan digunakan pada medan yang tidak disokong."
 
 #: Disabled references:1
-msgid "且"
-msgstr "dan"
-
-#: Disabled references:1
 msgid "锁定记录"
 msgstr "Kunci rekod"
 
@@ -28849,10 +28925,6 @@ msgstr "Selepas ditukar kepada group, anda boleh tambah pentadbir, buat kelulusa
 #: Disabled references:1
 msgid "同事群组进入到通讯录中方便管理并能支持到更多应用。"
 msgstr "Kumpulan rakan sekerja mudah diurus dalam senarai kontak dan menyokong lebih banyak aplikasi."
-
-#: Disabled references:1
-msgid "（%0人）"
-msgstr "(%0 orang)"
 
 #: Disabled references:1
 msgid "组织成员离职后自动退出群组"
@@ -30243,10 +30315,6 @@ msgid "部门选择"
 msgstr "Jabatan"
 
 #: Disabled references:1
-msgid "我"
-msgstr "Saya"
-
-#: Disabled references:1
 msgid "流程未启用"
 msgstr "Aliran Kerja tidak aktif"
 
@@ -30645,6 +30713,10 @@ msgstr "Konfigurasi Sistem"
 #: Disabled references:1
 msgid "认证"
 msgstr "Sijil"
+
+#: Disabled references:1
+msgid "千问办公"
+msgstr "Pejabat Qianwen"
 
 #: Disabled references:1
 msgid "对话安装"
@@ -31597,6 +31669,10 @@ msgstr "Jumpa %0 hasil"
 #: Disabled references:1
 msgid "没有查询结果"
 msgstr "Tiada hasil dijumpai"
+
+#: Disabled references:1
+msgid "关闭提示"
+msgstr "Tutup Popup"
 
 #: Disabled references:1
 msgid "当前表单已过期"
@@ -36698,6 +36774,14 @@ msgid "转为长期群组 >"
 msgstr "Naik taraf ke group rasmi >"
 
 #: Disabled references:1
+msgid "M月"
+msgstr "Bulan M"
+
+#: Disabled references:1
+msgid "YYYY年M月"
+msgstr "MMM/YYYY"
+
+#: Disabled references:1
 msgid "动态详情"
 msgstr "Butiran Siaran"
 
@@ -37317,6 +37401,10 @@ msgstr "Tutup Sesi"
 #: Disabled references:1
 msgid "您最多可输入%0个字符"
 msgstr "Anda boleh masukkan hingga %0 aksara"
+
+#: Disabled references:1
+msgid "上传于YYYY-MM-DD HH时mm分"
+msgstr "Dimuat naik pada YYYY-MM-DD HH:mm"
 
 #: Disabled references:1
 msgid "名称不能包含以下字符:"
@@ -40255,6 +40343,14 @@ msgid "将API配置导出为文件，之后可以将此文件导入其他组织�
 msgstr "Eksport konfigurasi API sebagai fail untuk import ke organisasi lain bagi migrasi atau upgrade API"
 
 #: Disabled references:1
+msgid "请求参数"
+msgstr "Parameter Permintaan"
+
+#: Disabled references:1
+msgid "返回值"
+msgstr "Nilai Pulangan"
+
+#: Disabled references:1
 msgid "查看 API 请求日志详情"
 msgstr "Paparan Butiran Log Permintaan API"
 
@@ -40345,6 +40441,10 @@ msgstr "API library"
 #: Disabled references:1
 msgid "服务价格"
 msgstr "Harga Servis"
+
+#: Disabled references:1
+msgid "¥ %0/次"
+msgstr "¥  %0/semasa"
 
 #: Disabled references:1
 msgid "授权回调地址"
@@ -40533,14 +40633,6 @@ msgstr "Hidden param akan dienkripsi dan disimpan, dan tidak boleh didedahkan se
 #: Disabled references:1
 msgid "请选择类型"
 msgstr "Sila pilih jenis"
-
-#: Disabled references:1
-msgid "请求参数"
-msgstr "Parameter Permintaan"
-
-#: Disabled references:1
-msgid "返回值"
-msgstr "Nilai Pulangan"
 
 #: Disabled references:1
 msgid "暂无相关日志记录"
@@ -41469,6 +41561,10 @@ msgstr "Tambah ke fail authorized_keys pada pelayan SSH"
 #: Disabled references:1
 msgid "数据源名称"
 msgstr "Nama Sumber Data"
+
+#: Disabled references:1
+msgid "名称不能包含换行符、空格或-"
+msgstr "Nama tidak boleh mengandungi pemisah baris, ruang atau tanda tolak"
 
 #: Disabled references:1
 msgid "作为"
@@ -43315,6 +43411,10 @@ msgid "保存失败, 您无法选择文件路径"
 msgstr "Simpan gagal, anda tidak boleh pilih laluan fail"
 
 #: Disabled references:1
+msgid "获取预览链接失败"
+msgstr "Gagal dapatkan pautan preview"
+
+#: Disabled references:1
 msgid "大小："
 msgstr "Saiz"
 
@@ -43427,6 +43527,10 @@ msgid "在“%0”中搜索"
 msgstr "Cari dalam \"%0\""
 
 #: Disabled references:1
+msgid "在知识中心中搜索"
+msgstr "Cari dalam Pusat Pengetahuan"
+
+#: Disabled references:1
 msgid "共享设置"
 msgstr "Tetapan Perkongsian"
 
@@ -43503,6 +43607,26 @@ msgid "(外部用户)"
 msgstr "Pengguna Luaran"
 
 #: Disabled references:1
+msgid "文件夹"
+msgstr "Folder"
+
+#: Disabled references:1
+msgid "创建了%0"
+msgstr "Dicipta %0"
+
+#: Disabled references:1
+msgid "将此共享文件夹放入了回收站"
+msgstr "Folder kongsi ini telah dipindahkan ke tong kitar semula"
+
+#: Disabled references:1
+msgid "彻底删除了此共享文件夹"
+msgstr "Folder kongsi ini telah dipadam secara kekal"
+
+#: Disabled references:1
+msgid "还原了此共享文件夹"
+msgstr "Folder kongsi ini telah dipulihkan"
+
+#: Disabled references:1
 msgid "添加了成员"
 msgstr "Ahli ditambah"
 
@@ -43527,8 +43651,40 @@ msgid "的权限"
 msgstr "Kebenaran"
 
 #: Disabled references:1
+msgid "从 %0"
+msgstr "Dari %0"
+
+#: Disabled references:1
 msgid "调整为 %0"
 msgstr "Tetapkan Kepada %0"
+
+#: Disabled references:1
+msgid "重命名了共享文件夹 %0 为 %1"
+msgstr "Folder kongsi %0 telah dinamakan semula kepada %1"
+
+#: Disabled references:1
+msgid "退出了此共享文件夹"
+msgstr "Tinggalkan folder kongsi ini"
+
+#: Disabled references:1
+msgid "添加了%0%1"
+msgstr "Ditambah %0%1"
+
+#: Disabled references:1
+msgid "移动了%0%1"
+msgstr "Dipindahkan %0%1"
+
+#: Disabled references:1
+msgid "将%0%1放入回收站"
+msgstr "Alih %0%1 ke Tong Sampah"
+
+#: Disabled references:1
+msgid "彻底删除了%0%1"
+msgstr "%0%1 telah dipadam secara kekal"
+
+#: Disabled references:1
+msgid "恢复了%0%1"
+msgstr "%0%1 dipulihkan"
 
 #: Disabled references:1
 msgid "%0的日志"
@@ -43599,6 +43755,10 @@ msgid "文件格式不支持"
 msgstr "Format fail tidak disokong"
 
 #: Disabled references:1
+msgid "有文件正在上传中，确定要放弃上传？"
+msgstr "Fail sedang dimuat naik. Padam muat naik?"
+
+#: Disabled references:1
 msgid "上传到"
 msgstr "Muat naik ke"
 
@@ -43619,12 +43779,12 @@ msgid "文件上传到:"
 msgstr "Muat naik fail ke:"
 
 #: Disabled references:1
-msgid "操作失败，请稍后重试！"
-msgstr "Operasi gagal, cuba lagi nanti!"
+msgid "位置不可见"
+msgstr "Lokasi Tersembunyi"
 
 #: Disabled references:1
-msgid "文件夹"
-msgstr "Folder"
+msgid "操作失败，请稍后重试！"
+msgstr "Operasi gagal, cuba lagi nanti!"
 
 #: Disabled references:1
 msgid "我的文件根目录"
@@ -43969,10 +44129,6 @@ msgstr "Tidak Bertanda Bintang"
 #: Disabled references:1
 msgid "您权限不足，无法下载。请联系文件夹管理员或文件上传者"
 msgstr "Anda tiada kebenaran untuk muat turun. Sila hubungi pentadbir folder atau pengupload fail."
-
-#: Disabled references:1
-msgid "获取预览链接失败"
-msgstr "Gagal dapatkan pautan preview"
 
 #: Disabled references:1
 msgid "链接有效期至%0"
@@ -45947,6 +46103,10 @@ msgid "正在整理要导出的数据，请稍候..."
 msgstr "Sedang susun data untuk eksport, sila tunggu sebentar…"
 
 #: Disabled references:1
+msgid "%0-%1日 %2周"
+msgstr "Hari %0-%1, Minggu %2"
+
+#: Disabled references:1
 msgid "完成："
 msgstr "Selesai"
 
@@ -46369,6 +46529,10 @@ msgstr "Tugas Berbintang - Tugas"
 #: Disabled references:1
 msgid "下属任务-任务"
 msgstr "Subtugas - Tugas"
+
+#: Disabled references:1
+msgid "%0-任务"
+msgstr "%0-Tugas"
 
 #: Disabled references:1
 msgid "无法添加，单个任务下至多添加100个检查清单"
@@ -47643,6 +47807,10 @@ msgid "内容由 AI 生成，可能存在错误，仅供参考"
 msgstr "AI mungkin ada ralat, untuk rujukan sahaja."
 
 #: Disabled references:1
+msgid "字段控件"
+msgstr "Kawal Medan"
+
+#: Disabled references:1
 msgid "代码无法保存，代码长度不能超过%0KB"
 msgstr "Gagal menyimpan blok kod. Panjang tidak boleh melebihi %0KB."
 
@@ -47742,6 +47910,10 @@ msgstr "Masuk Code Editor"
 #: Disabled references:1
 msgid "currentControl[当前字段控件]"
 msgstr "currentControl【kawalan field semasa】"
+
+#: Disabled references:1
+msgid "-保存值格式-"
+msgstr "-Simpan Format Nilai-"
 
 #: Disabled references:1
 msgid "formData[记录字段值]"
@@ -47882,6 +48054,10 @@ msgstr "Jana date picker 7 hari bermula dari Isnin minggu semasa, dipaparkan dal
 #: Disabled references:1
 msgid "生成一个电子时钟"
 msgstr "Jana jam elektronik"
+
+#: Disabled references:1
+msgid "生成一个现代科技风格的电子时钟，展示小时和分钟，用户可以分别设置小时与分钟，修改其中任意一个时，都将时间以\"00:00\"的格式保存。如果载入时有值，将值回显到时钟上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止设置时钟，只能展示时间。"
+msgstr "Jana jam digital moden yang memaparkan jam dan minit. Pengguna boleh tetapkan jam dan minit secara berasingan. Apabila nilai diubah, masa disimpan dalam format \"00:00\". Jika nilai wujud semasa dimuat, paparkan pada jam. Jika parameter env.isDisabled benar, suntingan dilumpuhkan dan hanya masa dipaparkan."
 
 #: Disabled references:1
 msgid "生成一个仓库选择器"
@@ -50285,6 +50461,10 @@ msgid "任意选择"
 msgstr "Pilihan rawak"
 
 #: Disabled references:1
+msgid "%0层"
+msgstr "Tahap %0"
+
+#: Disabled references:1
 msgid "过滤数据源"
 msgstr "Tapis Data Source"
 
@@ -50483,6 +50663,26 @@ msgstr "Peranan Organisasi Ditetapkan"
 #: Disabled references:1
 msgid "设置为成员字段时，取成员所在的所有部门"
 msgstr "Apabila ditetapkan sebagai medan ahli, ambil semua jabatan di mana ahli tersebut berada"
+
+#: Disabled references:1
+msgid "很差"
+msgstr "Lemah"
+
+#: Disabled references:1
+msgid "差"
+msgstr "Kurang"
+
+#: Disabled references:1
+msgid "一般"
+msgstr "Umum"
+
+#: Disabled references:1
+msgid "好"
+msgstr "OK"
+
+#: Disabled references:1
+msgid "非常好"
+msgstr "Cemerlang"
 
 #: Disabled references:1
 msgid "显示选中结果"
@@ -58402,6 +58602,14 @@ msgid "传递触发者"
 msgstr "Luluskan trigger"
 
 #: Disabled references:1
+msgid "%0（新版比较到时间）"
+msgstr "%0 (Masa perbandingan versi baharu)"
+
+#: Disabled references:1
+msgid "%0（旧版比较到日期）"
+msgstr "%0 (Bandingkan dengan tarikh dalam versi sebelumnya)"
+
+#: Disabled references:1
 msgid "条件异常时忽略"
 msgstr "Abaikan keadaan abnormal"
 
@@ -64176,6 +64384,10 @@ msgid "最大数量"
 msgstr "Nombor maks"
 
 #: Disabled references:1
+msgid "请填写数值"
+msgstr "Sila masukkan nilai"
+
+#: Disabled references:1
 msgid "自定义视图"
 msgstr "Paparan Tersuai"
 
@@ -67898,6 +68110,10 @@ msgid "职位Id"
 msgstr "ID Posisi"
 
 #: Disabled references:1
+msgid "组织角色ID"
+msgstr "ID Peranan Organisasi"
+
+#: Disabled references:1
 msgid "具体错误信息"
 msgstr "Maklumat ralat terperinci"
 
@@ -68021,8 +68237,68 @@ msgstr "Mod kebenaran:
 0: Edar item app dengan kebenaran"
 
 #: Disabled references:1
+msgid "工作表 id"
+msgstr "ID Lembaran Kerja"
+
+#: Disabled references:1
+msgid "新增权限"
+msgstr "Tambah Kebenaran"
+
+#: Disabled references:1
+msgid "20：用户加入的，30：包含下属，100：全部"
+msgstr "20: Pengguna disertai, 30: Termasuk bawahan, 100: Semua"
+
+#: Disabled references:1
+msgid "字段权限控制"
+msgstr "Kawal Kebenaran Medan"
+
+#: Disabled references:1
+msgid "字段id"
+msgstr "ID Medan"
+
+#: Disabled references:1
+msgid "查看权限，false：有权限，true："
+msgstr "Kebenaran paparan, false: dibenarkan, true:"
+
+#: Disabled references:1
+msgid "工作表添加记录"
+msgstr "Tambah Rekod Lembaran Kerja"
+
+#: Disabled references:1
+msgid "工作表分享"
+msgstr "Perkongsian Lembaran Kerja"
+
+#: Disabled references:1
+msgid "工作表导入"
+msgstr "Import Lembaran Kerja"
+
+#: Disabled references:1
+msgid "工作表导出"
+msgstr "Eksport Lembaran Kerja"
+
+#: Disabled references:1
+msgid "工作表讨论"
+msgstr "Perbincangan Lembaran Kerja"
+
+#: Disabled references:1
+msgid "工作表日志"
+msgstr "Log Lembaran Kerja"
+
+#: Disabled references:1
+msgid "工作表批量操作"
+msgstr "Operasi Lembaran Kerja Secara Pukal"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "Perkongsian Rekod"
+
+#: Disabled references:1
 msgid "页面列表"
 msgstr "Senarai Halaman"
+
+#: Disabled references:1
+msgid "自定义页面 id"
+msgstr "ID Halaman Tersuai"
 
 #: Disabled references:1
 msgid "页面名称"
@@ -69766,10 +70042,6 @@ msgstr "Sila isi kandungan teks"
 #: Disabled references:1
 msgid "请填写邮箱地址"
 msgstr "Masukkan emel anda"
-
-#: Disabled references:1
-msgid "请填写数值"
-msgstr "Sila masukkan nilai"
 
 #: Disabled references:1
 msgid "请填写身份证"

@@ -18,7 +18,7 @@ const Cascader = React.forwardRef(
       options = [],
       value = [],
       onChange,
-      placeholder = '请选择',
+      placeholder = _l('请选择'),
       allowClear = true,
       multiple = false,
       maxTagCount,

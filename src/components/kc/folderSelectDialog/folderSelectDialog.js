@@ -660,10 +660,10 @@ $.extend(FolderSelect.prototype, {
 
         if (!_rootNode.id) {
           currentRoot.type = ROOT_TYPE.MY;
-          currentRoot.value = '我';
+          currentRoot.value = _l('我');
         } else if (!_rootNode.projectId) {
           currentRoot.type = ROOT_TYPE.PERSON;
-          currentRoot.value = '个人';
+          currentRoot.value = _l('个人');
         } else {
           var root = project;
           currentRoot.type = ROOT_TYPE.PROJECT;
@@ -1149,7 +1149,9 @@ $.extend(FolderSelect.prototype, {
         click: function () {
           var $folderNode = $folderContent.find('.folderNode');
           var $addNewFolder = $(
-            '<li class="addNewFolder" ><div class="leftContent"><span class="nodeType fileIcon-folder" ></span><span class="nodeName ellipsis Hidden" ></span><input class="editBox" placeholder="请输入文件夹名称"/></div></li>',
+            '<li class="addNewFolder" ><div class="leftContent"><span class="nodeType fileIcon-folder" ></span><span class="nodeName ellipsis Hidden" ></span><input class="editBox" placeholder="' +
+              htmlEncodeReg(_l('请输入文件夹名称')) +
+              '"/></div></li>',
           );
 
           $folderNode.find('div.nullData').remove();
@@ -1345,9 +1347,9 @@ $.extend(FolderSelect.prototype, {
     var folderSelect = this;
     switch (node.visibleType) {
       case 1:
-        return '文件未开启分享，他人无法查看';
+        return _l('文件未开启分享，他人无法查看');
       case 4:
-        return '任何人可查看';
+        return _l('任何人可查看');
       default:
         return isAccount
           ? _l('%0的联系人可预览', folderSelect.settings.currentRoot.value)

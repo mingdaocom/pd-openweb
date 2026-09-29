@@ -38,7 +38,7 @@ export default function SavedFilters(props) {
             <FilterTitleList
               activeFilter={activeFilter}
               isCharge={isCharge}
-              title={'个人'}
+              title={_l('个人')}
               controls={controls}
               filters={personalFilters}
               filterAddConditionControls={filterAddConditionControls}
@@ -57,7 +57,7 @@ export default function SavedFilters(props) {
             <FilterTitleList
               activeFilter={activeFilter}
               isCharge={isCharge}
-              title={'公共'}
+              title={_l('公共')}
               controls={controls}
               filters={globalFilters}
               filterAddConditionControls={filterAddConditionControls}

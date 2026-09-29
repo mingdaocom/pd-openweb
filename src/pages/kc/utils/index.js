@@ -303,9 +303,9 @@ export function humanDateTime(time) {
   const diff = todayStart.diff(time);
 
   if (diff < 0) {
-    return '今天 ' + time.format('HH:mm');
+    return _l('今天') + ' ' + time.format('HH:mm');
   } else if (diff < 86400000) {
-    return '昨天 ' + time.format('HH:mm');
+    return _l('昨天') + ' ' + time.format('HH:mm');
   }
 
   return time.format('YYYY-MM-DD');

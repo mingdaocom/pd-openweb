@@ -78,7 +78,7 @@ const Markdown = React.memo(
           }
 
           return `<div class="code-card" data-message-id="${id}">
-  <div class="title">${title || '字段控件'}</div>
+  <div class="title">${title || _l('字段控件')}</div>
   <div class="file-name">${fileName || 'Free_field.jsx'}</div>
   ${codeIsClosed === false ? '<div class="border-beam"></div>' : ''}
 </div>`;

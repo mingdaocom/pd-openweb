@@ -15,7 +15,7 @@ const RenderLoading = () => {
 const PullToRefreshWrapper = ({
   mode = 'auto',
   onRefresh,
-  pullText = '下拉刷新',
+  pullText = _l('下拉刷新'),
   completeText = '',
   threshold = 60,
   autoRefreshDuration = 1500,

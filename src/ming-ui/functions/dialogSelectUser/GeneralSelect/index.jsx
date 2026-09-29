@@ -1347,7 +1347,7 @@ export default class GeneraSelect extends Component {
       switch (item.type) {
         case ChooseType.USER:
         case ChooseType.RESIGNED:
-          avatar = <img src={(item.data || {}).avatar} alt="头像" className="GSelect-result-subItem__avatar" />;
+          avatar = <img src={(item.data || {}).avatar} alt={_l('头像')} className="GSelect-result-subItem__avatar" />;
           id = (item.data || {}).accountId;
           name = (item.data || {}).fullname;
           deleteFn = accountId => {

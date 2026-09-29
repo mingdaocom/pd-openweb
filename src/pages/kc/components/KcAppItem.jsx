@@ -195,7 +195,7 @@ export default class KcAppItem extends React.Component {
               {item.name}
             </a>
           )}
-          <span className="itemExt ellipsis" title={item.ext + ' 文件'}>
+          <span className="itemExt ellipsis" title={item.ext + ' ' + _l('文件')}>
             {item.ext ? '.' + item.ext : ''}
           </span>
           <input type="text" className="listNameEdit" defaultValue={item.name} />

@@ -28,10 +28,18 @@ export const ROOT_PERMISSION_TYPE = {
 };
 
 export const PERMISSION_TYPE_NAME = {
-  1: '拥有者',
-  2: '管理员',
-  3: '可编辑',
-  4: '只读',
+  get 1() {
+    return _l('拥有者');
+  },
+  get 2() {
+    return _l('管理员');
+  },
+  get 3() {
+    return _l('可编辑');
+  },
+  get 4() {
+    return _l('只读');
+  },
 };
 
 // 节点状态

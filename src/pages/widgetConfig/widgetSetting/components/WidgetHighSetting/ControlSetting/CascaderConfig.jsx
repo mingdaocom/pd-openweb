@@ -30,10 +30,11 @@ const LEVEL_OPTIONS = [
   { label: _l('任意选择'), value: '0' },
 ];
 
-const LAYER_OPTIONS = Array.from({ length: 10 }).map((item, index) => ({
-  value: `${index + 1}`,
-  label: `${index + 1}层`,
-}));
+const getLayerOptions = () =>
+  Array.from({ length: 10 }).map((item, index) => ({
+    value: `${index + 1}`,
+    label: _l('%0层', index + 1),
+  }));
 
 const topFiltersToDefsource = data => {
   const topFilters = getAdvanceSetting(data, 'topfilters') || [];
@@ -197,7 +198,7 @@ export default function CascaderConfig(props) {
             <Select
               className="Width70 mLeft10"
               value={limitlayer}
-              options={LAYER_OPTIONS}
+              options={getLayerOptions()}
               onChange={value => onChange(handleAdvancedSettingChange(data, { limitlayer: value }))}
             />
           )}
@@ -238,7 +239,7 @@ export default function CascaderConfig(props) {
               <Select
                 className="mTop8 w100"
                 value={minlayer}
-                options={LAYER_OPTIONS}
+                options={getLayerOptions()}
                 onChange={value => onChange(handleAdvancedSettingChange(data, { minlayer: value }))}
               />
             )}

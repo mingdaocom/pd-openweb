@@ -790,7 +790,7 @@ ShareAttachment.prototype = {
           sourceId: SA.selectedTask.taskID,
           appId: md.global.APPInfo.taskAppID,
           sourceType: 1,
-          message: shareDesc || (attachmentType === ATTACHMENT_TYPE.KC ? '分享了知识下的文件' : '添加了文件：'),
+          message: shareDesc || (attachmentType === ATTACHMENT_TYPE.KC ? _l('分享了知识下的文件') : _l('添加了文件：')),
           attachments: JSON.stringify([]),
         };
         if (attachmentType === ATTACHMENT_TYPE.COMMON) {

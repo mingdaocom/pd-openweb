@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: "
-"POT-Creation-Date: 2026-09-23 13:45:03"
+"POT-Creation-Date: 2026-09-29 10:12:56"
 "Language-Team: English"
 "Language: en_US"
 "MIME-Version: 1.0"
@@ -4398,6 +4398,10 @@ msgid "从联系人中选择用户，邀请加入到当前组织"
 msgstr "Select users from your contacts and invite them to join your current Org"
 
 #: Disabled references:1
+msgid "头像"
+msgstr "Avatar"
+
+#: Disabled references:1
 msgid "选择"
 msgstr "Select"
 
@@ -4436,6 +4440,10 @@ msgstr "Link will expire on:"
 #: Disabled references:1
 msgid "永久有效"
 msgstr "Permanent"
+
+#: Disabled references:1
+msgid "YYYY年MM月DD日 HH:mm"
+msgstr "DD/MMM/YYYY HH:mm"
 
 #: Disabled references:1
 msgid "已加入"
@@ -4824,6 +4832,10 @@ msgstr "All participants"
 #: Disabled references:1
 msgid "无法解析"
 msgstr "Unable to parse"
+
+#: Disabled references:1
+msgid "群组已删除"
+msgstr "Group deleted"
 
 #: Disabled references:1
 msgid "未知话题"
@@ -5418,6 +5430,18 @@ msgid "表情分类"
 msgstr "Emoji Category"
 
 #: Disabled references:1
+msgid "拥有者"
+msgstr "Owner"
+
+#: Disabled references:1
+msgid "可编辑"
+msgstr "Edit"
+
+#: Disabled references:1
+msgid "只读"
+msgstr "Read-only"
+
+#: Disabled references:1
 msgid "共享文件夹不存在或已被删除"
 msgstr "Shared folder missing or deleted"
 
@@ -5454,6 +5478,10 @@ msgid "操作失败,请稍后重试"
 msgstr "Operation failed. Please try again later"
 
 #: Disabled references:1
+msgid "未加入其他网络"
+msgstr "Not joined to other networks"
+
+#: Disabled references:1
 msgid "归属变更"
 msgstr "Ownership Change"
 
@@ -5468,6 +5496,10 @@ msgstr "Clear Members"
 #: Disabled references:1
 msgid "保留"
 msgstr "Reserved"
+
+#: Disabled references:1
+msgid "是否确定退出该共享文件夹?"
+msgstr "Leave this shared folder?"
 
 #: Disabled references:1
 msgid "是否确定移除该成员"
@@ -5522,18 +5554,6 @@ msgid "%0 邀请"
 msgstr "%0 Invite"
 
 #: Disabled references:1
-msgid "拥有者"
-msgstr "Owner"
-
-#: Disabled references:1
-msgid "可编辑"
-msgstr "Edit"
-
-#: Disabled references:1
-msgid "只读"
-msgstr "Read-only"
-
-#: Disabled references:1
 msgid "托付文件夹"
 msgstr "Delegated Folder"
 
@@ -5560,6 +5580,18 @@ msgstr "Folder Ownership"
 #: Disabled references:1
 msgid "添加协作者"
 msgstr "Add Collaborator"
+
+#: Disabled references:1
+msgid "可管理共享成员，管理文件"
+msgstr "Can manage shared members and manage files"
+
+#: Disabled references:1
+msgid "可添加共享者，添加修改文件"
+msgstr "Can add sharers, add and modify files"
+
+#: Disabled references:1
+msgid "可查看和下载允许下载的文件"
+msgstr "Can view and download files permitted for download"
 
 #: Disabled references:1
 msgid "允许"
@@ -5630,6 +5662,10 @@ msgid "您无权限修改该文件的分享权限"
 msgstr "You do not have permission to modify the sharing permissions of this file"
 
 #: Disabled references:1
+msgid "我"
+msgstr "Me"
+
+#: Disabled references:1
 msgid "没有子文件夹"
 msgstr "No subfolders"
 
@@ -5644,6 +5680,14 @@ msgstr "Creation failed"
 #: Disabled references:1
 msgid "更改"
 msgstr "Change"
+
+#: Disabled references:1
+msgid "文件未开启分享，他人无法查看"
+msgstr "Public sharing is disabled. Others cannot view this file."
+
+#: Disabled references:1
+msgid "任何人可查看"
+msgstr "Anyone can view"
 
 #: Disabled references:1
 msgid "%0的联系人可预览"
@@ -7102,6 +7146,10 @@ msgid "重复日程"
 msgstr "Recurring"
 
 #: Disabled references:1
+msgid "%0星"
+msgstr "Star %0"
+
+#: Disabled references:1
 msgid "求和"
 msgstr "Sum"
 
@@ -7156,6 +7204,10 @@ msgstr "The print field cannot be empty"
 #: Disabled references:1
 msgid "自定义字段内容"
 msgstr "Custom Field Content"
+
+#: Disabled references:1
+msgid "%0统计"
+msgstr "%0 Statistic"
 
 #: Disabled references:1
 msgid "母任务"
@@ -7538,6 +7590,14 @@ msgid "请选择要发送到的任务"
 msgstr "Please select the task to send to"
 
 #: Disabled references:1
+msgid "分享了知识下的文件"
+msgstr "Files shared under Knowledge Center"
+
+#: Disabled references:1
+msgid "添加了文件："
+msgstr "Added file:"
+
+#: Disabled references:1
 msgid "分享失败"
 msgstr "Share failed"
 
@@ -7680,6 +7740,10 @@ msgstr "Zoom In"
 #: Disabled references:1
 msgid "对方不是您的联系人，无法查看"
 msgstr "The person is not your contact and cannot view"
+
+#: Disabled references:1
+msgid "下拉刷新"
+msgstr "Pull to refresh"
 
 #: Disabled references:1
 msgid "选择地区"
@@ -7884,10 +7948,6 @@ msgstr "Tomorrow %0"
 #: Disabled references:1
 msgid "MM月DD日 HH:mm"
 msgstr "MM/DD HH:mm"
-
-#: Disabled references:1
-msgid "YYYY年MM月DD日 HH:mm"
-msgstr "DD/MMM/YYYY HH:mm"
 
 #: Disabled references:1
 msgid "搜索地区或区号"
@@ -8404,6 +8464,10 @@ msgstr "All members of the department have joined"
 #: Disabled references:1
 msgid "群组下所有人已加入"
 msgstr "All members of the group have joined"
+
+#: Disabled references:1
+msgid "（%0人）"
+msgstr "(%0 people)"
 
 #: Disabled references:1
 msgid "仅当前部门"
@@ -10251,12 +10315,12 @@ msgid "API"
 msgstr "API"
 
 #: Disabled references:1
-msgid "获取用户所在组织列表"
-msgstr "Get User's Organization List"
+msgid "获取当前用户所在组织列表"
+msgstr "Get Current User's Organization List"
 
 #: Disabled references:1
-msgid "获取用户信息"
-msgstr "Get User Info"
+msgid "获取当前用户信息"
+msgstr "Get Current User Information"
 
 #: Disabled references:1
 msgid "获取应用列表"
@@ -21772,12 +21836,12 @@ msgid "配置已更改，请重新预览"
 msgstr "Configuration has been changed, please preview again"
 
 #: Disabled references:1
-msgid "%0 项"
-msgstr "%0"
-
-#: Disabled references:1
 msgid "筛选"
 msgstr "Filter"
+
+#: Disabled references:1
+msgid "%0 项"
+msgstr "%0"
 
 #: Disabled references:1
 msgid "无权限查看"
@@ -21958,6 +22022,22 @@ msgstr "Publisher"
 #: Disabled references:1
 msgid "版本管理"
 msgstr "Version Management"
+
+#: Disabled references:1
+msgid "发布后不需要审核，再操作升级，适用于需快速迭代更新场景"
+msgstr "No review required after publishing. Upgrade directly for fast iteration scenarios."
+
+#: Disabled references:1
+msgid "发布后需管理员审核通过后，再操作升级"
+msgstr "Upgrade after approval by Tenant Admin"
+
+#: Disabled references:1
+msgid "沙盒环境开发中，所有变更必须通过发布更新至生产"
+msgstr "All changes in the sandbox environment must be deployed to production"
+
+#: Disabled references:1
+msgid "当前处于生产环境，请前往沙盒环境进行开发"
+msgstr "You are in the production environment. Please switch to the sandbox environment for development."
 
 #: Disabled references:1
 msgid "开启应用沙盒失败，请稍后重试"
@@ -22910,6 +22990,10 @@ msgstr "Semantic Search"
 #: Disabled references:1
 msgid "关键词检索"
 msgstr "Keyword Search"
+
+#: Disabled references:1
+msgid "且"
+msgstr "and"
 
 #: Disabled references:1
 msgid "是其中一个"
@@ -25868,10 +25952,6 @@ msgid "%0不允许为空"
 msgstr "%0 cannot be empty"
 
 #: Disabled references:1
-msgid "头像"
-msgstr "Avatar"
-
-#: Disabled references:1
 msgid "欢迎语"
 msgstr "Greeting Message"
 
@@ -27548,10 +27628,6 @@ msgid "部分字段仅支持对字段名称生效（如定位等）。选择多�
 msgstr "Some fields, like Location, only support name styling. When multiple fields are selected, value styling won't apply to unsupported fields."
 
 #: Disabled references:1
-msgid "且"
-msgstr "and"
-
-#: Disabled references:1
 msgid "锁定记录"
 msgstr "Lock record"
 
@@ -28701,10 +28777,6 @@ msgstr "After converting to a group, you will gain: the ability to assign more a
 #: Disabled references:1
 msgid "同事群组进入到通讯录中方便管理并能支持到更多应用。"
 msgstr "Colleague groups can be conveniently managed in the contact list and support more applications."
-
-#: Disabled references:1
-msgid "（%0人）"
-msgstr "(%0 people)"
 
 #: Disabled references:1
 msgid "组织成员离职后自动退出群组"
@@ -30096,10 +30168,6 @@ msgid "部门选择"
 msgstr "Department"
 
 #: Disabled references:1
-msgid "我"
-msgstr "Me"
-
-#: Disabled references:1
 msgid "流程未启用"
 msgstr "Workflow inactive"
 
@@ -30498,6 +30566,10 @@ msgstr "SysConfig"
 #: Disabled references:1
 msgid "认证"
 msgstr "Certification"
+
+#: Disabled references:1
+msgid "千问办公"
+msgstr "Qianwen Office"
 
 #: Disabled references:1
 msgid "对话安装"
@@ -31450,6 +31522,10 @@ msgstr "Found %0 results"
 #: Disabled references:1
 msgid "没有查询结果"
 msgstr "No results found"
+
+#: Disabled references:1
+msgid "关闭提示"
+msgstr "Close Popup"
 
 #: Disabled references:1
 msgid "当前表单已过期"
@@ -36551,6 +36627,14 @@ msgid "转为长期群组 >"
 msgstr "Upgrade to official group >"
 
 #: Disabled references:1
+msgid "M月"
+msgstr "Month M"
+
+#: Disabled references:1
+msgid "YYYY年M月"
+msgstr "MMM/YYYY"
+
+#: Disabled references:1
 msgid "动态详情"
 msgstr "Post Details"
 
@@ -37169,6 +37253,10 @@ msgstr "Close Session"
 #: Disabled references:1
 msgid "您最多可输入%0个字符"
 msgstr "You can enter up to %0 characters"
+
+#: Disabled references:1
+msgid "上传于YYYY-MM-DD HH时mm分"
+msgstr "Uploaded on YYYY-MM-DD HH:mm"
 
 #: Disabled references:1
 msgid "名称不能包含以下字符:"
@@ -39664,7 +39752,7 @@ msgstr "By Update Time"
 
 #: Disabled references:1
 msgid "不搜索的位置"
-msgstr "Position not searched"
+msgstr "Search Exclusions"
 
 #: Disabled references:1
 msgid "标记应用和工作表，不再搜索它们的记录"
@@ -40107,6 +40195,14 @@ msgid "将API配置导出为文件，之后可以将此文件导入其他组织�
 msgstr "Export the API configuration as a file, which can then be imported into other organizations for API migration or upgrade"
 
 #: Disabled references:1
+msgid "请求参数"
+msgstr "Request Parameters"
+
+#: Disabled references:1
+msgid "返回值"
+msgstr "Return Value"
+
+#: Disabled references:1
 msgid "查看 API 请求日志详情"
 msgstr "View API Request Log Details"
 
@@ -40197,6 +40293,10 @@ msgstr "API library"
 #: Disabled references:1
 msgid "服务价格"
 msgstr "Service Price"
+
+#: Disabled references:1
+msgid "¥ %0/次"
+msgstr "¥  %0/time"
 
 #: Disabled references:1
 msgid "授权回调地址"
@@ -40385,14 +40485,6 @@ msgstr "Hidden params will be encrypted and stored, and cannot be unhidden"
 #: Disabled references:1
 msgid "请选择类型"
 msgstr "Please select a type"
-
-#: Disabled references:1
-msgid "请求参数"
-msgstr "Request Parameters"
-
-#: Disabled references:1
-msgid "返回值"
-msgstr "Return Value"
 
 #: Disabled references:1
 msgid "暂无相关日志记录"
@@ -41321,6 +41413,10 @@ msgstr "Add to the authorized_keys file on the SSH server"
 #: Disabled references:1
 msgid "数据源名称"
 msgstr "Data Source Name"
+
+#: Disabled references:1
+msgid "名称不能包含换行符、空格或-"
+msgstr "Name cannot contain line breaks, spaces, or -"
 
 #: Disabled references:1
 msgid "作为"
@@ -43168,6 +43264,10 @@ msgid "保存失败, 您无法选择文件路径"
 msgstr "Save failed, you cannot select the file path"
 
 #: Disabled references:1
+msgid "获取预览链接失败"
+msgstr "Failed to get preview link"
+
+#: Disabled references:1
 msgid "大小："
 msgstr "Size:"
 
@@ -43280,6 +43380,10 @@ msgid "在“%0”中搜索"
 msgstr "Search in \"%0\""
 
 #: Disabled references:1
+msgid "在知识中心中搜索"
+msgstr "Search in Knowledge Center"
+
+#: Disabled references:1
 msgid "共享设置"
 msgstr "Sharing Settings"
 
@@ -43356,6 +43460,26 @@ msgid "(外部用户)"
 msgstr "(External User)"
 
 #: Disabled references:1
+msgid "文件夹"
+msgstr "Folder"
+
+#: Disabled references:1
+msgid "创建了%0"
+msgstr "Created %0"
+
+#: Disabled references:1
+msgid "将此共享文件夹放入了回收站"
+msgstr "This shared folder has been moved to the recycle bin"
+
+#: Disabled references:1
+msgid "彻底删除了此共享文件夹"
+msgstr "This shared folder has been permanently deleted"
+
+#: Disabled references:1
+msgid "还原了此共享文件夹"
+msgstr "Restored this shared folder"
+
+#: Disabled references:1
 msgid "添加了成员"
 msgstr "Added a member"
 
@@ -43380,8 +43504,40 @@ msgid "的权限"
 msgstr "Permission"
 
 #: Disabled references:1
+msgid "从 %0"
+msgstr "From %0"
+
+#: Disabled references:1
 msgid "调整为 %0"
 msgstr "Set to %0"
+
+#: Disabled references:1
+msgid "重命名了共享文件夹 %0 为 %1"
+msgstr "Renamed shared folder %0 to %1"
+
+#: Disabled references:1
+msgid "退出了此共享文件夹"
+msgstr "Left this shared folder"
+
+#: Disabled references:1
+msgid "添加了%0%1"
+msgstr "Added %0%1"
+
+#: Disabled references:1
+msgid "移动了%0%1"
+msgstr "Moved %0%1"
+
+#: Disabled references:1
+msgid "将%0%1放入回收站"
+msgstr "Move %0%1 to Trash"
+
+#: Disabled references:1
+msgid "彻底删除了%0%1"
+msgstr "%0%1 has been permanently deleted"
+
+#: Disabled references:1
+msgid "恢复了%0%1"
+msgstr "%0%1 restored"
 
 #: Disabled references:1
 msgid "%0的日志"
@@ -43452,6 +43608,10 @@ msgid "文件格式不支持"
 msgstr "File format not supported"
 
 #: Disabled references:1
+msgid "有文件正在上传中，确定要放弃上传？"
+msgstr "Files are uploading. Discard upload?"
+
+#: Disabled references:1
 msgid "上传到"
 msgstr "Upload to"
 
@@ -43472,12 +43632,12 @@ msgid "文件上传到:"
 msgstr "Upload file to:"
 
 #: Disabled references:1
-msgid "操作失败，请稍后重试！"
-msgstr "Operation failed, please try again later!"
+msgid "位置不可见"
+msgstr "Location Hidden"
 
 #: Disabled references:1
-msgid "文件夹"
-msgstr "Folder"
+msgid "操作失败，请稍后重试！"
+msgstr "Operation failed, please try again later!"
 
 #: Disabled references:1
 msgid "我的文件根目录"
@@ -43822,10 +43982,6 @@ msgstr "Unstarred"
 #: Disabled references:1
 msgid "您权限不足，无法下载。请联系文件夹管理员或文件上传者"
 msgstr "You do not have sufficient permissions to download. Please contact the folder administrator or the file uploader."
-
-#: Disabled references:1
-msgid "获取预览链接失败"
-msgstr "Failed to get preview link"
 
 #: Disabled references:1
 msgid "链接有效期至%0"
@@ -45800,6 +45956,10 @@ msgid "正在整理要导出的数据，请稍候..."
 msgstr "Arranging the data to be exported, please wait for a moment…"
 
 #: Disabled references:1
+msgid "%0-%1日 %2周"
+msgstr "Day %0-%1 , Week %2"
+
+#: Disabled references:1
 msgid "完成："
 msgstr "Completed:"
 
@@ -46222,6 +46382,10 @@ msgstr "Starred Task - Task"
 #: Disabled references:1
 msgid "下属任务-任务"
 msgstr "Subtask - Task"
+
+#: Disabled references:1
+msgid "%0-任务"
+msgstr "%0-Task"
 
 #: Disabled references:1
 msgid "无法添加，单个任务下至多添加100个检查清单"
@@ -47285,7 +47449,7 @@ msgstr "Add conditions"
 
 #: Disabled references:1
 msgid "执行动作"
-msgstr "Proceed"
+msgstr "Add Action"
 
 #: Disabled references:1
 msgid "复制条件"
@@ -47305,7 +47469,7 @@ msgstr "When the value changes"
 
 #: Disabled references:1
 msgid "显示时"
-msgstr "When display"
+msgstr "When displayed"
 
 #: Disabled references:1
 msgid "隐藏时"
@@ -47333,7 +47497,7 @@ msgstr "By field value"
 
 #: Disabled references:1
 msgid "按查询工作表"
-msgstr "By searched worksheet"
+msgstr "By worksheet query"
 
 #: Disabled references:1
 msgid "按调用已集成 API"
@@ -47496,6 +47660,10 @@ msgid "内容由 AI 生成，可能存在错误，仅供参考"
 msgstr "AI can make mistakes, for reference only."
 
 #: Disabled references:1
+msgid "字段控件"
+msgstr "Field Control"
+
+#: Disabled references:1
 msgid "代码无法保存，代码长度不能超过%0KB"
 msgstr "Failed to save code block. Length cannot exceed %0KB."
 
@@ -47594,6 +47762,10 @@ msgstr "Enter Code Editor"
 #: Disabled references:1
 msgid "currentControl[当前字段控件]"
 msgstr "currentControl[current field control]"
+
+#: Disabled references:1
+msgid "-保存值格式-"
+msgstr "-Save Value Format-"
 
 #: Disabled references:1
 msgid "formData[记录字段值]"
@@ -47734,6 +47906,10 @@ msgstr "Generate a 7-day date picker starting from Monday of the current week, d
 #: Disabled references:1
 msgid "生成一个电子时钟"
 msgstr "Generate an electronic clock"
+
+#: Disabled references:1
+msgid "生成一个现代科技风格的电子时钟，展示小时和分钟，用户可以分别设置小时与分钟，修改其中任意一个时，都将时间以\"00:00\"的格式保存。如果载入时有值，将值回显到时钟上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止设置时钟，只能展示时间。"
+msgstr "Generate a modern digital clock showing hours and minutes. Users can set hours and minutes separately. When either value is changed, save the time in \"00:00\" format. If a value exists on load, display it on the clock. When the component parameter env.isDisabled is true, disable editing and only display the time."
 
 #: Disabled references:1
 msgid "生成一个仓库选择器"
@@ -50136,6 +50312,10 @@ msgid "任意选择"
 msgstr "Arbitrary choice"
 
 #: Disabled references:1
+msgid "%0层"
+msgstr "Level %0"
+
+#: Disabled references:1
 msgid "过滤数据源"
 msgstr "Filter Data Sources"
 
@@ -50334,6 +50514,26 @@ msgstr "Designated Org-roles"
 #: Disabled references:1
 msgid "设置为成员字段时，取成员所在的所有部门"
 msgstr "When set as a member field, takes all departments in which the member is located"
+
+#: Disabled references:1
+msgid "很差"
+msgstr "Poor"
+
+#: Disabled references:1
+msgid "差"
+msgstr "Poor"
+
+#: Disabled references:1
+msgid "一般"
+msgstr "General"
+
+#: Disabled references:1
+msgid "好"
+msgstr "OK"
+
+#: Disabled references:1
+msgid "非常好"
+msgstr "Excellent"
 
 #: Disabled references:1
 msgid "显示选中结果"
@@ -58249,6 +58449,14 @@ msgid "传递触发者"
 msgstr "Pass the trigger"
 
 #: Disabled references:1
+msgid "%0（新版比较到时间）"
+msgstr "%0 (New version comparison time)"
+
+#: Disabled references:1
+msgid "%0（旧版比较到日期）"
+msgstr "%0 (Old version comparison time)"
+
+#: Disabled references:1
 msgid "条件异常时忽略"
 msgstr "Ignore abnormal conditions"
 
@@ -64021,6 +64229,10 @@ msgid "最大数量"
 msgstr "Max number"
 
 #: Disabled references:1
+msgid "请填写数值"
+msgstr "Please enter a value"
+
+#: Disabled references:1
 msgid "自定义视图"
 msgstr "Custom View"
 
@@ -67717,6 +67929,10 @@ msgid "职位Id"
 msgstr "Position Id"
 
 #: Disabled references:1
+msgid "组织角色ID"
+msgstr "Organization Role ID"
+
+#: Disabled references:1
 msgid "具体错误信息"
 msgstr "Detailed error information"
 
@@ -67838,8 +68054,68 @@ msgstr "Permission modes:
 0: Distribute app items with permissions"
 
 #: Disabled references:1
+msgid "工作表 id"
+msgstr "Worksheet ID"
+
+#: Disabled references:1
+msgid "新增权限"
+msgstr "Add Permission"
+
+#: Disabled references:1
+msgid "20：用户加入的，30：包含下属，100：全部"
+msgstr "20: Joined users, 30: Includes subordinates, 100: All"
+
+#: Disabled references:1
+msgid "字段权限控制"
+msgstr "Field Permission Control"
+
+#: Disabled references:1
+msgid "字段id"
+msgstr "Field ID"
+
+#: Disabled references:1
+msgid "查看权限，false：有权限，true："
+msgstr "View permission, false: permitted, true:"
+
+#: Disabled references:1
+msgid "工作表添加记录"
+msgstr "Add Worksheet Record"
+
+#: Disabled references:1
+msgid "工作表分享"
+msgstr "Worksheet Sharing"
+
+#: Disabled references:1
+msgid "工作表导入"
+msgstr "Import Worksheet"
+
+#: Disabled references:1
+msgid "工作表导出"
+msgstr "Export Worksheet"
+
+#: Disabled references:1
+msgid "工作表讨论"
+msgstr "Worksheet Discussion"
+
+#: Disabled references:1
+msgid "工作表日志"
+msgstr "Worksheet Log"
+
+#: Disabled references:1
+msgid "工作表批量操作"
+msgstr "Batch Worksheet Operations"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "Record Sharing"
+
+#: Disabled references:1
 msgid "页面列表"
 msgstr "Page List"
+
+#: Disabled references:1
+msgid "自定义页面 id"
+msgstr "Custom Page ID"
 
 #: Disabled references:1
 msgid "页面名称"
@@ -69575,10 +69851,6 @@ msgstr "Please fill in the text content"
 #: Disabled references:1
 msgid "请填写邮箱地址"
 msgstr "Please enter your email"
-
-#: Disabled references:1
-msgid "请填写数值"
-msgstr "Please enter a value"
 
 #: Disabled references:1
 msgid "请填写身份证"

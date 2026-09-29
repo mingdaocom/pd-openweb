@@ -1,4 +1,20 @@
 var staticLanguages = {
+  已在默认浏览器打开: {
+    en: 'Opened in the default browser',
+    ja: '既定のブラウザーで開きました',
+    'zh-Hans': '已在默认浏览器打开',
+    'zh-Hant': '已在預設瀏覽器開啟',
+    th: 'เปิดในเบราว์เซอร์เริ่มต้นแล้ว',
+    ms: 'Dibuka dalam pelayar lalai',
+  },
+  '服务异常，登录失败!': {
+    en: 'Service error. Login failed!',
+    ja: 'サービスエラーのため、ログインに失敗しました。',
+    'zh-Hans': '服务异常，登录失败!',
+    'zh-Hant': '服務異常，登入失敗！',
+    th: 'บริการขัดข้อง เข้าสู่ระบบไม่สำเร็จ!',
+    ms: 'Ralat perkhidmatan. Log masuk gagal!',
+  },
   登录: {
     en: 'Login',
     ja: 'ログイン',
@@ -28,12 +44,6 @@ var staticLanguages = {
     ja: 'ログアウト',
     'zh-Hans': '注销',
     'zh-Hant': '註銷',
-  },
-  统计图: {
-    en: 'Statistics Chart',
-    ja: '統計図',
-    'zh-Hans': '统计图',
-    'zh-Hant': '統計圖',
   },
   登录成功: {
     en: 'Login Successful',
@@ -411,6 +421,11 @@ if (cookieMatch) {
   }
 }
 
+window.getStaticLanguageText = function (content) {
+  var langMap = staticLanguages[content];
+  return langMap ? langMap[lang] || langMap.en || content : content;
+};
+
 var transformFunc = function (elements) {
   // 遍历每个元素
   for (var i = 0; i < elements.length; i++) {
@@ -418,8 +433,7 @@ var transformFunc = function (elements) {
 
     // 替换文本内容中的 [[[]]] 部分
     var content = element.getAttribute('content') || element.innerHTML;
-    var langMap = staticLanguages[content];
-    element.innerHTML = langMap ? langMap[lang] || langMap.en || content : content;
+    element.innerHTML = window.getStaticLanguageText(content);
   }
 };
 

@@ -147,7 +147,7 @@ function PrintTemSetting(props) {
 
         if (value) return renderCellText({ ...control, value: value });
 
-        return '未命名';
+        return _l('未命名');
     }
   };
 

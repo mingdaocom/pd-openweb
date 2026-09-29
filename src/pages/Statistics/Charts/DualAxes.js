@@ -24,7 +24,8 @@ import {
 import { formatChartData as formatLineChartData } from './LineChart';
 import loadG2Plot from './loadG2Plot';
 
-const getXAxisKey = item => (_.isNil(item.originalId) || item.originalId === '' ? item.name : item.originalId);
+// 保留无横轴时的名称回退，并统一柱、线两侧空分类的标识。
+const getXAxisKey = item => (_.isNil(item.originalId) || item.originalId === '' ? (item.name ?? '') : item.originalId);
 
 const getXAxisLabel = (value, data) => {
   const item = _.find(data, item => item.xAxisKey === value);

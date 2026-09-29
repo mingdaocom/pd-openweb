@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: "
-"POT-Creation-Date: 2026-09-23 13:45:03"
+"POT-Creation-Date: 2026-09-29 10:12:56"
 "Language-Team: Thai"
 "Language: th"
 "MIME-Version: 1.0"
@@ -4400,6 +4400,10 @@ msgid "从联系人中选择用户，邀请加入到当前组织"
 msgstr "เลือกผู้ใช้จากรายชื่อและเชิญเข้าร่วมองค์กรปัจจุบันของคุณ"
 
 #: Disabled references:1
+msgid "头像"
+msgstr "อวาตาร์"
+
+#: Disabled references:1
 msgid "选择"
 msgstr "เลือก"
 
@@ -4438,6 +4442,10 @@ msgstr "ลิงก์จะหมดอายุวันที่"
 #: Disabled references:1
 msgid "永久有效"
 msgstr "ถาวร"
+
+#: Disabled references:1
+msgid "YYYY年MM月DD日 HH:mm"
+msgstr "DD/MMM/YYYY HH:mm"
 
 #: Disabled references:1
 msgid "已加入"
@@ -4826,6 +4834,10 @@ msgstr "ผู้เข้าร่วมทั้งหมด"
 #: Disabled references:1
 msgid "无法解析"
 msgstr "ไม่สามารถแยกวิเคราะห์ได้"
+
+#: Disabled references:1
+msgid "群组已删除"
+msgstr "ลบกลุ่มแล้ว"
 
 #: Disabled references:1
 msgid "未知话题"
@@ -5420,6 +5432,18 @@ msgid "表情分类"
 msgstr "หมวดหมู่อิโมจิ"
 
 #: Disabled references:1
+msgid "拥有者"
+msgstr "เจ้าของ"
+
+#: Disabled references:1
+msgid "可编辑"
+msgstr "แก้ไข"
+
+#: Disabled references:1
+msgid "只读"
+msgstr "อ่านอย่างเดียว"
+
+#: Disabled references:1
 msgid "共享文件夹不存在或已被删除"
 msgstr "โฟลเดอร์ที่แชร์หายหรือถูกลบ"
 
@@ -5456,6 +5480,10 @@ msgid "操作失败,请稍后重试"
 msgstr "การดำเนินการล้มเหลว โปรดลองอีกครั้งภายหลัง"
 
 #: Disabled references:1
+msgid "未加入其他网络"
+msgstr "ไม่ได้เชื่อมต่อกับเครือข่ายอื่น"
+
+#: Disabled references:1
 msgid "归属变更"
 msgstr "การเปลี่ยนเจ้าของ"
 
@@ -5470,6 +5498,10 @@ msgstr "ล้างสมาชิก"
 #: Disabled references:1
 msgid "保留"
 msgstr "สงวน"
+
+#: Disabled references:1
+msgid "是否确定退出该共享文件夹?"
+msgstr "ออกจากโฟลเดอร์ที่แชร์นี้?"
 
 #: Disabled references:1
 msgid "是否确定移除该成员"
@@ -5524,18 +5556,6 @@ msgid "%0 邀请"
 msgstr "เชิญ %0"
 
 #: Disabled references:1
-msgid "拥有者"
-msgstr "เจ้าของ"
-
-#: Disabled references:1
-msgid "可编辑"
-msgstr "แก้ไข"
-
-#: Disabled references:1
-msgid "只读"
-msgstr "อ่านอย่างเดียว"
-
-#: Disabled references:1
 msgid "托付文件夹"
 msgstr "โฟลเดอร์ที่มอบหมาย"
 
@@ -5562,6 +5582,18 @@ msgstr "การเป็นเจ้าของโฟลเดอร์"
 #: Disabled references:1
 msgid "添加协作者"
 msgstr "เพิ่มผู้ร่วมงาน"
+
+#: Disabled references:1
+msgid "可管理共享成员，管理文件"
+msgstr "จัดการสมาชิกที่แชร์และไฟล์"
+
+#: Disabled references:1
+msgid "可添加共享者，添加修改文件"
+msgstr "เพิ่มผู้แชร์ แก้ไขไฟล์"
+
+#: Disabled references:1
+msgid "可查看和下载允许下载的文件"
+msgstr "สามารถดูและดาวน์โหลดไฟล์ที่อนุญาตให้ดาวน์โหลด"
 
 #: Disabled references:1
 msgid "允许"
@@ -5632,6 +5664,10 @@ msgid "您无权限修改该文件的分享权限"
 msgstr "คุณไม่มีสิทธิ์แก้ไขการตั้งค่าการแชร์ของไฟล์นี้"
 
 #: Disabled references:1
+msgid "我"
+msgstr "ฉัน"
+
+#: Disabled references:1
 msgid "没有子文件夹"
 msgstr "ไม่มีโฟลเดอร์ย่อย"
 
@@ -5646,6 +5682,14 @@ msgstr "สร้างไม่สำเร็จ"
 #: Disabled references:1
 msgid "更改"
 msgstr "เปลี่ยน"
+
+#: Disabled references:1
+msgid "文件未开启分享，他人无法查看"
+msgstr "การแชร์สาธารณะถูกปิดใช้งาน ผู้อื่นไม่สามารถดูไฟล์นี้ได้"
+
+#: Disabled references:1
+msgid "任何人可查看"
+msgstr "ทุกคนสามารถดู"
 
 #: Disabled references:1
 msgid "%0的联系人可预览"
@@ -7104,6 +7148,10 @@ msgid "重复日程"
 msgstr "เกิดซ้ำ"
 
 #: Disabled references:1
+msgid "%0星"
+msgstr "%0 ดาว"
+
+#: Disabled references:1
 msgid "求和"
 msgstr "ผลรวม"
 
@@ -7158,6 +7206,10 @@ msgstr "ฟิลด์การพิมพ์ต้องไม่เว้น
 #: Disabled references:1
 msgid "自定义字段内容"
 msgstr "เนื้อหาฟิลด์กำหนดเอง"
+
+#: Disabled references:1
+msgid "%0统计"
+msgstr "%0 สถิติ"
 
 #: Disabled references:1
 msgid "母任务"
@@ -7540,6 +7592,14 @@ msgid "请选择要发送到的任务"
 msgstr "กรุณาเลือกงานที่จะส่ง"
 
 #: Disabled references:1
+msgid "分享了知识下的文件"
+msgstr "ไฟล์ที่แชร์ในศูนย์ความรู้"
+
+#: Disabled references:1
+msgid "添加了文件："
+msgstr "เพิ่มไฟล์"
+
+#: Disabled references:1
 msgid "分享失败"
 msgstr "แชร์ไม่สำเร็จ"
 
@@ -7682,6 +7742,10 @@ msgstr "ขยาย"
 #: Disabled references:1
 msgid "对方不是您的联系人，无法查看"
 msgstr "บุคคลนี้ไม่ใช่ผู้ติดต่อของคุณและไม่สามารถดูได้"
+
+#: Disabled references:1
+msgid "下拉刷新"
+msgstr "ดึงเพื่อรีเฟรช"
 
 #: Disabled references:1
 msgid "选择地区"
@@ -7886,10 +7950,6 @@ msgstr "พรุ่งนี้ %0"
 #: Disabled references:1
 msgid "MM月DD日 HH:mm"
 msgstr "MM/DD HH:mm"
-
-#: Disabled references:1
-msgid "YYYY年MM月DD日 HH:mm"
-msgstr "DD/MMM/YYYY HH:mm"
 
 #: Disabled references:1
 msgid "搜索地区或区号"
@@ -8406,6 +8466,10 @@ msgstr "สมาชิกทั้งหมดในแผนกเข้าร
 #: Disabled references:1
 msgid "群组下所有人已加入"
 msgstr "สมาชิกทั้งหมดในกลุ่มเข้าร่วมแล้ว"
+
+#: Disabled references:1
+msgid "（%0人）"
+msgstr "(%0 คน)"
 
 #: Disabled references:1
 msgid "仅当前部门"
@@ -10252,12 +10316,12 @@ msgid "API"
 msgstr "API"
 
 #: Disabled references:1
-msgid "获取用户所在组织列表"
-msgstr "ดึงรายการองค์กรของผู้ใช้"
+msgid "获取当前用户所在组织列表"
+msgstr "ดึงรายการองค์กรของผู้ใช้ปัจจุบัน"
 
 #: Disabled references:1
-msgid "获取用户信息"
-msgstr "ดูข้อมูลผู้ใช้"
+msgid "获取当前用户信息"
+msgstr "ดึงข้อมูลผู้ใช้ปัจจุบัน"
 
 #: Disabled references:1
 msgid "获取应用列表"
@@ -21776,12 +21840,12 @@ msgid "配置已更改，请重新预览"
 msgstr "การกำหนดค่าถูกเปลี่ยน โปรดพรีวิวอีกครั้ง"
 
 #: Disabled references:1
-msgid "%0 项"
-msgstr "%0"
-
-#: Disabled references:1
 msgid "筛选"
 msgstr "ตัวกรอง"
+
+#: Disabled references:1
+msgid "%0 项"
+msgstr "%0"
 
 #: Disabled references:1
 msgid "无权限查看"
@@ -21962,6 +22026,22 @@ msgstr "ผู้เผยแพร่"
 #: Disabled references:1
 msgid "版本管理"
 msgstr "การจัดการเวอร์ชัน"
+
+#: Disabled references:1
+msgid "发布后不需要审核，再操作升级，适用于需快速迭代更新场景"
+msgstr "ไม่ต้องตรวจสอบหลังเผยแพร่ อัปเกรดได้ทันทีสำหรับการอัปเดตอย่างรวดเร็ว"
+
+#: Disabled references:1
+msgid "发布后需管理员审核通过后，再操作升级"
+msgstr "อัปเกรดหลังผู้ดูแลผู้เช่าอนุมัติ"
+
+#: Disabled references:1
+msgid "沙盒环境开发中，所有变更必须通过发布更新至生产"
+msgstr "การเปลี่ยนแปลงใน Sandbox ต้องเผยแพร่ไปยัง Production"
+
+#: Disabled references:1
+msgid "当前处于生产环境，请前往沙盒环境进行开发"
+msgstr "คุณอยู่ในสภาพแวดล้อมการใช้งานจริง โปรดเปลี่ยนไปยังสภาพแวดล้อม Sandbox สำหรับการพัฒนา"
 
 #: Disabled references:1
 msgid "开启应用沙盒失败，请稍后重试"
@@ -22914,6 +22994,10 @@ msgstr "การค้นหาเชิงความหมาย"
 #: Disabled references:1
 msgid "关键词检索"
 msgstr "ค้นหาด้วยคำสำคัญ"
+
+#: Disabled references:1
+msgid "且"
+msgstr "และ"
 
 #: Disabled references:1
 msgid "是其中一个"
@@ -25877,10 +25961,6 @@ msgid "%0不允许为空"
 msgstr "%0 ต้องไม่เว้นว่าง"
 
 #: Disabled references:1
-msgid "头像"
-msgstr "อวาตาร์"
-
-#: Disabled references:1
 msgid "欢迎语"
 msgstr "ข้อความต้อนรับ"
 
@@ -27557,10 +27637,6 @@ msgid "部分字段仅支持对字段名称生效（如定位等）。选择多�
 msgstr "บางฟิลด์ เช่น ตำแหน่ง รองรับเฉพาะการจัดรูปแบบชื่อ หากเลือกหลายฟิลด์ การจัดรูปแบบค่าจะไม่ใช้กับฟิลด์ที่ไม่รองรับ"
 
 #: Disabled references:1
-msgid "且"
-msgstr "และ"
-
-#: Disabled references:1
 msgid "锁定记录"
 msgstr "ล็อกบันทึก"
 
@@ -28707,10 +28783,6 @@ msgstr "หลังเปลี่ยนเป็นกลุ่ม คุณ�
 #: Disabled references:1
 msgid "同事群组进入到通讯录中方便管理并能支持到更多应用。"
 msgstr "จัดการกลุ่มเพื่อนร่วมงานในรายชื่อผู้ติดต่อได้ง่าย และรองรับการใช้งานแอปพลิเคชันเพิ่มเติม"
-
-#: Disabled references:1
-msgid "（%0人）"
-msgstr "(%0 คน)"
 
 #: Disabled references:1
 msgid "组织成员离职后自动退出群组"
@@ -30101,10 +30173,6 @@ msgid "部门选择"
 msgstr "แผนก"
 
 #: Disabled references:1
-msgid "我"
-msgstr "ฉัน"
-
-#: Disabled references:1
 msgid "流程未启用"
 msgstr "เวิร์กโฟลว์ไม่ได้เปิดใช้งาน"
 
@@ -30503,6 +30571,10 @@ msgstr "การกำหนดค่าระบบ"
 #: Disabled references:1
 msgid "认证"
 msgstr "การรับรอง"
+
+#: Disabled references:1
+msgid "千问办公"
+msgstr "Qianwen Office"
 
 #: Disabled references:1
 msgid "对话安装"
@@ -31455,6 +31527,10 @@ msgstr "พบ %0 รายการ"
 #: Disabled references:1
 msgid "没有查询结果"
 msgstr "ไม่พบผลลัพธ์"
+
+#: Disabled references:1
+msgid "关闭提示"
+msgstr "ปิดป๊อปอัป"
 
 #: Disabled references:1
 msgid "当前表单已过期"
@@ -36560,6 +36636,14 @@ msgid "转为长期群组 >"
 msgstr "อัปเกรดเป็นกลุ่มทางการ >"
 
 #: Disabled references:1
+msgid "M月"
+msgstr "เดือน M"
+
+#: Disabled references:1
+msgid "YYYY年M月"
+msgstr "MMM/YYYY"
+
+#: Disabled references:1
 msgid "动态详情"
 msgstr "รายละเอียดโพสต์"
 
@@ -37178,6 +37262,10 @@ msgstr "ปิดเซสชัน"
 #: Disabled references:1
 msgid "您最多可输入%0个字符"
 msgstr "คุณสามารถป้อนข้อมูลได้สูงสุด %0 ตัวอักษร"
+
+#: Disabled references:1
+msgid "上传于YYYY-MM-DD HH时mm分"
+msgstr "อัปโหลดเมื่อ YYYY-MM-DD HH:mm"
 
 #: Disabled references:1
 msgid "名称不能包含以下字符:"
@@ -40116,6 +40204,14 @@ msgid "将API配置导出为文件，之后可以将此文件导入其他组织�
 msgstr "ส่งออกการกำหนดค่า API เป็นไฟล์ เพื่อนำเข้าไปยังองค์กรอื่นสำหรับการย้ายหรืออัปเกรด API"
 
 #: Disabled references:1
+msgid "请求参数"
+msgstr "พารามิเตอร์คำขอ"
+
+#: Disabled references:1
+msgid "返回值"
+msgstr "ค่าที่ส่งกลับ"
+
+#: Disabled references:1
 msgid "查看 API 请求日志详情"
 msgstr "ดูรายละเอียดบันทึกคำขอ API"
 
@@ -40206,6 +40302,10 @@ msgstr "คลัง API"
 #: Disabled references:1
 msgid "服务价格"
 msgstr "ราคาบริการ"
+
+#: Disabled references:1
+msgid "¥ %0/次"
+msgstr "¥  %0/ครั้ง"
 
 #: Disabled references:1
 msgid "授权回调地址"
@@ -40394,14 +40494,6 @@ msgstr "พารามิเตอร์ที่ซ่อนจะถูกเ
 #: Disabled references:1
 msgid "请选择类型"
 msgstr "โปรดเลือกประเภท"
-
-#: Disabled references:1
-msgid "请求参数"
-msgstr "พารามิเตอร์คำขอ"
-
-#: Disabled references:1
-msgid "返回值"
-msgstr "ค่าที่ส่งกลับ"
 
 #: Disabled references:1
 msgid "暂无相关日志记录"
@@ -41330,6 +41422,10 @@ msgstr "เพิ่มลงในไฟล์ authorized_keys บนเซิ�
 #: Disabled references:1
 msgid "数据源名称"
 msgstr "ชื่อแหล่งข้อมูล"
+
+#: Disabled references:1
+msgid "名称不能包含换行符、空格或-"
+msgstr "ชื่อห้ามมีตัวแบ่งบรรทัด เว้นวรรค หรือ -"
 
 #: Disabled references:1
 msgid "作为"
@@ -43176,6 +43272,10 @@ msgid "保存失败, 您无法选择文件路径"
 msgstr "บันทึกไม่สำเร็จ คุณไม่สามารถเลือกเส้นทางไฟล์ได้"
 
 #: Disabled references:1
+msgid "获取预览链接失败"
+msgstr "ไม่สามารถดึงลิงก์พรีวิวได้"
+
+#: Disabled references:1
 msgid "大小："
 msgstr "ขนาด"
 
@@ -43288,6 +43388,10 @@ msgid "在“%0”中搜索"
 msgstr "ค้นหาใน \"%0\""
 
 #: Disabled references:1
+msgid "在知识中心中搜索"
+msgstr "ค้นหาในศูนย์ความรู้"
+
+#: Disabled references:1
 msgid "共享设置"
 msgstr "การตั้งค่าแชร์"
 
@@ -43364,6 +43468,26 @@ msgid "(外部用户)"
 msgstr "ผู้ใช้ภายนอก"
 
 #: Disabled references:1
+msgid "文件夹"
+msgstr "โฟลเดอร์"
+
+#: Disabled references:1
+msgid "创建了%0"
+msgstr "สร้างแล้ว %0"
+
+#: Disabled references:1
+msgid "将此共享文件夹放入了回收站"
+msgstr "โฟลเดอร์ที่แชร์นี้ถูกย้ายไปยังถังรีไซเคิล"
+
+#: Disabled references:1
+msgid "彻底删除了此共享文件夹"
+msgstr "โฟลเดอร์ที่แชร์นี้ถูกลบถาวร"
+
+#: Disabled references:1
+msgid "还原了此共享文件夹"
+msgstr "กู้คืนโฟลเดอร์ที่แชร์นี้"
+
+#: Disabled references:1
 msgid "添加了成员"
 msgstr "เพิ่มสมาชิก"
 
@@ -43388,8 +43512,40 @@ msgid "的权限"
 msgstr "การอนุญาต"
 
 #: Disabled references:1
+msgid "从 %0"
+msgstr "จาก %0"
+
+#: Disabled references:1
 msgid "调整为 %0"
 msgstr "ตั้งค่าเป็น %0"
+
+#: Disabled references:1
+msgid "重命名了共享文件夹 %0 为 %1"
+msgstr "เปลี่ยนชื่อโฟลเดอร์แชร์ %0 เป็น %1"
+
+#: Disabled references:1
+msgid "退出了此共享文件夹"
+msgstr "ออกจากโฟลเดอร์ที่แชร์นี้"
+
+#: Disabled references:1
+msgid "添加了%0%1"
+msgstr "เพิ่ม %0%1"
+
+#: Disabled references:1
+msgid "移动了%0%1"
+msgstr "ย้าย %0%1"
+
+#: Disabled references:1
+msgid "将%0%1放入回收站"
+msgstr "ย้าย %0%1 ไปถังขยะ"
+
+#: Disabled references:1
+msgid "彻底删除了%0%1"
+msgstr "%0%1 ถูกลบถาวร"
+
+#: Disabled references:1
+msgid "恢复了%0%1"
+msgstr "%0%1 ถูกกู้คืน"
 
 #: Disabled references:1
 msgid "%0的日志"
@@ -43460,6 +43616,10 @@ msgid "文件格式不支持"
 msgstr "รูปแบบไฟล์ไม่รองรับ"
 
 #: Disabled references:1
+msgid "有文件正在上传中，确定要放弃上传？"
+msgstr "กำลังอัปโหลดไฟล์ ยกเลิกการอัปโหลด?"
+
+#: Disabled references:1
 msgid "上传到"
 msgstr "อัปโหลดไปที่"
 
@@ -43480,12 +43640,12 @@ msgid "文件上传到:"
 msgstr "อัปโหลดไฟล์ไปที่:"
 
 #: Disabled references:1
-msgid "操作失败，请稍后重试！"
-msgstr "การดำเนินการล้มเหลว โปรดลองอีกครั้งภายหลัง"
+msgid "位置不可见"
+msgstr "ตำแหน่งถูกซ่อน"
 
 #: Disabled references:1
-msgid "文件夹"
-msgstr "โฟลเดอร์"
+msgid "操作失败，请稍后重试！"
+msgstr "การดำเนินการล้มเหลว โปรดลองอีกครั้งภายหลัง"
 
 #: Disabled references:1
 msgid "我的文件根目录"
@@ -43830,10 +43990,6 @@ msgstr "ยกเลิกการติดดาว"
 #: Disabled references:1
 msgid "您权限不足，无法下载。请联系文件夹管理员或文件上传者"
 msgstr "คุณไม่มีสิทธิ์เพียงพอในการดาวน์โหลด โปรดติดต่อผู้ดูแลโฟลเดอร์หรือผู้อัปโหลดไฟล์"
-
-#: Disabled references:1
-msgid "获取预览链接失败"
-msgstr "ไม่สามารถดึงลิงก์พรีวิวได้"
 
 #: Disabled references:1
 msgid "链接有效期至%0"
@@ -45808,6 +45964,10 @@ msgid "正在整理要导出的数据，请稍候..."
 msgstr "กำลังจัดเตรียมข้อมูลเพื่อส่งออก โปรดรอสักครู่…"
 
 #: Disabled references:1
+msgid "%0-%1日 %2周"
+msgstr "วัน %0–%1 , สัปดาห์ %2"
+
+#: Disabled references:1
 msgid "完成："
 msgstr "เสร็จสิ้น"
 
@@ -46230,6 +46390,10 @@ msgstr "งานติดดาว - งาน"
 #: Disabled references:1
 msgid "下属任务-任务"
 msgstr "งานย่อย - งาน"
+
+#: Disabled references:1
+msgid "%0-任务"
+msgstr "%0-งาน"
 
 #: Disabled references:1
 msgid "无法添加，单个任务下至多添加100个检查清单"
@@ -47504,6 +47668,10 @@ msgid "内容由 AI 生成，可能存在错误，仅供参考"
 msgstr "AI อาจผิดพลาด ใช้อ้างอิงเท่านั้น"
 
 #: Disabled references:1
+msgid "字段控件"
+msgstr "การควบคุมฟิลด์"
+
+#: Disabled references:1
 msgid "代码无法保存，代码长度不能超过%0KB"
 msgstr "ไม่สามารถบันทึกบล็อกโค้ดได้ ความยาวต้องไม่เกิน %0KB"
 
@@ -47602,6 +47770,10 @@ msgstr "เข้าสู่ตัวแก้ไขโค้ด"
 #: Disabled references:1
 msgid "currentControl[当前字段控件]"
 msgstr "ควบคุมฟิลด์ปัจจุบัน"
+
+#: Disabled references:1
+msgid "-保存值格式-"
+msgstr "-บันทึกค่า-"
 
 #: Disabled references:1
 msgid "formData[记录字段值]"
@@ -47742,6 +47914,10 @@ msgstr "สร้างตัวเลือกวันที่ 7 วัน �
 #: Disabled references:1
 msgid "生成一个电子时钟"
 msgstr "สร้างนาฬิกาอิเล็กทรอนิกส์"
+
+#: Disabled references:1
+msgid "生成一个现代科技风格的电子时钟，展示小时和分钟，用户可以分别设置小时与分钟，修改其中任意一个时，都将时间以\"00:00\"的格式保存。如果载入时有值，将值回显到时钟上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止设置时钟，只能展示时间。"
+msgstr "สร้างนาฬิกาดิจิทัลแสดงชั่วโมงและนาที ผู้ใช้ตั้งค่าชั่วโมงและนาทีแยกกันได้ เมื่อมีการเปลี่ยนค่า ให้บันทึกเวลาในรูปแบบ \"00:00\" หากมีค่าอยู่แล้วจะแสดงบนหน้าปัดนาฬิกา หาก env.isDisabled เป็น true ให้แสดงเวลาอย่างเดียวและปิดการตั้งค่า"
 
 #: Disabled references:1
 msgid "生成一个仓库选择器"
@@ -50144,6 +50320,10 @@ msgid "任意选择"
 msgstr "เลือกตามต้องการ"
 
 #: Disabled references:1
+msgid "%0层"
+msgstr "ระดับ %0"
+
+#: Disabled references:1
 msgid "过滤数据源"
 msgstr "กรองแหล่งข้อมูล"
 
@@ -50342,6 +50522,26 @@ msgstr "บทบาทองค์กรที่กำหนด"
 #: Disabled references:1
 msgid "设置为成员字段时，取成员所在的所有部门"
 msgstr "เมื่อกำหนดเป็นฟิลด์สมาชิก จะดึงข้อมูลทุกแผนกที่สมาชิกอยู่"
+
+#: Disabled references:1
+msgid "很差"
+msgstr "แย่"
+
+#: Disabled references:1
+msgid "差"
+msgstr "แย่"
+
+#: Disabled references:1
+msgid "一般"
+msgstr "ทั่วไป"
+
+#: Disabled references:1
+msgid "好"
+msgstr "ตกลง"
+
+#: Disabled references:1
+msgid "非常好"
+msgstr "ยอดเยี่ยม"
 
 #: Disabled references:1
 msgid "显示选中结果"
@@ -58260,6 +58460,14 @@ msgid "传递触发者"
 msgstr "ส่งต่อทริกเกอร์"
 
 #: Disabled references:1
+msgid "%0（新版比较到时间）"
+msgstr "%0 (เวลาเปรียบเทียบเวอร์ชันใหม่)"
+
+#: Disabled references:1
+msgid "%0（旧版比较到日期）"
+msgstr "%0 (เปรียบเทียบกับวันที่ในเวอร์ชันก่อนหน้า)"
+
+#: Disabled references:1
 msgid "条件异常时忽略"
 msgstr "ละเว้นเงื่อนไขผิดปกติ"
 
@@ -64032,6 +64240,10 @@ msgid "最大数量"
 msgstr "จำนวนสูงสุด"
 
 #: Disabled references:1
+msgid "请填写数值"
+msgstr "กรอกค่า"
+
+#: Disabled references:1
 msgid "自定义视图"
 msgstr "มุมมองแบบกำหนดเอง"
 
@@ -67728,6 +67940,10 @@ msgid "职位Id"
 msgstr "รหัสตำแหน่ง"
 
 #: Disabled references:1
+msgid "组织角色ID"
+msgstr "รหัสบทบาทองค์กร"
+
+#: Disabled references:1
 msgid "具体错误信息"
 msgstr "ข้อมูลข้อผิดพลาดโดยละเอียด"
 
@@ -67854,8 +68070,70 @@ msgstr "โหมดสิทธิ์:
 0: แจกจ่ายรายการแอปพร้อมสิทธิ์"
 
 #: Disabled references:1
+msgid "工作表 id"
+msgstr "รหัสแผ่นงาน"
+
+#: Disabled references:1
+msgid "新增权限"
+msgstr "เพิ่มการอนุญาต"
+
+#: Disabled references:1
+msgid "20：用户加入的，30：包含下属，100：全部"
+msgstr "20: ผู้เข้าร่วม  
+30: รวมผู้ใต้บังคับบัญชา  
+100: ทั้งหมด"
+
+#: Disabled references:1
+msgid "字段权限控制"
+msgstr "การควบคุมสิทธิ์ฟิลด์"
+
+#: Disabled references:1
+msgid "字段id"
+msgstr "รหัสฟิลด์"
+
+#: Disabled references:1
+msgid "查看权限，false：有权限，true："
+msgstr "สิทธิ์มุมมอง, false: อนุญาต, true:"
+
+#: Disabled references:1
+msgid "工作表添加记录"
+msgstr "เพิ่มบันทึกในเวิร์กชีต"
+
+#: Disabled references:1
+msgid "工作表分享"
+msgstr "การแชร์แผ่นงาน"
+
+#: Disabled references:1
+msgid "工作表导入"
+msgstr "นำเข้าเวิร์กชีต"
+
+#: Disabled references:1
+msgid "工作表导出"
+msgstr "ส่งออกเวิร์กชีต"
+
+#: Disabled references:1
+msgid "工作表讨论"
+msgstr "การสนทนาเวิร์กชีต"
+
+#: Disabled references:1
+msgid "工作表日志"
+msgstr "บันทึกแผ่นงาน"
+
+#: Disabled references:1
+msgid "工作表批量操作"
+msgstr "การดำเนินการเวิร์กชีตแบบกลุ่ม"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "การแชร์บันทึก"
+
+#: Disabled references:1
 msgid "页面列表"
 msgstr "รายการหน้า"
+
+#: Disabled references:1
+msgid "自定义页面 id"
+msgstr "ID หน้ากำหนดเอง"
 
 #: Disabled references:1
 msgid "页面名称"
@@ -69592,10 +69870,6 @@ msgstr "กรอกเนื้อหา"
 #: Disabled references:1
 msgid "请填写邮箱地址"
 msgstr "กรอกอีเมลของคุณ"
-
-#: Disabled references:1
-msgid "请填写数值"
-msgstr "กรอกค่า"
 
 #: Disabled references:1
 msgid "请填写身份证"

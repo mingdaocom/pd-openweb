@@ -35,7 +35,7 @@ class UploadProgress extends React.Component {
         break;
       case UPLOAD_STATUS.ERROR:
         colorClass = 'bgError';
-        text = this.props.errorText || '上传失败';
+        text = this.props.errorText || _l('上传失败');
         icon = <Icon className="uploadPercentageText fgError" icon="delete" />;
         break;
       case UPLOAD_STATUS.UPLOADING:
@@ -331,7 +331,7 @@ class UploadAssistant extends React.Component {
 
     window.onbeforeunload = function () {
       if (comp.state.fileList.find(fileItem => fileItem.status === UPLOAD_STATUS.UPLOADING)) {
-        return '有文件正在上传中，确定要放弃上传？';
+        return _l('有文件正在上传中，确定要放弃上传？');
       }
     };
 

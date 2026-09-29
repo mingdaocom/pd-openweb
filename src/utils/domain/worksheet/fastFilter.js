@@ -161,7 +161,12 @@ export const SHOW_RELATE_TYPE = {
   default: 2, //下拉框
   types: SHOW_TYPE.map(o => {
     if (o.value === 1) {
-      return { ...o, txt: '（最多显示20个）' };
+      return {
+        ...o,
+        get txt() {
+          return _l('（最多显示20个）');
+        },
+      };
     } else {
       return o;
     }

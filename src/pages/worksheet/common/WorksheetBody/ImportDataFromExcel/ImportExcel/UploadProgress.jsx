@@ -25,7 +25,7 @@ export default class UploadProgress extends React.Component {
         break;
       case UPLOAD_STATUS.ERROR:
         colorClass = 'bgError';
-        text = errorText || '上传失败';
+        text = errorText || _l('上传失败');
         icon = <Icon className="uploadPercentageText fgError" icon="delete" />;
         break;
       case UPLOAD_STATUS.UPLOADING:

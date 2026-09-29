@@ -28,7 +28,7 @@ class TaskEntrypoint extends Component {
     }
 
     const { folderName = '' } = this.props.folderSettings;
-    return `${folderName}-任务`;
+    return _l('%0-任务', folderName);
   };
   render() {
     const { pathname } = this.props.location;

@@ -29,7 +29,7 @@ FileConfirm.prototype = {
     }
 
     if (name === '剪切板贴图') {
-      name = moment().format('上传于YYYY-MM-DD HH时mm分');
+      name = moment().format(_l('上传于YYYY-MM-DD HH时mm分'));
     }
 
     FC.dialogBoxID = 'fileConfirmDialog_' + Math.random().toString(16).slice(2);

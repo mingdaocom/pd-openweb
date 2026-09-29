@@ -264,7 +264,7 @@ export default function NavShow(props) {
           data={data}
           overlayClosable={false}
           relationControls={relateControls || []}
-          title={'筛选'}
+          title={_l('筛选')}
           filters={filters}
           allControls={filterInfo.allControls}
           globalSheetInfo={filterInfo.globalSheetInfo}

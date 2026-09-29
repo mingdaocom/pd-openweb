@@ -32,7 +32,7 @@ function UserItem(props) {
   const { accountId, avatar, fullname } = props;
   return (
     <UserItemWrap key={accountId}>
-      <img src={avatar} alt="头像" className="avatar" />
+      <img src={avatar} alt={_l('头像')} className="avatar" />
       <span className="fullname overflow_ellipsis">{fullname}</span>
     </UserItemWrap>
   );

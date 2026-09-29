@@ -130,7 +130,7 @@ export default class DetailList extends Component {
         </div>
         <div className="flexRow Font12">
           <span className="textTertiary">{_l('链接截止时间：')}</span>
-          <span>{date.format('YYYY') === '9999' ? _l('永久有效') : date.format('YYYY年MM月DD日 HH:mm')}</span>
+          <span>{date.format('YYYY') === '9999' ? _l('永久有效') : date.format(_l('YYYY年MM月DD日 HH:mm'))}</span>
         </div>
       </div>
     );

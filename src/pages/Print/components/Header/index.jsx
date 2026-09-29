@@ -129,7 +129,7 @@ class Header extends React.Component {
                       </html>`;
 
         const param = {
-          name: printData.name || printData.formName || '打印',
+          name: printData.name || printData.formName || _l('打印'),
           html: str || '',
           width: isHorizontal ? paperSizeOption.height : paperSizeOption.width,
           height: isHorizontal ? paperSizeOption.width : paperSizeOption.height,
@@ -137,7 +137,7 @@ class Header extends React.Component {
 
         requestExportWord(param).then(data => {
           this.setState({ exportLoading: false });
-          const fileName = `${printData.name || printData.formName || '打印'}${new Date().getTime()}.docx`;
+          const fileName = `${printData.name || printData.formName || _l('打印')}${new Date().getTime()}.docx`;
           saveAs(data, fileName);
         });
       });

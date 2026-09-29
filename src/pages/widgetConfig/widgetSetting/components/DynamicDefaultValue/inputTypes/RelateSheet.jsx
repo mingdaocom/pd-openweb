@@ -53,7 +53,7 @@ class RelateSheet extends Component {
             cid: '',
             rcid: '',
             staticValue: JSON.stringify([item.rowid]),
-            relateSheetName: getCurrentValue(titleControl, item[titleControl.controlId], { type: 2 }) || '未命名',
+            relateSheetName: getCurrentValue(titleControl, item[titleControl.controlId], { type: 2 }) || _l('未命名'),
           };
         });
 

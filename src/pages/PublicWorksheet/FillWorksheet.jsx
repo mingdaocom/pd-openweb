@@ -84,10 +84,10 @@ export default class FillWorksheet extends React.Component {
       window.onbeforeunload = function (e) {
         e = e || window.event;
         if (e) {
-          e.returnValue = '关闭提示';
+          e.returnValue = _l('关闭提示');
         }
 
-        return '关闭提示';
+        return _l('关闭提示');
       };
     }
 

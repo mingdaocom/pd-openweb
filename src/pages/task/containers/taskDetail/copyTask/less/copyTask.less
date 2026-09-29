@@ -1,4 +1,4 @@
-﻿.copyTask {
+.copyTask {
   #copyOperation,
   .copyTitleBox {
     font-size: 13px;
@@ -30,34 +30,13 @@
     margin-top: 8px;
     padding: 3px 0;
     display: inline-block;
-    .noClick {
-      cursor: default;
-      opacity: 0.5;
-    }
   }
-  #copyOperation .checkOperation {
+  #copyOperation .checkOperation.hap-checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
     font-size: 13px;
-    display: inline-block;
     vertical-align: top;
     color: var(--color-text-title);
-    cursor: pointer;
-    .operationCheckbox {
-      font-size: 12px;
-      border-radius: 2px;
-      color: var(--color-white);
-      margin-right: 8px;
-      border-width: 1px;
-      border-style: solid;
-      margin-top: 2px;
-      display: inline-block;
-      vertical-align: top;
-    }
-    &:not(.checked) {
-      .operationCheckbox {
-        border-color: var(--color-border-tertiary) !important;
-        background: var(--color-background-primary) !important;
-      }
-    }
   }
   .copyTitleBox {
     box-sizing: border-box;

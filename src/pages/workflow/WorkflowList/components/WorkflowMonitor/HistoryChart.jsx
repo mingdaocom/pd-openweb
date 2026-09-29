@@ -156,7 +156,7 @@ export default class HistoryChart extends PureComponent {
             <li class="g2-tooltip-list-item TxtCenter">
               <span class="g2-tooltip-name colorPrimary Hand customContent" data-date=${JSON.stringify(
                 date,
-              )} date1=${date}>查看详情</span>
+              )} date1=${date}>${_l('查看详情')}</span>
             </li>
           </div>`;
         },

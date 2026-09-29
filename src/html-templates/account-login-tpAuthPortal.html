@@ -7,6 +7,7 @@
         <meta name="force-rendering" content="webkit" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
         <title content="登录"></title>
+        <script src="/staticfiles/staticLanguages.js"></script>
     </head>
     <body>
         <script>
@@ -38,7 +39,7 @@
                             alert(response.data.message);
                         }
                     } else {
-                        alert('服务异常，登录失败!');
+                        alert(window.getStaticLanguageText('服务异常，登录失败!'));
                     }
                 }
             };

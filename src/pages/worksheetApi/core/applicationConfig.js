@@ -264,14 +264,22 @@ export const ADD_API_CONTROLS = [
     required: true,
   },
   {
-    controlName: '日期',
-    alias: '字段别名',
+    get controlName() {
+      return _l('日期');
+    },
+    get alias() {
+      return _l('字段别名');
+    },
     type: 15,
     required: true,
   },
   {
-    controlName: '日期时间',
-    alias: '字段别名',
+    get controlName() {
+      return _l('日期时间');
+    },
+    get alias() {
+      return _l('字段别名');
+    },
     type: 16,
     required: true,
   },

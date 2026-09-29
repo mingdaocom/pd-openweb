@@ -110,7 +110,7 @@ const keysDef = [
     name: _l('服务价格'),
     render: item => {
       const { price } = item;
-      return <span className="Green_fr">{price && price > 0 ? `¥ ${price}/次` : _l('免费')}</span>;
+      return <span className="Green_fr">{price && price > 0 ? _l('¥ %0/次', price) : _l('免费')}</span>;
     },
   },
 ];

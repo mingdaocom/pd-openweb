@@ -253,7 +253,7 @@ export default function PreviewData(props) {
         relationControls={(controls || []).map(o => {
           return { ...o, controlPermissions: '100' };
         })}
-        title={'筛选'}
+        title={_l('筛选')}
         fromCondition="subTotal" //只能设置指定时间，套用原有设置
         filters={filters}
         allControls={[]}

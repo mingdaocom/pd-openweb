@@ -691,7 +691,7 @@ function PluginConfig(props) {
                         {source === 0
                           ? `${detailData.creator.fullname} ${_l('发布于')} ${moment(
                               detailData.currentVersion.releaseTime,
-                            ).format('YYYY年MM月DD日 HH:mm')}`
+                            ).format(_l('YYYY年MM月DD日 HH:mm'))}`
                           : getPluginOperateText(detailData.recentOperation)}
                       </div>
                       <div className="ellipsis">{detailData.currentVersion.versionDescription}</div>

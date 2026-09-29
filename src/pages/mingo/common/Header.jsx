@@ -157,7 +157,7 @@ export default function Header({
           </a>
         ) : (
           <a href={pathCompletion('/')} className="logo t-flex t-items-center">
-            <img className="hap-logo" src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} alt="HAP助手" />
+            <img className="hap-logo" src={md.global.SysSettings.aiBrandLogoUrl || mingoHead} alt={_l('HAP助手')} />
             {md.global.SysSettings.aiBrandName || 'Mingo'}
           </a>
         ))}

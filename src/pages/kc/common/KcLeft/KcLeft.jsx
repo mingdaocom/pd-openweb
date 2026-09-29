@@ -272,7 +272,7 @@ class KcLeft extends Component {
     this.setState({
       searchName: directoryName
         ? _l('在“%0”中搜索', directoryName.length < 10 ? directoryName : directoryName.substr(0, 9) + '..')
-        : '在知识中心中搜索',
+        : _l('在知识中心中搜索'),
     });
   };
 

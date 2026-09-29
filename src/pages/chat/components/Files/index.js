@@ -42,9 +42,9 @@ export const splitFiles = list => {
     }
 
     if (fileTime.isAfter(moment().startOf('year'))) {
-      sTime = fileTime.format('M月');
+      sTime = fileTime.format(_l('M月'));
     } else {
-      sTime = fileTime.format('YYYY年M月');
+      sTime = fileTime.format(_l('YYYY年M月'));
     }
 
     if (!oSplit[sTime]) {

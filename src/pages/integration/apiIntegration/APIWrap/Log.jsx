@@ -307,7 +307,7 @@ export default function Log(props) {
         }
 
         const time = moment(record.completeDate).diff(moment(record.createDate), 'seconds');
-        return `${time < 1 ? 1 : time} 秒`;
+        return _l('%0 秒', time < 1 ? 1 : time);
       },
     },
     {

@@ -74,7 +74,7 @@ class AddressBookInvite extends Component {
         <div className="resultContent" style={{ minHeight: 280 }}>
           {selectUsers.map(user => {
             const props = {
-              avatar: <img src={user.avatar} alt="头像" className="GSelect-result-subItem__avatar" />,
+              avatar: <img src={user.avatar} alt={_l('头像')} className="GSelect-result-subItem__avatar" />,
               id: user.accountId,
               name: user.fullname,
               deleteFn: this.deleteFn,

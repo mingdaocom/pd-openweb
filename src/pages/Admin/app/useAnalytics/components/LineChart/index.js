@@ -264,7 +264,7 @@ export default class LineChart extends React.Component {
         const workflowLegendOffsetX = this.getLegendOffsetX(10);
         ChartComponent = Line;
         chartConfig = {
-          data: isAllZero ? [...data, { value: 1000, category: '工作流执行数' }] : data,
+          data: isAllZero ? [...data, { value: 1000, category: _l('工作流执行数') }] : data,
           appendPadding: [0, 20, 0, 0],
           xField: 'date',
           yField: 'value',

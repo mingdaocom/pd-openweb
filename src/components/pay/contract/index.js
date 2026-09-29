@@ -209,8 +209,8 @@ class ContractCom extends Component {
                   {order.unLimited ? _l('(无限人数版)') : ''}
                 </td>
                 <td>{order.unLimited ? _l('无限') : order.userNum}</td>
-                <td>{order.startDate && moment(order.startDate).format('YYYY年MM月DD日')}</td>
-                <td>{order.endDate && moment(new Date(order.endDate)).format('YYYY年MM月DD日')}</td>
+                <td>{order.startDate && moment(order.startDate).format(_l('YYYY年MM月DD日'))}</td>
+                <td>{order.endDate && moment(new Date(order.endDate)).format(_l('YYYY年MM月DD日'))}</td>
                 <td>{order.projectAutoId}</td>
                 <td>{order.price && order.price.toFixed(2)}</td>
               </tr>

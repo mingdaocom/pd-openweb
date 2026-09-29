@@ -187,7 +187,7 @@ export default function NotFillStatus(props) {
           {getTip(worksheetId, status) && <Tip2 className="mTop8">{getTip(worksheetId, status)}</Tip2>}
           {status === FILL_STATUS.NOT_OPEN && (
             <Tip2 className="mTop8">
-              {_l('表单将于') + moment(linkSwitchTime.startTime).format('YYYY年MM月DD日 HH:mm') + _l('开放填写')}
+              {_l('表单将于') + moment(linkSwitchTime.startTime).format(_l('YYYY年MM月DD日 HH:mm')) + _l('开放填写')}
             </Tip2>
           )}
 

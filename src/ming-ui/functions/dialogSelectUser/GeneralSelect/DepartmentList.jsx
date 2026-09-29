@@ -212,7 +212,7 @@ class Department extends Component {
               })}
             </div>
             {this.props.showUserCount ? (
-              <div className={cx('GSelect-department__count')}>{`（${department.userCount}人）`}</div>
+              <div className={cx('GSelect-department__count')}>{_l('（%0人）', department.userCount)}</div>
             ) : null}
             {checkIncludeChilren && !disabled && (
               <span

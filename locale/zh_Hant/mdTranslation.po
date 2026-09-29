@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: "
-"POT-Creation-Date: 2026-09-23 13:45:03"
+"POT-Creation-Date: 2026-09-29 10:12:56"
 "Language-Team: Chinese Traditional"
 "Language: zh_TW"
 "MIME-Version: 1.0"
@@ -4398,6 +4398,10 @@ msgid "从联系人中选择用户，邀请加入到当前组织"
 msgstr "從聯絡人中選擇使用者，邀請加入到當前組織"
 
 #: Disabled references:1
+msgid "头像"
+msgstr "頭像"
+
+#: Disabled references:1
 msgid "选择"
 msgstr "選擇"
 
@@ -4436,6 +4440,10 @@ msgstr "連結截止時間："
 #: Disabled references:1
 msgid "永久有效"
 msgstr "永久有效"
+
+#: Disabled references:1
+msgid "YYYY年MM月DD日 HH:mm"
+msgstr "YYYY年MM月DD日 HH:mm"
 
 #: Disabled references:1
 msgid "已加入"
@@ -4824,6 +4832,10 @@ msgstr "全體參與者"
 #: Disabled references:1
 msgid "无法解析"
 msgstr "無法解析"
+
+#: Disabled references:1
+msgid "群组已删除"
+msgstr "群組已刪除"
 
 #: Disabled references:1
 msgid "未知话题"
@@ -5418,6 +5430,18 @@ msgid "表情分类"
 msgstr "表情分類"
 
 #: Disabled references:1
+msgid "拥有者"
+msgstr "擁有者"
+
+#: Disabled references:1
+msgid "可编辑"
+msgstr "可編輯"
+
+#: Disabled references:1
+msgid "只读"
+msgstr "唯讀"
+
+#: Disabled references:1
 msgid "共享文件夹不存在或已被删除"
 msgstr "共享資料夾不存在或已被刪除"
 
@@ -5454,6 +5478,10 @@ msgid "操作失败,请稍后重试"
 msgstr "操作失敗，請稍後再試"
 
 #: Disabled references:1
+msgid "未加入其他网络"
+msgstr "未加入其他網絡"
+
+#: Disabled references:1
 msgid "归属变更"
 msgstr "歸屬變更"
 
@@ -5468,6 +5496,10 @@ msgstr "清空成員"
 #: Disabled references:1
 msgid "保留"
 msgstr "保留"
+
+#: Disabled references:1
+msgid "是否确定退出该共享文件夹?"
+msgstr "確定要退出該共享資料夾嗎？"
 
 #: Disabled references:1
 msgid "是否确定移除该成员"
@@ -5522,18 +5554,6 @@ msgid "%0 邀请"
 msgstr "%0 邀請"
 
 #: Disabled references:1
-msgid "拥有者"
-msgstr "擁有者"
-
-#: Disabled references:1
-msgid "可编辑"
-msgstr "可編輯"
-
-#: Disabled references:1
-msgid "只读"
-msgstr "唯讀"
-
-#: Disabled references:1
 msgid "托付文件夹"
 msgstr "托付文件夾"
 
@@ -5560,6 +5580,18 @@ msgstr "文件夾歸屬"
 #: Disabled references:1
 msgid "添加协作者"
 msgstr "添加協作者"
+
+#: Disabled references:1
+msgid "可管理共享成员，管理文件"
+msgstr "管理共享成員及文件"
+
+#: Disabled references:1
+msgid "可添加共享者，添加修改文件"
+msgstr "可新增共享者及修改文件"
+
+#: Disabled references:1
+msgid "可查看和下载允许下载的文件"
+msgstr "可檢視及下載已授權下載的文件"
 
 #: Disabled references:1
 msgid "允许"
@@ -5630,6 +5662,10 @@ msgid "您无权限修改该文件的分享权限"
 msgstr "您無權限修改該文件的分享權限"
 
 #: Disabled references:1
+msgid "我"
+msgstr "我"
+
+#: Disabled references:1
 msgid "没有子文件夹"
 msgstr "沒有子文件夾"
 
@@ -5644,6 +5680,14 @@ msgstr "創建失敗"
 #: Disabled references:1
 msgid "更改"
 msgstr "更改"
+
+#: Disabled references:1
+msgid "文件未开启分享，他人无法查看"
+msgstr "未啟用公開分享，其他人無法查看此文件"
+
+#: Disabled references:1
+msgid "任何人可查看"
+msgstr "任何人可檢視"
 
 #: Disabled references:1
 msgid "%0的联系人可预览"
@@ -7102,6 +7146,10 @@ msgid "重复日程"
 msgstr "重複日程"
 
 #: Disabled references:1
+msgid "%0星"
+msgstr "%0星"
+
+#: Disabled references:1
 msgid "求和"
 msgstr "求和"
 
@@ -7156,6 +7204,10 @@ msgstr "列印欄位不可為空"
 #: Disabled references:1
 msgid "自定义字段内容"
 msgstr "自訂欄位內容"
+
+#: Disabled references:1
+msgid "%0统计"
+msgstr "%0統計圖表"
 
 #: Disabled references:1
 msgid "母任务"
@@ -7538,6 +7590,14 @@ msgid "请选择要发送到的任务"
 msgstr "請選擇要發送到的任務"
 
 #: Disabled references:1
+msgid "分享了知识下的文件"
+msgstr "已分享知識中心下的文件"
+
+#: Disabled references:1
+msgid "添加了文件："
+msgstr "新增文件："
+
+#: Disabled references:1
 msgid "分享失败"
 msgstr "分享失敗"
 
@@ -7680,6 +7740,10 @@ msgstr "放大"
 #: Disabled references:1
 msgid "对方不是您的联系人，无法查看"
 msgstr "對方不是您的聯絡人，無法查看"
+
+#: Disabled references:1
+msgid "下拉刷新"
+msgstr "下拉重整"
 
 #: Disabled references:1
 msgid "选择地区"
@@ -7884,10 +7948,6 @@ msgstr "明天 %0"
 #: Disabled references:1
 msgid "MM月DD日 HH:mm"
 msgstr "MM月DD日 HH:mm"
-
-#: Disabled references:1
-msgid "YYYY年MM月DD日 HH:mm"
-msgstr "YYYY年MM月DD日 HH:mm"
 
 #: Disabled references:1
 msgid "搜索地区或区号"
@@ -8404,6 +8464,10 @@ msgstr "部門下所有人已加入"
 #: Disabled references:1
 msgid "群组下所有人已加入"
 msgstr "群組下所有人已加入"
+
+#: Disabled references:1
+msgid "（%0人）"
+msgstr "(%0人)"
 
 #: Disabled references:1
 msgid "仅当前部门"
@@ -10250,12 +10314,12 @@ msgid "API"
 msgstr "API"
 
 #: Disabled references:1
-msgid "获取用户所在组织列表"
-msgstr "獲取用戶所在組織列表"
+msgid "获取当前用户所在组织列表"
+msgstr "獲取當前用戶所在組織列表"
 
 #: Disabled references:1
-msgid "获取用户信息"
-msgstr "獲取用戶資訊"
+msgid "获取当前用户信息"
+msgstr "獲取當前用戶資訊"
 
 #: Disabled references:1
 msgid "获取应用列表"
@@ -21770,12 +21834,12 @@ msgid "配置已更改，请重新预览"
 msgstr "配置已更改，請重新預覽"
 
 #: Disabled references:1
-msgid "%0 项"
-msgstr "%0 項"
-
-#: Disabled references:1
 msgid "筛选"
 msgstr "篩選"
+
+#: Disabled references:1
+msgid "%0 项"
+msgstr "%0 項"
 
 #: Disabled references:1
 msgid "无权限查看"
@@ -21956,6 +22020,22 @@ msgstr "發佈者"
 #: Disabled references:1
 msgid "版本管理"
 msgstr "版本管理"
+
+#: Disabled references:1
+msgid "发布后不需要审核，再操作升级，适用于需快速迭代更新场景"
+msgstr "發佈後無需審核，可直接升級，適用於需快速迭代更新的場景"
+
+#: Disabled references:1
+msgid "发布后需管理员审核通过后，再操作升级"
+msgstr "發布後需租戶管理員審核通過，方可升級"
+
+#: Disabled references:1
+msgid "沙盒环境开发中，所有变更必须通过发布更新至生产"
+msgstr "沙盒環境開發時，所有變更必須發佈至生產環境"
+
+#: Disabled references:1
+msgid "当前处于生产环境，请前往沙盒环境进行开发"
+msgstr "目前處於生產環境，請前往沙盒環境進行開發"
 
 #: Disabled references:1
 msgid "开启应用沙盒失败，请稍后重试"
@@ -22908,6 +22988,10 @@ msgstr "語義搜尋"
 #: Disabled references:1
 msgid "关键词检索"
 msgstr "關鍵字搜尋"
+
+#: Disabled references:1
+msgid "且"
+msgstr "且"
 
 #: Disabled references:1
 msgid "是其中一个"
@@ -25873,10 +25957,6 @@ msgid "%0不允许为空"
 msgstr "%0不允許為空"
 
 #: Disabled references:1
-msgid "头像"
-msgstr "頭像"
-
-#: Disabled references:1
 msgid "欢迎语"
 msgstr "歡迎語"
 
@@ -27553,10 +27633,6 @@ msgid "部分字段仅支持对字段名称生效（如定位等）。选择多�
 msgstr "部分欄位僅支援名稱樣式（如定位等）。選擇多個欄位時，不支援值樣式的欄位，其值樣式將不生效。"
 
 #: Disabled references:1
-msgid "且"
-msgstr "且"
-
-#: Disabled references:1
 msgid "锁定记录"
 msgstr "鎖定記錄"
 
@@ -28703,10 +28779,6 @@ msgstr "轉換為群組後，您可獲得：指定更多管理員，群組審核
 #: Disabled references:1
 msgid "同事群组进入到通讯录中方便管理并能支持到更多应用。"
 msgstr "同事群組進入到通訊錄中方便管理並能支持到更多應用。"
-
-#: Disabled references:1
-msgid "（%0人）"
-msgstr "(%0人)"
 
 #: Disabled references:1
 msgid "组织成员离职后自动退出群组"
@@ -30097,10 +30169,6 @@ msgid "部门选择"
 msgstr "部門選擇"
 
 #: Disabled references:1
-msgid "我"
-msgstr "我"
-
-#: Disabled references:1
 msgid "流程未启用"
 msgstr "流程尚未啟用"
 
@@ -30499,6 +30567,10 @@ msgstr "系統配置"
 #: Disabled references:1
 msgid "认证"
 msgstr "認證"
+
+#: Disabled references:1
+msgid "千问办公"
+msgstr "千問辦公"
 
 #: Disabled references:1
 msgid "对话安装"
@@ -31451,6 +31523,10 @@ msgstr "查詢到%0個結果"
 #: Disabled references:1
 msgid "没有查询结果"
 msgstr "沒有查詢結果"
+
+#: Disabled references:1
+msgid "关闭提示"
+msgstr "關閉彈出提示"
 
 #: Disabled references:1
 msgid "当前表单已过期"
@@ -36545,6 +36621,14 @@ msgid "转为长期群组 >"
 msgstr "轉為長期群組 >"
 
 #: Disabled references:1
+msgid "M月"
+msgstr "M月"
+
+#: Disabled references:1
+msgid "YYYY年M月"
+msgstr "YYYY年M月"
+
+#: Disabled references:1
 msgid "动态详情"
 msgstr "動態詳情"
 
@@ -37163,6 +37247,10 @@ msgstr "關閉會話"
 #: Disabled references:1
 msgid "您最多可输入%0个字符"
 msgstr "您最多可輸入%0個字符"
+
+#: Disabled references:1
+msgid "上传于YYYY-MM-DD HH时mm分"
+msgstr "上載於YYYY-MM-DD HH:mm"
 
 #: Disabled references:1
 msgid "名称不能包含以下字符:"
@@ -40101,6 +40189,14 @@ msgid "将API配置导出为文件，之后可以将此文件导入其他组织�
 msgstr "將 API 配置匯出為檔案，之後可以將此檔案匯入其他組織以實現 API 遷移或升級。"
 
 #: Disabled references:1
+msgid "请求参数"
+msgstr "請求參數"
+
+#: Disabled references:1
+msgid "返回值"
+msgstr "返回值"
+
+#: Disabled references:1
 msgid "查看 API 请求日志详情"
 msgstr "查看 API 請求日誌詳情"
 
@@ -40191,6 +40287,10 @@ msgstr "API庫"
 #: Disabled references:1
 msgid "服务价格"
 msgstr "服務價格"
+
+#: Disabled references:1
+msgid "¥ %0/次"
+msgstr "¥  %0/次"
 
 #: Disabled references:1
 msgid "授权回调地址"
@@ -40379,14 +40479,6 @@ msgstr "隱藏參數會加密存儲，不可取消隱藏"
 #: Disabled references:1
 msgid "请选择类型"
 msgstr "請選擇類型"
-
-#: Disabled references:1
-msgid "请求参数"
-msgstr "請求參數"
-
-#: Disabled references:1
-msgid "返回值"
-msgstr "返回值"
 
 #: Disabled references:1
 msgid "暂无相关日志记录"
@@ -41315,6 +41407,10 @@ msgstr "添加到 SSH 伺服器的 authorized_keys 檔案內"
 #: Disabled references:1
 msgid "数据源名称"
 msgstr "資料源名稱"
+
+#: Disabled references:1
+msgid "名称不能包含换行符、空格或-"
+msgstr "名稱不可包含換行符、空格或 -"
 
 #: Disabled references:1
 msgid "作为"
@@ -43161,6 +43257,10 @@ msgid "保存失败, 您无法选择文件路径"
 msgstr "保存失敗，您無法選擇文件路徑"
 
 #: Disabled references:1
+msgid "获取预览链接失败"
+msgstr "取得預覽連結失敗"
+
+#: Disabled references:1
 msgid "大小："
 msgstr "大小："
 
@@ -43273,6 +43373,10 @@ msgid "在“%0”中搜索"
 msgstr "在“%0”中搜尋"
 
 #: Disabled references:1
+msgid "在知识中心中搜索"
+msgstr "在知識中心搜尋"
+
+#: Disabled references:1
 msgid "共享设置"
 msgstr "共享設定"
 
@@ -43349,6 +43453,26 @@ msgid "(外部用户)"
 msgstr "（外部用戶）"
 
 #: Disabled references:1
+msgid "文件夹"
+msgstr "資料夾"
+
+#: Disabled references:1
+msgid "创建了%0"
+msgstr "已建立%0"
+
+#: Disabled references:1
+msgid "将此共享文件夹放入了回收站"
+msgstr "已將此共享資料夾移至回收站"
+
+#: Disabled references:1
+msgid "彻底删除了此共享文件夹"
+msgstr "已徹底刪除此共享資料夾"
+
+#: Disabled references:1
+msgid "还原了此共享文件夹"
+msgstr "已還原此共享資料夾"
+
+#: Disabled references:1
 msgid "添加了成员"
 msgstr "新增成員"
 
@@ -43373,8 +43497,40 @@ msgid "的权限"
 msgstr "的權限"
 
 #: Disabled references:1
+msgid "从 %0"
+msgstr "由 %0"
+
+#: Disabled references:1
 msgid "调整为 %0"
 msgstr "調整為 %0"
+
+#: Disabled references:1
+msgid "重命名了共享文件夹 %0 为 %1"
+msgstr "已將共享資料夾 %0 重命名為 %1"
+
+#: Disabled references:1
+msgid "退出了此共享文件夹"
+msgstr "已退出此共享資料夾"
+
+#: Disabled references:1
+msgid "添加了%0%1"
+msgstr "已新增%0%1"
+
+#: Disabled references:1
+msgid "移动了%0%1"
+msgstr "已移動%0%1"
+
+#: Disabled references:1
+msgid "将%0%1放入回收站"
+msgstr "將%0%1移至回收站"
+
+#: Disabled references:1
+msgid "彻底删除了%0%1"
+msgstr "已徹底刪除%0%1"
+
+#: Disabled references:1
+msgid "恢复了%0%1"
+msgstr "已恢復%0%1"
 
 #: Disabled references:1
 msgid "%0的日志"
@@ -43445,6 +43601,10 @@ msgid "文件格式不支持"
 msgstr "文件格式不支援"
 
 #: Disabled references:1
+msgid "有文件正在上传中，确定要放弃上传？"
+msgstr "有檔案正在上傳，確定要放棄上傳？"
+
+#: Disabled references:1
 msgid "上传到"
 msgstr "上傳到"
 
@@ -43465,12 +43625,12 @@ msgid "文件上传到:"
 msgstr "上傳文件至："
 
 #: Disabled references:1
-msgid "操作失败，请稍后重试！"
-msgstr "操作失敗，請稍後重試！"
+msgid "位置不可见"
+msgstr "位置隱藏"
 
 #: Disabled references:1
-msgid "文件夹"
-msgstr "資料夾"
+msgid "操作失败，请稍后重试！"
+msgstr "操作失敗，請稍後重試！"
 
 #: Disabled references:1
 msgid "我的文件根目录"
@@ -43815,10 +43975,6 @@ msgstr "已取消標星"
 #: Disabled references:1
 msgid "您权限不足，无法下载。请联系文件夹管理员或文件上传者"
 msgstr "您權限不足，無法下載。請聯繫文件夾管理員或文件上傳者"
-
-#: Disabled references:1
-msgid "获取预览链接失败"
-msgstr "取得預覽連結失敗"
 
 #: Disabled references:1
 msgid "链接有效期至%0"
@@ -45793,6 +45949,10 @@ msgid "正在整理要导出的数据，请稍候..."
 msgstr "正在整理要匯出的資料，請稍候..."
 
 #: Disabled references:1
+msgid "%0-%1日 %2周"
+msgstr "%0-%1日 第%2週"
+
+#: Disabled references:1
 msgid "完成："
 msgstr "完成"
 
@@ -46215,6 +46375,10 @@ msgstr "收藏任務-任務"
 #: Disabled references:1
 msgid "下属任务-任务"
 msgstr "下屬任務-任務"
+
+#: Disabled references:1
+msgid "%0-任务"
+msgstr "%0-任務"
 
 #: Disabled references:1
 msgid "无法添加，单个任务下至多添加100个检查清单"
@@ -47489,6 +47653,10 @@ msgid "内容由 AI 生成，可能存在错误，仅供参考"
 msgstr "內容由 AI 生成，可能存在錯誤，僅供參考"
 
 #: Disabled references:1
+msgid "字段控件"
+msgstr "欄位控件"
+
+#: Disabled references:1
 msgid "代码无法保存，代码长度不能超过%0KB"
 msgstr "無法儲存程式碼區塊，長度不能超過%0KB"
 
@@ -47587,6 +47755,10 @@ msgstr "進入代碼編輯器"
 #: Disabled references:1
 msgid "currentControl[当前字段控件]"
 msgstr "currentControl[當前欄位控件]"
+
+#: Disabled references:1
+msgid "-保存值格式-"
+msgstr "-儲存數值格式-"
 
 #: Disabled references:1
 msgid "formData[记录字段值]"
@@ -47727,6 +47899,10 @@ msgstr "生成一個從本週週一開始的7天日期選擇器，日期以膠�
 #: Disabled references:1
 msgid "生成一个电子时钟"
 msgstr "生成一個電子時鐘"
+
+#: Disabled references:1
+msgid "生成一个现代科技风格的电子时钟，展示小时和分钟，用户可以分别设置小时与分钟，修改其中任意一个时，都将时间以\"00:00\"的格式保存。如果载入时有值，将值回显到时钟上显示。当组件参数 env 中的 isDisabled 为 true 时，禁止设置时钟，只能展示时间。"
+msgstr "生成現代科技風格的電子時鐘，顯示小時和分鐘。用戶可分別設定小時及分鐘，修改任一項時，時間將以「00:00」格式保存。如已存在值，載入時自動回顯於時鐘。當元件參數 env 的 isDisabled 為 true 時，僅可查看時間，禁止設定。"
 
 #: Disabled references:1
 msgid "生成一个仓库选择器"
@@ -50129,6 +50305,10 @@ msgid "任意选择"
 msgstr "任意選擇"
 
 #: Disabled references:1
+msgid "%0层"
+msgstr "第%0層"
+
+#: Disabled references:1
 msgid "过滤数据源"
 msgstr "過濾資料來源"
 
@@ -50327,6 +50507,26 @@ msgstr "指定組織角色"
 #: Disabled references:1
 msgid "设置为成员字段时，取成员所在的所有部门"
 msgstr "設置為成員欄位時，取成員所屬的所有部門"
+
+#: Disabled references:1
+msgid "很差"
+msgstr "很差"
+
+#: Disabled references:1
+msgid "差"
+msgstr "差"
+
+#: Disabled references:1
+msgid "一般"
+msgstr "一般"
+
+#: Disabled references:1
+msgid "好"
+msgstr "好"
+
+#: Disabled references:1
+msgid "非常好"
+msgstr "非常好"
 
 #: Disabled references:1
 msgid "显示选中结果"
@@ -58242,6 +58442,14 @@ msgid "传递触发者"
 msgstr "傳遞觸發者"
 
 #: Disabled references:1
+msgid "%0（新版比较到时间）"
+msgstr "%0（新版比較到時間）"
+
+#: Disabled references:1
+msgid "%0（旧版比较到日期）"
+msgstr "%0（舊版比較至日期）"
+
+#: Disabled references:1
 msgid "条件异常时忽略"
 msgstr "條件異常時忽略"
 
@@ -64014,6 +64222,10 @@ msgid "最大数量"
 msgstr "最大數量"
 
 #: Disabled references:1
+msgid "请填写数值"
+msgstr "請填寫數值"
+
+#: Disabled references:1
 msgid "自定义视图"
 msgstr "自訂視圖"
 
@@ -67710,6 +67922,10 @@ msgid "职位Id"
 msgstr "職位Id"
 
 #: Disabled references:1
+msgid "组织角色ID"
+msgstr "組織角色ID"
+
+#: Disabled references:1
 msgid "具体错误信息"
 msgstr "具體錯誤資訊"
 
@@ -67826,8 +68042,68 @@ msgid "权限方式：分发所有应用项，80：可查看、编辑、删除�
 msgstr "權限方式：分發所有應用項，80：可查看、編輯、刪除所有資料，60：可查看所有資料，但只能編輯、刪除自己擁有的資料，30：可查看加入的，只能編輯、刪除自己擁有的資料，20：對所有資料只有查看權限，0：分發有權限應用項"
 
 #: Disabled references:1
+msgid "工作表 id"
+msgstr "工作表 ID"
+
+#: Disabled references:1
+msgid "新增权限"
+msgstr "新增權限"
+
+#: Disabled references:1
+msgid "20：用户加入的，30：包含下属，100：全部"
+msgstr "20：用戶加入的，30：包含下屬，100：全部"
+
+#: Disabled references:1
+msgid "字段权限控制"
+msgstr "欄位權限控制"
+
+#: Disabled references:1
+msgid "字段id"
+msgstr "欄位 ID"
+
+#: Disabled references:1
+msgid "查看权限，false：有权限，true："
+msgstr "檢視權限，false：有權限，true："
+
+#: Disabled references:1
+msgid "工作表添加记录"
+msgstr "新增工作表記錄"
+
+#: Disabled references:1
+msgid "工作表分享"
+msgstr "工作表分享"
+
+#: Disabled references:1
+msgid "工作表导入"
+msgstr "導入工作表"
+
+#: Disabled references:1
+msgid "工作表导出"
+msgstr "導出工作表"
+
+#: Disabled references:1
+msgid "工作表讨论"
+msgstr "工作表討論"
+
+#: Disabled references:1
+msgid "工作表日志"
+msgstr "工作表日誌"
+
+#: Disabled references:1
+msgid "工作表批量操作"
+msgstr "工作表批量操作"
+
+#: Disabled references:1
+msgid "记录分享"
+msgstr "紀錄分享"
+
+#: Disabled references:1
 msgid "页面列表"
 msgstr "頁面清單"
+
+#: Disabled references:1
+msgid "自定义页面 id"
+msgstr "自訂頁面 ID"
 
 #: Disabled references:1
 msgid "页面名称"
@@ -69556,10 +69832,6 @@ msgstr "請填寫文字內容"
 #: Disabled references:1
 msgid "请填写邮箱地址"
 msgstr "請填寫電子郵件地址"
-
-#: Disabled references:1
-msgid "请填写数值"
-msgstr "請填寫數值"
 
 #: Disabled references:1
 msgid "请填写身份证"

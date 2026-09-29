@@ -197,8 +197,11 @@ export default class PrintOptDialog extends Component {
                       >
                         {this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId).length >
                           0 &&
-                          this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId)[0]
-                            .controlName + '统计'}
+                          _l(
+                            '%0统计',
+                            this.state.reqInfo.controls.filter(item => item.controlId === formControlItem.formId)[0]
+                              .controlName,
+                          )}
                       </Checkbox>
                     ),
                 )}

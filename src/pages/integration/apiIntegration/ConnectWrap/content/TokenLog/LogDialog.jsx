@@ -8,8 +8,6 @@ import styled from 'styled-components';
 import { Modal } from 'ming-ui/antd-components';
 import { METHODS_TYPE } from 'src/pages/workflow/WorkflowSettings/enum.js';
 
-const TABLIST = ['请求参数', '返回值'];
-
 const Wrap = styled.div`
   .tabCon {
     border-bottom: 1px solid var(--color-background-secondary);
@@ -47,7 +45,7 @@ export default function LogDialog(props) {
     return (
       <div className="tabCon TxtLeft mTop22">
         <ul>
-          {TABLIST.map((o, i) => {
+          {[_l('请求参数'), _l('返回值')].map((o, i) => {
             return (
               <li
                 className={cx('Hand Font15', { isCur: tab === i })}

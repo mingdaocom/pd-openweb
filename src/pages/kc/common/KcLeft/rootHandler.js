@@ -65,7 +65,7 @@ export function removeRoot(item, isCreator, isPermanent, cb) {
   let messageTitle;
 
   if (isCreator) {
-    messageTitle = isPermanent ? _l('确认') : '删除';
+    messageTitle = isPermanent ? _l('确认') : _l('删除');
   } else {
     messageTitle = _l('退出');
   }

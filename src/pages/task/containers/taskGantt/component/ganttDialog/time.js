@@ -40,7 +40,7 @@ export const byWeek = (beginTime, endTime) => {
 
   for (let i = 0; i < durWeeks; i++) {
     const key = beginTime.format('YYYY.MM');
-    const val = `${beginTime.date()}-${beginTime.add(6, 'day').date()}日 ${beginTime.week()}周`;
+    const val = _l('%0-%1日 %2周', beginTime.date(), beginTime.add(6, 'day').date(), beginTime.week());
     res[key] ? res[key].push(val) : (res[key] = [val]);
     beginTime.add(1, 'day');
   }

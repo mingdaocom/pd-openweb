@@ -208,7 +208,7 @@ class HomePostFilter extends React.Component {
           <Tooltip
             title={
               this.props.options.startDate
-                ? this.props.options.startDate + ' 至 ' + this.props.options.endDate
+                ? _l('%0 至 %1', this.props.options.startDate, this.props.options.endDate)
                 : _l('通过时间筛选')
             }
           >

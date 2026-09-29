@@ -173,7 +173,7 @@ function FilterShowItem(props) {
               data={control}
               overlayClosable={false}
               relationControls={relateControls}
-              title={'筛选'}
+              title={_l('筛选')}
               filters={showNavfilters}
               allControls={_.get(sheet, 'template.controls') || []}
               globalSheetInfo={sheet}

@@ -72,7 +72,7 @@ export default function Filter(props) {
           fromCondition="subTotal" //只能设置指定时间，套用原有设置
           overlayClosable={false}
           relationControls={relateControls}
-          title={'筛选'}
+          title={_l('筛选')}
           filters={filters}
           allControls={filterInfo.allControls}
           globalSheetInfo={filterInfo.globalSheetInfo}

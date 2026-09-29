@@ -39,7 +39,7 @@ export default class CopyApp extends Component {
     if (pending) return;
     this.setState({ pending: true });
     homeApp
-      .copyApp({ appName: `${title}-复制`, ...para, dbInstanceId })
+      .copyApp({ appName: _l('%0-复制', title), ...para, dbInstanceId })
       .then(result => {
         onCancel();
         if (result && typeof result === 'string') {

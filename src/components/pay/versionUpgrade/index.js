@@ -480,7 +480,7 @@ export default class VersionUpgrade extends Component {
                     value={userCount}
                     tooltip={{
                       open: true,
-                      formatter: value => (userCount <= 750 ? `${value}人` : _l('更多人数')),
+                      formatter: value => (userCount <= 750 ? _l('%0人', value) : _l('更多人数')),
                     }}
                     onChange={value => {
                       if (value < 30) return;

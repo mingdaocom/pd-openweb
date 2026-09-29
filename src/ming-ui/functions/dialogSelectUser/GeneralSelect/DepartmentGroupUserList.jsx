@@ -88,7 +88,7 @@ export default class DepartmentGroupUserList extends Component {
 
                     <div className="flex flexRow pointer" onClick={() => this.props.toggleUserItem(department[ID])}>
                       <div className="GSelect-treeItem-name overflow_ellipsis">{department[NAME]}</div>
-                      <div className="GSelect-treeItem-number">{`（${department[COUNT]}人）`}</div>
+                      <div className="GSelect-treeItem-number">{_l('（%0人）', department[COUNT])}</div>
                     </div>
                     {/* {this.props.unique ? null : (
                     <div

@@ -19,7 +19,7 @@ export const getPrintOperationLogActionText = ({
   translateInfo = {},
   operationLogActionMap = {},
   triggerActionMap = {},
-  formatReturnText = name => `退回到${name}`,
+  formatReturnText = name => _l('退回到%0', name),
   noNeedFillText = '',
 }) => {
   const { workItemLog } = workItem;

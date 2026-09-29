@@ -8,6 +8,7 @@ import { dialogSelectUser, quickSelectUser } from 'ming-ui/functions';
 import kcAjax from 'src/api/kc';
 import createRoot from 'src/common/theme/createRootWithAntdConfig';
 import { expireDialogAsync } from 'src/components/upgradeVersion';
+import { htmlEncodeReg } from 'src/utils/core/string';
 import { existAccountHint } from 'src/utils/services/inviteCommon';
 import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import addMemberTpl from './tpl/addMember.html';
@@ -24,10 +25,18 @@ var PERMISSION_TYPE = {
   READONLY: 4, // 只读
 };
 var PERMISSION_TYPE_NAME = {
-  1: '拥有者',
-  2: '管理员',
-  3: '可编辑',
-  4: '只读',
+  get 1() {
+    return _l('拥有者');
+  },
+  get 2() {
+    return _l('管理员');
+  },
+  get 3() {
+    return _l('可编辑');
+  },
+  get 4() {
+    return _l('只读');
+  },
 };
 var MEMBER_STATUS = {
   NORMAL: 1, // 正常状态
@@ -446,7 +455,7 @@ $.extend(RootSettings.prototype, {
                       .find('.remove')
                       .remove()
                       .end()
-                      .append($('<span class="remove" style="display: none;">移除</span>'));
+                      .append($('<span class="remove" style="display: none;"></span>').text(_l('移除')));
                   }
 
                   if (accountId === md.global.Account.accountId) {
@@ -502,7 +511,7 @@ $.extend(RootSettings.prototype, {
               .end()
               .find('.permission .pointer')
               .find('.text')
-              .html('可编辑')
+              .html(_l('可编辑'))
               .end()
               .find('i')
               .data('memberStatus', MEMBER_STATUS.NORMAL);
@@ -653,7 +662,7 @@ $.extend(RootSettings.prototype, {
               }
             });
             if (!itemList) {
-              itemList += '<li class="noProject ellipsis">未加入其他网络</li>';
+              itemList += '<li class="noProject ellipsis">' + htmlEncodeReg(_l('未加入其他网络')) + '</li>';
             }
 
             itemList += friendsShare;
@@ -736,7 +745,7 @@ $.extend(RootSettings.prototype, {
         var $this = $(this),
           isExit = $this.hasClass('exit'),
           removeMemberId = $this.closest('.memberItem').data('accountId'),
-          conFirmStr = isExit ? '是否确定退出该共享文件夹?' : _l('是否确定移除该成员');
+          conFirmStr = isExit ? _l('是否确定退出该共享文件夹?') : _l('是否确定移除该成员');
 
         if (isEdit) {
           Modal.confirm({

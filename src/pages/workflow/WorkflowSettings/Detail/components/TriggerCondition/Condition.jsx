@@ -219,9 +219,9 @@ export default class Condition extends Component {
 
     // 处理老的日期条件
     if (typeof conditionIndex === 'number') {
-      conditionData[conditionIndex].label = conditionData[conditionIndex].label + `（新版比较到时间）`;
+      conditionData[conditionIndex].label = _l('%0（新版比较到时间）', conditionData[conditionIndex].label);
       conditionData.splice(conditionIndex, 0, {
-        label: CONDITION_TYPE[item.conditionId] + `（旧版比较到日期）`,
+        label: _l('%0（旧版比较到日期）', CONDITION_TYPE[item.conditionId]),
         value: item.conditionId,
         disabled: true,
       });

@@ -1,8 +1,8 @@
 import { CHANGE_STATUS } from '../constants';
 
-const ROLE_SECTION_CONFIG = [
-  { key: 'applicationRole', title: '角色（应用）' },
-  { key: 'portalRole', title: '角色（外部门户）' },
+const getRoleSectionConfig = () => [
+  { key: 'applicationRole', title: _l('角色（应用）') },
+  { key: 'portalRole', title: _l('角色（外部门户）') },
 ];
 
 /** roleCategory=10 是外部门户角色，其余分类均属于应用角色。 */
@@ -15,11 +15,13 @@ const getRoleSectionKey = change => (Number(change.roleCategory) === 10 ? 'porta
 export const getChangeNavigationSections = group => {
   if (group.key !== 'roles') return [{ key: group.key, changes: group.changes }];
 
-  return ROLE_SECTION_CONFIG.map(section => ({
-    key: section.key,
-    title: section.title,
-    changes: group.changes.filter(change => getRoleSectionKey(change) === section.key),
-  })).filter(section => section.changes.length);
+  return getRoleSectionConfig()
+    .map(section => ({
+      key: section.key,
+      title: section.title,
+      changes: group.changes.filter(change => getRoleSectionKey(change) === section.key),
+    }))
+    .filter(section => section.changes.length);
 };
 
 /**
@@ -30,7 +32,7 @@ export const getChangeNavigationResources = group => {
 
   return getChangeNavigationSections(group).map(section => ({
     id: section.key,
-    name: section.title || '角色',
+    name: section.title || _l('角色'),
     action: CHANGE_STATUS.UPDATED,
     changes: { [section.key]: section.changes },
     navigationCategory: true,

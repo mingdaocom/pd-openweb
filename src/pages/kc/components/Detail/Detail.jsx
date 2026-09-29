@@ -42,7 +42,7 @@ class Detail extends React.Component {
       .catch(err => {
         if (err.errorMessage === '无法获取共享文件夹信息，可能已被删除或没有权限') {
           if (this._isMounted) {
-            this.setState({ readablePosition: '位置不可见' });
+            this.setState({ readablePosition: _l('位置不可见') });
           }
         }
       });
@@ -111,7 +111,7 @@ class Detail extends React.Component {
             if (err.errorMessage === '无法获取共享文件夹信息，可能已被删除或没有权限') {
               if (this._isMounted) {
                 this.setState({
-                  readablePosition: '位置不可见',
+                  readablePosition: _l('位置不可见'),
                 });
               }
             }

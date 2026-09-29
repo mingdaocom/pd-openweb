@@ -269,7 +269,7 @@ export default class PortalProgress extends Component {
             </div>
             <div className="mBottom16">
               <span className="textTertiary mRight18">{_l('到期时间：')}</span>
-              <span>{moment(licenseInfo.endDate).format('YYYY年MM月DD日')}</span>
+              <span>{moment(licenseInfo.endDate).format(_l('YYYY年MM月DD日'))}</span>
               <span className="textTertiary">{_l('（计费：%0天）', licenseInfo.expireDays)}</span>
             </div>
           </Fragment>

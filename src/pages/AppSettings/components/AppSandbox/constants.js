@@ -6,24 +6,36 @@ export const REVIEW_MODE = {
 export const REVIEW_RULE_CONFIG = {
   [REVIEW_MODE.EXEMPT]: {
     value: REVIEW_MODE.EXEMPT,
-    label: '免审',
-    description: '发布后不需要审核，再操作升级，适用于需快速迭代更新场景',
+    get label() {
+      return _l('免审');
+    },
+    get description() {
+      return _l('发布后不需要审核，再操作升级，适用于需快速迭代更新场景');
+    },
   },
   [REVIEW_MODE.ADMIN]: {
     value: REVIEW_MODE.ADMIN,
-    label: '管理员审核',
-    description: '发布后需管理员审核通过后，再操作升级',
+    get label() {
+      return _l('管理员审核');
+    },
+    get description() {
+      return _l('发布后需管理员审核通过后，再操作升级');
+    },
   },
 };
 
 export const ENVIRONMENT_CONFIG = {
   SANDBOX: {
     icon: 'code',
-    description: '沙盒环境开发中，所有变更必须通过发布更新至生产',
+    get description() {
+      return _l('沙盒环境开发中，所有变更必须通过发布更新至生产');
+    },
   },
   PRODUCTION: {
     icon: 'lock',
-    description: '当前处于生产环境，请前往沙盒环境进行开发',
+    get description() {
+      return _l('当前处于生产环境，请前往沙盒环境进行开发');
+    },
   },
 };
 

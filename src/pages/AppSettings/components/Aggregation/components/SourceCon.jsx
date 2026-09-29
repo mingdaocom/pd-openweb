@@ -407,7 +407,7 @@ export default function SourceCon(props) {
         data={{}}
         overlayClosable={false}
         relationControls={relateControls || []}
-        title={'筛选'}
+        title={_l('筛选')}
         fromCondition="subTotal" //只能设置指定时间，套用原有设置
         filters={filters}
         allControls={[]}
