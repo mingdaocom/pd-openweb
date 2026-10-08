@@ -84,6 +84,7 @@ export default function Sheet(props) {
           disabled={true}
         />
         <EditDescription
+          title={_l('工作表说明')}
           value={translateInfo.description}
           originalValue={desc}
           onChange={value => handleSave({ description: value })}

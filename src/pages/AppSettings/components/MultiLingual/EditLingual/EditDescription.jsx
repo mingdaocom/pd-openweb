@@ -34,6 +34,7 @@ export default function (props) {
           description={value}
           permissionType={100}
           isEditing={true}
+          showRemark={false}
           cacheKey="appMultilingual"
           renderLeftContent={() => (
             <RichText

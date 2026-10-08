@@ -269,7 +269,7 @@ function ChartWrapper(props) {
       ? (yaxisList.length === 1 && !xaxes.controlId) || !showTitle
       : !showTitle;
 
-    if (loading) {
+    if (loading || !showTitle) {
       return {};
     }
 

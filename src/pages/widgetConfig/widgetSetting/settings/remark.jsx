@@ -66,6 +66,7 @@ export default function Remark({ data, onChange }) {
               description={data.dataSource}
               permissionType={100} //可编辑的权限
               isEditing={true}
+              showRemark={false}
               cacheKey={'remarkDes'}
               onSave={data => {
                 const description = data.description;

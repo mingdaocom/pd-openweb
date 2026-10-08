@@ -206,7 +206,7 @@ export default ({ from, data, onChange, globalSheetInfo, allControls = [] }) => 
                   title={
                     <span className="WordBreak">
                       {_l(
-                        'Web移动端通常建议勾选此配置，可以加快图片上传速度并节省流量。未勾选时，将始终按照原图上传。（此配置影响：原生H5、公开表单、外部门户，以及第三方平台的移动App）',
+                        '开启后，上传图片时将尝试压缩图片以减少文件体积。JPG/JPEG、静态 WebP 支持质量和尺寸压缩；PNG 仅支持尺寸压缩，部分其他格式可能无法压缩。未勾选时按原图上传。此配置影响：原生 H5、公开表单、外部门户及第三方平台的移动 App）',
                       )}
                     </span>
                   }

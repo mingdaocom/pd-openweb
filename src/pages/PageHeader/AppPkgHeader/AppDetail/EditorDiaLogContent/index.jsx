@@ -324,7 +324,12 @@ export default class Editor extends Component {
 
     const isAppIntroDescription = cacheKey === 'appIntroDescription';
     const isSheetIntroDescription = cacheKey === 'sheetIntroDescription';
-    const shouldShowRemark = showRemark !== false && cacheKey !== 'appMultilingual';
+    const shouldShowRemark = showRemark !== false;
+    const shouldShowDescriptionTooltip =
+      isAppIntroDescription ||
+      isSheetIntroDescription ||
+      cacheKey === 'pageIntroDescription' ||
+      cacheKey === 'chatbotIntroDescription';
     const clientHeight = document.body.clientHeight;
     const distance = isEditing ? (isSheetIntroDescription ? (showType ? 455 : 380) : 198) : 135;
     const richTextHeight = isAppIntroDescription && !isEditing ? 0 : clientHeight - distance;
@@ -518,15 +523,17 @@ export default class Editor extends Component {
         )}
         <div className="flexRow alignItemsCenter pLeft24 pRight24 pBottom10">
           <span className="bold">{_l('说明')}</span>
-          <Tooltip
-            title={
-              isAppIntroDescription
-                ? _l('用于向使用者介绍应用的功能、使用方法和注意事项。填写的内容会在用户首次打开应用时展示。')
-                : _l('用于向使用者介绍应用项的功能、使用方法和注意事项')
-            }
-          >
-            <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
-          </Tooltip>
+          {shouldShowDescriptionTooltip && (
+            <Tooltip
+              title={
+                isAppIntroDescription
+                  ? _l('用于向使用者介绍应用的功能、使用方法和注意事项。填写的内容会在用户首次打开应用时展示。')
+                  : _l('用于向使用者介绍应用项的功能、使用方法和注意事项')
+              }
+            >
+              <Icon icon="info_outline" className="textTertiary Font15 pointer mLeft5" />
+            </Tooltip>
+          )}
         </div>
         {isSheetIntroDescription && (
           <div className="sheetIntroInfo">

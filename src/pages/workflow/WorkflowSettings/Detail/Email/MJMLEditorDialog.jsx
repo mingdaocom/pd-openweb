@@ -21,7 +21,8 @@ const DialogContent = styled.div`
     --mjml-editor-cursor: var(--color-white);
     --mjml-editor-gutter-border: var(--color-border-secondary);
   }
-  height: 640px;
+  height: 100%;
+  box-sizing: border-box;
   display: flex;
   overflow: hidden;
   border: 1px solid var(--color-border-primary);
@@ -226,7 +227,7 @@ export default function MJMLEditorDialog({
       styles={{ body: { paddingBottom: 0 } }}
       onCancel={onCancel}
     >
-      <DialogContent style={readOnly ? { height: '100%' } : undefined}>
+      <DialogContent>
         <div className="mjmlEditorPane">
           <div className="mjmlPaneHeader flexRow">
             <span className="flex Font15">MJML</span>

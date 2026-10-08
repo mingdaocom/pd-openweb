@@ -11,6 +11,8 @@ import ConnectedNode from './node';
 import SearchInput from './searchBox';
 import '../style/otherDialog.less';
 
+const NODE_DIALOG_STYLES = { body: { overflow: 'auto' } };
+
 const NodeWrap = styled.div`
   .userItem {
     display: flex;
@@ -231,6 +233,7 @@ function NodeDialogWrap(props) {
   return (
     <Modal
       type="fixed"
+      styles={NODE_DIALOG_STYLES}
       title={
         <DialogHeaderWrap>
           <span className="Font17 LineHeight32 Bold">{`“${user.fullname}” ${_l('的汇报关系')}`}</span>

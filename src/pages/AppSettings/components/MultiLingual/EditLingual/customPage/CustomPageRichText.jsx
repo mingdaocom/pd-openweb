@@ -101,6 +101,7 @@ export default function CustomPageRichText(props) {
             disabled={true}
           />
           <EditDescription
+            title={_l('文本内容')}
             value={translateInfo.description}
             originalValue={item.value}
             onChange={value => handleSave({ description: value })}

@@ -1,7 +1,6 @@
 ﻿import _ from 'lodash';
 import StructureController from 'src/api/structure';
 import { getCurrentProject } from 'src/utils/services/project';
-import Config from '../../config';
 
 const COMPANY_FAKE_ACCOUNTID = '';
 
@@ -36,21 +35,23 @@ export const UPDATE_FIRST_LEVEL_LOADING = 'UPDATE_FIRST_LEVEL_LOADING';
 const PAGE_SIZE = 20;
 
 // 公司节点
-export const initRoot = () => dispatch => {
-  const project = getCurrentProject(Config.projectId, true);
-  dispatch({
-    type: ADD_STRUCTURES,
-    payload: {
-      source: [
-        {
-          projectId: Config.projectId,
-          fullname: project.companyName,
-          accountId: COMPANY_FAKE_ACCOUNTID,
-        },
-      ],
-    },
-  });
-};
+export const initRoot =
+  () =>
+  (dispatch, getState, { projectId }) => {
+    const project = getCurrentProject(projectId, true);
+    dispatch({
+      type: ADD_STRUCTURES,
+      payload: {
+        source: [
+          {
+            projectId,
+            fullname: project.companyName,
+            accountId: COMPANY_FAKE_ACCOUNTID,
+          },
+        ],
+      },
+    });
+  };
 
 export const updateCollapse = (id = COMPANY_FAKE_ACCOUNTID, open = true) => ({
   type: open ? OPEN_COLLAPSE : CLOSE_COLLAPSE,
@@ -61,9 +62,9 @@ export const updateCollapse = (id = COMPANY_FAKE_ACCOUNTID, open = true) => ({
 
 export const addSubordinates =
   ({ id, accounts, callback }) =>
-  (dispatch, getState) => {
+  (dispatch, getState, { projectId }) => {
     StructureController.addStructure({
-      projectId: Config.projectId,
+      projectId,
       isTop: id === COMPANY_FAKE_ACCOUNTID,
       parentId: id,
       accountIds: _.map(accounts, _ => _.accountId),
@@ -144,10 +145,10 @@ export const addSubordinates =
  */
 export const replaceStructure =
   ({ account, parentId, replacedAccountId, callback }) =>
-  dispatch => {
+  (dispatch, getState, { projectId }) => {
     const { accountId } = account;
     StructureController.replaceUserStructure({
-      projectId: Config.projectId,
+      projectId,
       replacedAccountId,
       accountId,
     }).then(res => {
@@ -202,9 +203,9 @@ export const replaceStructure =
  */
 export const removeStructure =
   ({ parentId, accountId, callback }) =>
-  dispatch => {
+  (dispatch, getState, { projectId }) => {
     StructureController.removeParentID({
-      projectId: Config.projectId,
+      projectId,
       accountId,
     }).then(res => {
       if (res === 1) {
@@ -241,12 +242,12 @@ export const removeStructure =
 
 export const fetchRootSubordinates =
   (parentId, pageIndex = 1) =>
-  dispatch => {
+  (dispatch, getState, { projectId }) => {
     dispatch({ type: SUBORDINATES_REQUEST, payload: { id: parentId } });
     pageIndex <= 1 && dispatch({ type: UPDATE_IS_LOADING, payload: { data: true } });
     pageIndex > 1 && dispatch({ type: UPDATE_FIRST_LEVEL_LOADING, payload: { data: true } });
     return StructureController.pagedGetAccountList({
-      projectId: Config.projectId,
+      projectId,
       pageIndex,
       pageSize: PAGE_SIZE,
       parentId: parentId || '',
@@ -275,10 +276,10 @@ export const fetchRootSubordinates =
 
 export const fetchSubordinates =
   (parentId, pageIndex = 1) =>
-  dispatch => {
+  (dispatch, getState, { projectId }) => {
     dispatch({ type: UPDATE_ENTITY_CHILDS, payload: { id: parentId, source: [], moreLoading: true } });
     return StructureController.pagedGetAccountList({
-      projectId: Config.projectId,
+      projectId,
       pageIndex,
       pageSize: PAGE_SIZE,
       parentId: parentId || '',
@@ -297,10 +298,10 @@ export const fetchSubordinates =
  */
 export const fetchParent =
   (id, isDirect = false) =>
-  (dispatch, getState) => {
+  (dispatch, getState, { projectId }) => {
     return StructureController.getParentsByAccountId({
       accountId: id,
-      projectId: Config.projectId,
+      projectId,
       isDirect,
     }).then(parents => {
       if (parents && parents.length) {

@@ -191,6 +191,7 @@ export default function ControlContent(props) {
             disabled={true}
           />
           <EditDescription
+            title={_l('备注内容')}
             value={translateInfo.remark}
             originalValue={control.dataSource}
             onChange={value => handleSave({ remark: value })}

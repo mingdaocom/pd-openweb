@@ -314,14 +314,18 @@ export function formatControlToServer(
         control.store
       ) {
         state = control.store.getState();
+        // 默认关联的主记录可能还没有 rowid（批量触发按钮时 recordId 为 false、新建态主记录为 undefined），
+        // 不能提交成 {sid:false} / {}，否则后端会存下无效关联
+        const savedRecords = state.records.filter(record => _.isString(record.rowid) && !!record.rowid);
+
         if (isDraft && control.advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)) {
           result.value = JSON.stringify(
-            state.records
+            savedRecords
               .map(record => ({ sid: record.rowid }))
               .concat(state.changes.addedRecordIds.map(id => ({ sid: id }))),
           );
         } else if (isNewRecord || _.includes(hasDefaultRelateRecordTableControls, control.controlId)) {
-          result.value = JSON.stringify(state.records.map(record => ({ sid: record.rowid })));
+          result.value = JSON.stringify(savedRecords.map(record => ({ sid: record.rowid })));
         } else if (
           get(state, 'changes.isDeleteAll') &&
           control.advancedSetting.showtype === String(RELATE_RECORD_SHOW_TYPE.TABLE)

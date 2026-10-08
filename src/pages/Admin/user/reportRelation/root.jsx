@@ -4,7 +4,6 @@ import cx from 'classnames';
 import { LoadDiv } from 'ming-ui';
 import { Checkbox, Tooltip } from 'ming-ui/antd-components';
 import projectSettingController from 'src/api/projectSetting';
-import Config from '../../config';
 import { fetchRootSubordinates, initRoot, updateCollapse } from './actions';
 import { setStructureForAll, setStructureSelfEdit } from './common';
 import Node from './components/node';
@@ -35,7 +34,7 @@ class Root extends Component {
 
     projectSettingController
       .getStructureForAll({
-        projectId: Config.projectId,
+        projectId: this.props.projectId,
       })
       .then(auth => {
         this.setState({
@@ -51,6 +50,7 @@ class Root extends Component {
 
   changeSubordinate = checked => {
     setStructureSelfEdit({
+      projectId: this.props.projectId,
       isAllowStructureSelfEdit: !checked,
     }).then(() => {
       this.setState({
@@ -61,6 +61,7 @@ class Root extends Component {
 
   changeReporting = checked => {
     setStructureForAll({
+      projectId: this.props.projectId,
       forAll: !checked,
     }).then(() => {
       this.setState({
@@ -75,7 +76,7 @@ class Root extends Component {
     return (
       <Fragment>
         {auth && (
-          <div className="rootBoardHeader flexRow">
+          <div className="AppAdminReportRelation rootBoardHeader flexRow">
             <div className="Font17 flex Bold">
               {_l('汇报关系')}
               <Tooltip
@@ -119,7 +120,7 @@ class Root extends Component {
             </Fragment>
           </div>
         )}
-        <div className={cx('mainContent rootBoard box-sizing', { rootBoardBox: auth })}>
+        <div className={cx('AppAdminReportRelation mainContent rootBoard box-sizing', { rootBoardBox: auth })}>
           <div className="card pAll20 box-sizing mLeft16 mRight16 h100">
             {auth && <SearchInput onChange={user => this.setState({ searchUser: user, nodeDialogVisible: true })} />}
             {nodeDialogVisible && (
@@ -147,7 +148,7 @@ class Root extends Component {
               {rootLoading ? (
                 <LoadDiv className="reportRelationRootLoading" />
               ) : (
-                <Node auth={auth} projectId={Config.projectId} />
+                <Node auth={auth} projectId={this.props.projectId} />
               )}
             </div>
           </div>

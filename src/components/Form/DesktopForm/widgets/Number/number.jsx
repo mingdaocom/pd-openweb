@@ -107,10 +107,11 @@ const NumberComp = props => {
     isFormDetail = false,
     formItemId,
     registerCell,
+    flag,
   } = props;
 
   const [isFocused, setIsFocused] = useState(false);
-  const [inputDraft, setInputDraft] = useState('');
+  const [inputDraft, setInputDraft] = useState({ value: '', flag, sourceValue: value });
   const [originValue, setOriginValue] = useState('');
 
   const numberRef = useRef(null);
@@ -131,7 +132,7 @@ const NumberComp = props => {
 
   const onFocus = () => {
     setOriginValue(`${inputValue || ''}`.trim());
-    setInputDraft(pendingStepValueRef.current ?? `${inputValue || ''}`);
+    setInputDraft({ value: pendingStepValueRef.current ?? `${inputValue ?? ''}`, flag, sourceValue: value });
     pendingStepValueRef.current = null;
     setIsFocused(true);
     if (_.isFunction(triggerCustomEvent)) {
@@ -146,12 +147,13 @@ const NumberComp = props => {
       value = '';
     }
 
-    setInputDraft(value);
+    const draftValue = value;
 
     if (advancedSetting.numshow === '1' && !isNaN(parseFloat(value))) {
       value = accDiv(parseFloat(value), 100);
     }
 
+    setInputDraft({ value: draftValue, flag, sourceValue: value });
     onChange(value);
   };
 
@@ -193,7 +195,11 @@ const NumberComp = props => {
 
   const isStepNumber = showtype === '3';
   const inputValue = numshow === '1' && value ? accMul(value, 100) : value;
-  const numberInputValue = isFocused ? inputDraft : inputValue;
+  // 表单重置或外部更新后，旧草稿失效，显示当前表单值。
+  const numberInputValue =
+    isFocused && inputDraft.flag === flag && `${inputDraft.sourceValue ?? ''}` === `${value ?? ''}`
+      ? inputDraft.value
+      : inputValue;
   const hasValue = value !== '' && value !== null && value !== undefined;
   const showPercentNextToValue = numshow === '1' && hasValue && !isFocused;
   const inputSuffix = showPercentNextToValue ? '' : suffix;
@@ -346,11 +352,13 @@ NumberComp.propTypes = {
   showMaskValue: PropTypes.bool,
   isMaskReadonly: PropTypes.bool,
   isFormDetail: PropTypes.bool,
+  flag: PropTypes.any,
 };
 
 export default memo(NumberComp, (prevProps, nextProps) => {
   return _.isEqual(
     _.pick(prevProps, [
+      'flag',
       'value',
       'disabled',
       'showMaskValue',
@@ -363,6 +371,7 @@ export default memo(NumberComp, (prevProps, nextProps) => {
       'otherSheetControlType',
     ]),
     _.pick(nextProps, [
+      'flag',
       'value',
       'disabled',
       'showMaskValue',

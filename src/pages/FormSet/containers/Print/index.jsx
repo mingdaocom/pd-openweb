@@ -73,7 +73,7 @@ class CreatePrintDrawer extends React.Component {
           <span className="iconbox">
             <Icon icon="doc" className="printTempDrawerListItemIcon" />
           </span>
-          {_l('记录打印')}
+          {_l('记录')}
         </div>
         <div
           className="printTempDrawerListItem"
@@ -85,7 +85,7 @@ class CreatePrintDrawer extends React.Component {
           <span className="iconbox">
             <Icon icon="a-barcode" className="printTempDrawerListItemIcon" />
           </span>
-          {_l('条形码打印')}
+          {_l('条形码')}
         </div>
         <div
           className="printTempDrawerListItem"
@@ -97,7 +97,7 @@ class CreatePrintDrawer extends React.Component {
           <span className="iconbox">
             <Icon icon="qr_code" className="printTempDrawerListItemIcon" />
           </span>
-          {_l('二维码打印')}
+          {_l('二维码')}
         </div>
         {featureType && (
           <React.Fragment>
@@ -108,14 +108,14 @@ class CreatePrintDrawer extends React.Component {
               <span className="iconbox">
                 <Icon icon="new_word" className="printTempDrawerListItemIcon" />
               </span>
-              {_l('新建 Word 模板')}
+              {_l('Word 模板')}
               {featureType === '2' && <UpgradeIcon />}
             </div>
             <div className="printTempDrawerListItem" onClick={addExcelPrintTemp}>
               <span className="iconbox">
                 <Icon icon="new_excel" className="printTempDrawerListItemIcon" />
               </span>
-              {_l('新建 Excel 模板')}
+              {_l('Excel 模板')}
               {featureType === '2' && <UpgradeIcon />}
             </div>
             {/* nocoly 打印模版，隐藏快麦云 */}
@@ -128,7 +128,7 @@ class CreatePrintDrawer extends React.Component {
                   <span className="iconbox kuaimaiIconBox">
                     <img className="kuaimaiIcon" src={KuaiMaiIcon} alt="" />
                   </span>
-                  {_l('快麦云打印')}
+                  {_l('快麦云')}
                   {featureType === '2' && <UpgradeIcon />}
                 </div>
               </React.Fragment>

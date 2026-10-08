@@ -48,6 +48,7 @@ export default function App(props) {
             disabled={true}
           />
           <EditDescription
+            title={_l('应用说明')}
             value={translateInfo.description}
             originalValue={selectNode.description}
             onChange={value => handleSave({ description: value })}

@@ -68,7 +68,7 @@ export default function CustomPage(props) {
         />
         <EditInput className="flex" value={translateInfo.name} onChange={value => handleSave({ name: value })} />
       </div>
-      <div className="flexRow alignItemsCenter nodeItem">
+      <div className="flexRow nodeItem">
         <div className="Font13 mRight20 label">{_l('自定义页面说明')}</div>
         <Input.TextArea
           style={{ resize: 'none' }}
@@ -77,6 +77,7 @@ export default function CustomPage(props) {
           disabled={true}
         />
         <EditDescription
+          title={_l('自定义页面说明')}
           value={translateInfo.description}
           originalValue={desc}
           onChange={value => handleSave({ description: value })}
