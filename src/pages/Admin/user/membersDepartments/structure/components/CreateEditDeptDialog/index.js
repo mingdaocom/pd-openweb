@@ -267,10 +267,12 @@ class CreateEditDeptDialog extends Component {
   }
 }
 
-export function useCreateEditDeptDialog() {
-  return useFunctionWrapComponent(CreateEditDeptDialog);
-}
-
-export default withOpeners(CreateEditDeptDialog, {
+const CreateEditDeptDialogWithOpeners = withOpeners(CreateEditDeptDialog, {
   openDialogSelectDeptUser: useDialogSelectDeptUser,
 });
+
+export function useCreateEditDeptDialog() {
+  return useFunctionWrapComponent(CreateEditDeptDialogWithOpeners);
+}
+
+export default CreateEditDeptDialogWithOpeners;

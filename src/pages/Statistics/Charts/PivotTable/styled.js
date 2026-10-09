@@ -131,7 +131,7 @@ const PivotTableContent = styled.div`
       width: max-content;
     }
   }
-  .line-content,
+  .line-content:not(.hap-table-cell-ellipsis),
   .cell-content {
     white-space: pre-wrap;
   }

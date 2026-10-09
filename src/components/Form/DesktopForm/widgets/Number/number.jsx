@@ -111,7 +111,7 @@ const NumberComp = props => {
   } = props;
 
   const [isFocused, setIsFocused] = useState(false);
-  const [inputDraft, setInputDraft] = useState({ value: '', flag, sourceValue: value });
+  const [inputDraft, setInputDraft] = useState({ value: '', flag });
   const [originValue, setOriginValue] = useState('');
 
   const numberRef = useRef(null);
@@ -132,7 +132,11 @@ const NumberComp = props => {
 
   const onFocus = () => {
     setOriginValue(`${inputValue || ''}`.trim());
-    setInputDraft({ value: pendingStepValueRef.current ?? `${inputValue ?? ''}`, flag, sourceValue: value });
+    setInputDraft({
+      value: pendingStepValueRef.current ?? `${inputValue ?? ''}`,
+      flag,
+      hasInput: pendingStepValueRef.current !== null,
+    });
     pendingStepValueRef.current = null;
     setIsFocused(true);
     if (_.isFunction(triggerCustomEvent)) {
@@ -153,7 +157,7 @@ const NumberComp = props => {
       value = accDiv(parseFloat(value), 100);
     }
 
-    setInputDraft({ value: draftValue, flag, sourceValue: value });
+    setInputDraft({ value: draftValue, flag, hasInput: true });
     onChange(value);
   };
 
@@ -195,11 +199,8 @@ const NumberComp = props => {
 
   const isStepNumber = showtype === '3';
   const inputValue = numshow === '1' && value ? accMul(value, 100) : value;
-  // 表单重置或外部更新后，旧草稿失效，显示当前表单值。
-  const numberInputValue =
-    isFocused && inputDraft.flag === flag && `${inputDraft.sourceValue ?? ''}` === `${value ?? ''}`
-      ? inputDraft.value
-      : inputValue;
+  // 实际输入后保留小数点等中间态；仅聚焦时跟随父级，避免连续创建时缓存重置前的值。
+  const numberInputValue = isFocused && inputDraft.hasInput && inputDraft.flag === flag ? inputDraft.value : inputValue;
   const hasValue = value !== '' && value !== null && value !== undefined;
   const showPercentNextToValue = numshow === '1' && hasValue && !isFocused;
   const inputSuffix = showPercentNextToValue ? '' : suffix;
@@ -309,7 +310,7 @@ const NumberComp = props => {
       parser={sanitizeNumberValue}
       formatter={(currentValue, { userTyping, input }) => {
         if (userTyping) return sanitizeNumberValue(input);
-        if (isFocused) return `${currentValue ?? ''}`;
+        if (isFocused) return `${numberInputValue ?? ''}`;
 
         const displayValue = formatDisplayValue(currentValue);
         return showPercentNextToValue && displayValue && suffix ? `${displayValue}${suffix}` : displayValue;

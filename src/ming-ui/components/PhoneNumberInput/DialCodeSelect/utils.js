@@ -132,6 +132,11 @@ export const parsePhoneValue = ({ value, defaultCountry, code }) => {
     return { code: defaultCode, numberValue: '' };
   }
 
+  // 裸值来自默认值或外部回填，重置为字段默认区号，避免继续创建时沿用上一条记录的区号。
+  if (!String(value).trim().startsWith('+')) {
+    return { code: defaultCode, numberValue: String(value) };
+  }
+
   const parsed = parsePhoneNumberFromString(value);
 
   if (parsed) {

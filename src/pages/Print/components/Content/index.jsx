@@ -123,7 +123,8 @@ export default class Con extends React.Component {
 
     // 对内分享链接
     const url = pathCompletion(`/app/${appId}/${worksheetId}/${viewId || ''}/row/${rowId || rowIdForQr}`);
-    this.setState({ shareUrl: url });
+    // 门户站内链接可能为相对路径，二维码使用配置的站点地址补齐域名。
+    this.setState({ shareUrl: md.global.Account.isPortal ? new URL(url, md.global.Config.WebUrl).href : url });
   };
 
   getPlaceholderMode = () => {

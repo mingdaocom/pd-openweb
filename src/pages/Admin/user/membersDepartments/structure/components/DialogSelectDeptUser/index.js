@@ -7,7 +7,7 @@ import departmentController from 'src/api/department';
 import './index.less';
 
 const USER_CHECKBOX_STYLES = {
-  root: { flex: 1, minWidth: 0 },
+  root: { flex: 1, minWidth: 0, alignItems: 'center' },
   label: { display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, paddingInlineEnd: 0 },
 };
 
@@ -125,7 +125,7 @@ export default class SelectDeptUser extends Component {
                 {dataList.map(item => {
                   const { accountId, avatar, fullname, job } = item;
                   return (
-                    <div className="userItem">
+                    <div className="userItem" key={accountId}>
                       <Checkbox
                         checked={_.includes(selectedUsersIds, accountId)}
                         styles={USER_CHECKBOX_STYLES}

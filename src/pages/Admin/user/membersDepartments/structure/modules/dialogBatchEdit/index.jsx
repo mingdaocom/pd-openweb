@@ -129,7 +129,7 @@ export default class DialogBatchEdit extends Component {
 
   // 批量重置密码
   resetPassword = () => {
-    const { selectedAccountIds = [], projectId, emptyUserSet } = this.props;
+    const { selectedAccountIds = [], projectId } = this.props;
     let { password } = this.state;
     const { passwordRegexTip, passwordRegex } = _.get(md, ['global', 'SysSettings']) || {};
 
@@ -150,12 +150,9 @@ export default class DialogBatchEdit extends Component {
       .then(result => {
         if (result) {
           alert(_l('修改成功'), 1);
-          this.setState({ batchResetPasswordVisible: false, password: '' });
         } else {
           alert(_l('修改失败'), 2);
         }
-
-        emptyUserSet();
       });
   };
 
@@ -166,6 +163,7 @@ export default class DialogBatchEdit extends Component {
     let { departmentInfos = [], jobInfos = [], workSiteId = '', filedValue } = this.state;
 
     let request;
+
     if (filedValue === 1) {
       let departmentIds = departmentInfos.map(item => item.departmentId);
       request = userAjax
@@ -215,36 +213,7 @@ export default class DialogBatchEdit extends Component {
       this.requestPending = false;
     });
   };
-  resetPassword = () => {
-    const { selectedAccountIds = [], projectId, emptyUserSet } = this.props;
-    let { password } = this.state;
-    const { passwordRegexTip, passwordRegex } = _.get(md, ['global', 'SysSettings']) || {};
 
-    if (_.isEmpty(password)) {
-      alert(_l('请输入新密码'), 3);
-      return;
-    } else if (!RegExpValidator.isPasswordValid(password, passwordRegex)) {
-      alert(passwordRegexTip || _l('密码过于简单，至少8~20位且含字母+数字'), 3);
-      return;
-    }
-
-    userAjax
-      .batchResetPassword({
-        projectId,
-        accountIds: selectedAccountIds,
-        password: encrypt(password),
-      })
-      .then(result => {
-        if (result) {
-          alert(_l('修改成功'), 1);
-          this.setState({ batchResetPasswordVisible: false, password: '' });
-        } else {
-          alert(_l('修改失败'), 2);
-        }
-
-        emptyUserSet();
-      });
-  };
   render() {
     const { projectId, visible, selectedAccountIds = [] } = this.props;
     const { passwordRegexTip } = _.get(md, ['global', 'SysSettings']) || {};
