@@ -12,6 +12,37 @@ import {
 } from '../../../redux/actions';
 import './taskCommentList.less';
 
+const getTaskAtData = data => {
+  const accounts = [
+    {
+      accountId: data.charge.accountID,
+      avatar: data.charge.avatar,
+      fullname: data.charge.fullName,
+      job: _l('负责人'),
+    },
+    ...(data.member || [])
+      .filter(item => item.type === 0 && item.status !== 2)
+      .map(item => ({
+        accountId: item.account.accountID,
+        avatar: item.account.avatar,
+        fullname: item.account.fullName || item.account.fullname,
+        job: _l('参与者'),
+      })),
+  ];
+  const accountIds = new Set();
+
+  return accounts
+    .filter(({ accountId }) => {
+      if (!accountId || accountId === md.global.Account.accountId || accountIds.has(accountId)) {
+        return false;
+      }
+
+      accountIds.add(accountId);
+      return true;
+    })
+    .slice(0, 20);
+};
+
 class TaskCommentList extends Component {
   constructor(props) {
     super(props);
@@ -69,6 +100,8 @@ class TaskCommentList extends Component {
       appId: md.global.APPInfo.taskAppID,
       remark: taskId + '|' + htmlDecodeReg(data.taskName) + '|' + _l('任务'),
       storageId: taskId,
+      forReacordDiscussion: true,
+      atData: getTaskAtData(data),
       projectId: data.projectID,
       selectGroupOptions: { projectId: data.projectID },
       onSubmit: this.onSubmit,

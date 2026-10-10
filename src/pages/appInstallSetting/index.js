@@ -4,7 +4,8 @@ import { Popover } from 'ming-ui/antd-components';
 import privateRequest from 'src/api/private';
 import mobile from 'src/pages/appInstallSetting/images/mobile.png';
 import pc from 'src/pages/appInstallSetting/images/pc.png';
-import code from './images/code.png';
+import hap from './images/hap.png';
+import nocoly from './images/nocoly.png';
 import './index.less';
 
 export default class AppInstallSetting extends Component {
@@ -62,6 +63,7 @@ export default class AppInstallSetting extends Component {
   }
   renderContent() {
     const { downloadAppQrCodeUrl } = this.state;
+    const code = window.platformENV.isOverseas ? nocoly : hap;
     return (
       <div className="appInstallSettingContent">
         <div className="Font16 bold title">{_l('下载客户端')}</div>
