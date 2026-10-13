@@ -31,9 +31,10 @@ export function getControlUniqueValue(value, type) {
 
 /** 从关联记录（29）字段值中解析出已关联记录的 rowid。 */
 export function getRelateRecordRowIds(value) {
-  return safeParse(value, 'array')
-    .map(item => item[WIDGET_VALUE_ID[29]])
-    .filter(Boolean);
+  // 表格类形态的值是记录数（number），safeParse 会原样返回非数组，这里统一按无 rowid 处理
+  const records = safeParse(value, 'array');
+
+  return Array.isArray(records) ? records.map(item => _.get(item, WIDGET_VALUE_ID[29])).filter(Boolean) : [];
 }
 
 /**

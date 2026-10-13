@@ -28,7 +28,8 @@ export const browserIsMobile = () => {
   const bIsApp = sUserAgent.match(/mingdao application/i) == 'mingdao application';
   const bIsMiniProgram = sUserAgent.match(/miniprogram/i) == 'miniprogram';
   const isHuawei = sUserAgent.match(/mobile huaweibrowser/i) == 'mobile huaweibrowser';
-  const isHarmony = sUserAgent.match(/penharmony/i) == 'penharmony';
+  // OpenHarmony 同时用于手机、平板和电脑，PC 设备不能仅凭系统标识进入移动端。
+  const isHarmony = sUserAgent.match(/openharmony/i) == 'openharmony' && !sUserAgent.match(/\(\s*pc\s*;/i);
   const isAndroid = sUserAgent.match(/android/i) == 'android';
 
   const value =

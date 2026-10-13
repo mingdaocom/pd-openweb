@@ -85,7 +85,11 @@ const CheckboxWidgets = props => {
     chooseothertype,
     allowadd,
   } = advancedSetting;
-  const checkboxStyles = direction === '1' ? VERTICAL_CHECKBOX_STYLES : HORIZONTAL_CHECKBOX_STYLES;
+  const checkboxStyles = useMemo(() => {
+    const styles = direction === '1' ? VERTICAL_CHECKBOX_STYLES : HORIZONTAL_CHECKBOX_STYLES;
+
+    return isSheet ? styles : { ...styles, root: { ...styles.root, opacity: 1 } };
+  }, [direction, isSheet]);
   const [activeIndex, setActiveIndex] = useState(0);
 
   useWidgetEvent(
@@ -542,7 +546,7 @@ const CheckboxComp = autoSize(CheckboxWidgets, { onlyWidth: true });
 
 export default memo(CheckboxComp, (prevProps, nextProps) => {
   return _.isEqual(
-    _.pick(prevProps, ['value', 'width', 'disabled', 'options', 'isFormDetail', 'selectProps']),
-    _.pick(nextProps, ['value', 'width', 'disabled', 'options', 'isFormDetail', 'selectProps']),
+    _.pick(prevProps, ['value', 'width', 'disabled', 'options', 'isFormDetail', 'isSheet', 'selectProps']),
+    _.pick(nextProps, ['value', 'width', 'disabled', 'options', 'isFormDetail', 'isSheet', 'selectProps']),
   );
 });

@@ -53,6 +53,7 @@ import {
   getNumFromLocalStorage,
   getTableConfig,
   getTitleControl,
+  shouldInheritColumnStyle,
 } from './util';
 
 const SELECT_ALL_CHECKBOX_STYLES = {
@@ -211,6 +212,7 @@ export default function SelectDialog({ ...args }) {
   const { open: openRecordInfo, holder: recordInfoHolder } = useRecordInfo();
   const worksheetId = control.dataSource || args.worksheetId;
   const listMode = get(control, 'advancedSetting.chooselisttype') === '2'; // '1' 表格，'2' 列表
+  const inheritColumnStyle = shouldInheritColumnStyle(control);
   const {
     loading,
     recordsLoading,
@@ -251,6 +253,7 @@ export default function SelectDialog({ ...args }) {
     filterRowIds,
     formData,
     listMode,
+    useColumnStyle: inheritColumnStyle,
   });
   const refreshIconButtons = useMemo(
     () => [
@@ -340,7 +343,10 @@ export default function SelectDialog({ ...args }) {
   const sheetStyles =
     !loading &&
     getSheetStylesOfRelateRecordTable({
-      control,
+      control: {
+        ...control,
+        advancedSetting: { ...control.advancedSetting, usecolumnstyle: inheritColumnStyle ? '1' : '0' },
+      },
       viewId: control.viewId,
       worksheetInfo,
       manageView,

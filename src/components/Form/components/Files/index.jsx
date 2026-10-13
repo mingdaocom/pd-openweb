@@ -98,7 +98,7 @@ const renderSortableItem = props => {
       browse: !isDeleted && (isKc ? !!data.shareUrl : true),
       fileClassName: getClassNameByExt(data.attachmentType === 5 ? false : data.ext),
       fileSize: isDeleted ? '' : formatFileSize(data.filesize),
-      isUrlPreview: window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(data.ext?.toLocaleUpperCase()),
+      isUrlPreview: ['.HEIC', '.HEIF'].includes(data.ext?.toLocaleUpperCase()),
       isMore:
         !isDeleted &&
         (fileProps.wpsEditUrl ||
@@ -119,7 +119,7 @@ const renderSortableItem = props => {
       fileClassName: getClassNameByExt(data.fileExt),
       isPicture: RegExpValidator.fileIsPicture(data.fileExt),
       fileSize: formatFileSize(data.fileSize),
-      isUrlPreview: window.platformENV.isLocal && ['.HEIC', '.HEIF'].includes(data.fileExt?.toLocaleUpperCase()),
+      isUrlPreview: ['.HEIC', '.HEIF'].includes(data.fileExt?.toLocaleUpperCase()),
       url: data.previewUrl || data.url || '',
     });
   }

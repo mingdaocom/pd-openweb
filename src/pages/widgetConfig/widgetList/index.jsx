@@ -128,9 +128,6 @@ const WidgetList = styled.div`
           .anticon {
             margin-right: 0 !important;
           }
-          .hap-collapse-header-text {
-            min-width: 0;
-          }
         }
         .hap-collapse-body {
           padding: 0 0 12px 0 !important;
@@ -155,6 +152,7 @@ const WidgetList = styled.div`
     .templateItemHeaderContent {
       display: flex;
       align-items: center;
+      box-sizing: border-box;
       width: 100%;
       line-height: 34px;
       .templateName {
@@ -449,6 +447,7 @@ const cloneTemplateControls = async (controls, updateQueryConfigs) => {
 };
 
 const TEMPLATE_MORE_DROPDOWN_HEIGHT = 80;
+const TEMPLATE_COLLAPSE_STYLES = { title: { minWidth: 0 } };
 
 function TemplatePanelHeader(props) {
   const {
@@ -788,6 +787,7 @@ function List(props) {
         <SettingCollapseWrap
           key={templateKey}
           className="templateItemCollapse"
+          styles={TEMPLATE_COLLAPSE_STYLES}
           bordered={false}
           activeKey={expandedTemplates}
           expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}

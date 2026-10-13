@@ -64,6 +64,7 @@ export default function useRecords(props) {
     ignoreRowIds,
     filterRowIds = [],
     listMode = false, // chooselisttype === '2' 时为 true，一次性加载 1000 条，滚动加载更多
+    useColumnStyle = get(control, 'advancedSetting.usecolumnstyle') === '1',
   } = props;
   const cache = useRef({});
   const nextPageRef = useRef(1); // 列表模式下“下一页”页码，用于 loadMore 追加
@@ -72,7 +73,6 @@ export default function useRecords(props) {
   const [loading, setLoading] = useState(true);
   const [worksheetInfo, setWorksheetInfo] = useState({});
   const [manageView, setManageView] = useState();
-  const useColumnStyle = get(control, 'advancedSetting.usecolumnstyle') === '1';
   const [recordsLoading, setRecordsLoading] = useState(true);
   const [keyWords, setKeyWords] = useState('');
   const [sortControl, setSortControl] = useState();

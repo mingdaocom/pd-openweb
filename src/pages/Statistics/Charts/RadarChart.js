@@ -309,6 +309,7 @@ export default class extends Component {
     const auxiliaryLineConfig = getAuxiliaryLineConfig(auxiliaryLines, data, { yaxisList, colors });
 
     const baseConfig = {
+      supportCSSTransform: true,
       data: data.length ? data : getEmptyChartData(reportData),
       appendPadding: [5, 0, 5, 0],
       xField: 'originalId',

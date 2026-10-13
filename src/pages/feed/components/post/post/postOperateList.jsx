@@ -241,7 +241,7 @@ class PostOperateList extends React.Component {
     let taskOption;
 
     if (postItem.postType != POST_TYPE.video && postItem.postType != POST_TYPE.vote && postItem.postType != '5') {
-      if (!postItem.source || postItem.source.id != md.global.APPInfo.taskAppID) {
+      if (!postItem.source || postItem.source.id != 'ab99d0bb-3249-46f9-8a60-6952cb76cac2') {
         taskOption = {
           key: 'task',
           label: _l('加入任务'),
@@ -277,7 +277,7 @@ class PostOperateList extends React.Component {
     let calendarOption;
 
     if (postItem.postType != '7' && postItem.postType != '5') {
-      if (postItem.source == undefined || postItem.source.id !== md.global.APPInfo.calendarAppID) {
+      if (postItem.source == undefined || postItem.source.id !== '42c96ef1-3ab6-4269-9824-e21436f34a38') {
         calendarOption = {
           key: 'create-calendar',
           label: _l('加入日程'),

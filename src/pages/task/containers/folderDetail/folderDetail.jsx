@@ -1025,7 +1025,7 @@ class FolderDetail extends Component {
       sourceId: folderId,
       textareaMinHeight: 22,
       sourceType: Commenter.TYPES.FOLDER,
-      appId: md.global.APPInfo.taskFolderAppID,
+      appId: '66d51996-6a56-41ba-be15-0d388b548f00',
       remark: `${folderId}|${folderName}|${_l('项目')}`,
       storageId: folderId,
       selectGroupOptions: { projectId: data.projectID },

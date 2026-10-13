@@ -16,7 +16,7 @@ import { getDatePickerConfigs } from 'src/utils/domain/control/date';
 import { formatNumberToWords, handleDotAndRound, isEmptyValue, toFixed } from 'src/utils/domain/control/number';
 import { controlState } from 'src/utils/domain/control/state';
 import { getDefaultCount, isRelateRecordTableControl } from 'src/utils/domain/control/type';
-import { checkCellIsEmpty } from 'src/utils/domain/control/value';
+import { checkCellIsEmpty, getRelateRecordRowIds } from 'src/utils/domain/control/value';
 import { SYSTEM_CONTROL_WITH_UAID } from 'src/utils/domain/control/widget';
 import { RELATE_RECORD_SHOW_TYPE, SYSTEM_CONTROLS } from 'src/utils/domain/worksheet/constants';
 import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
@@ -464,8 +464,12 @@ export default class DataFormat {
     this.loadingControlIdCache = {};
     this.relationControlParentMap = {};
 
+    // 自定义动作等场景会把主记录字段（fromMaster）拼在后面，同表复制或自关联时 controlId 会重复，
+    // 保留首个出现的控件，与原 _.find 语义一致，避免取到隐藏的主记录副本导致输入值写丢
     this.data.forEach(item => {
-      this.controlMap[item.controlId] = item;
+      if (!this.controlMap[item.controlId]) {
+        this.controlMap[item.controlId] = item;
+      }
     });
     this.relationControlParentMap = buildRelationControlParentMap(this.data);
 
@@ -777,6 +781,16 @@ export default class DataFormat {
                   records: [],
                 });
                 value = '';
+              }
+            }
+
+            // 关联记录被默认值、查询工作表、自定义事件等整体清空时不会带上被删的 rowid，
+            // 清空前留住原关联的 rowid 作为可选列表放行名单，否则服务端会把它们当作已关联记录剔除
+            if (item.type === 29 && (value === 'deleteRowIds: all' || checkCellIsEmpty(value))) {
+              const keepRowIds = getRelateRecordRowIds(item.value);
+
+              if (keepRowIds.length) {
+                item.keepShowRowIds = _.uniq((item.keepShowRowIds || []).concat(keepRowIds));
               }
             }
 

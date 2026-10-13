@@ -9,6 +9,10 @@
   box-sizing: border-box;
   cursor: pointer;
 
+  &[aria-disabled='true'] {
+    cursor: default;
+  }
+
   &Icon {
     i {
       width: 36px;

@@ -182,10 +182,14 @@ class DialogSelectUser extends Component {
               if (!item || value === curValue) return;
 
               const isProjectId = !_.includes([dataRangeTypes.all, dataRangeTypes.friend], value);
+              const projectId = isProjectId && _.find(md.global.Account.projects, { projectId: value }) ? value : '';
               this.setState({
                 dataRange: isProjectId ? dataRangeTypes.project : value,
-                projectId: isProjectId ? (_.find(md.global.Account.projects, { projectId: value }) ? value : '') : '',
+                projectId,
               });
+              if (projectId && _.isFunction(SelectUserSettings.projectCallback)) {
+                SelectUserSettings.projectCallback(projectId);
+              }
             },
           }}
         >

@@ -483,6 +483,13 @@ function FixedTable(props, ref) {
       setScrollX(cache, 0);
     }
   }, [XIsScroll]);
+  // 翻页等场景会先清空数据，纵向滚动条随之卸载再以 0 重新挂载，cache.top 不重置会让下一次滚轮从旧位置起算跳到底部
+  useEffect(() => {
+    if (!YIsScroll) {
+      set('top', 0);
+      setHammer('topForHammer', 0);
+    }
+  }, [YIsScroll, set, setHammer]);
   // 布局绘制后（下一帧）及尺寸/溢出输入变化时重新测量，纠正初始化时机带来的滚动条不显示
   useEffect(() => {
     const raf = requestAnimationFrame(refreshScrollbars);

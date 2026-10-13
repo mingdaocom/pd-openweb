@@ -48,7 +48,7 @@ export default class CalendarCommenter extends Component {
     const props = {
       sourceId: id,
       sourceType: Commenter.TYPES.CALENDAR,
-      appId: md.global.APPInfo.calendarAppID,
+      appId: '42c96ef1-3ab6-4269-9824-e21436f34a38',
       remark: (recurTime ? id + '_' + recurTimeStr : id) + '|' + htmlDecodeReg(title) + '|' + _l('日程'),
 
       mentionsOptions: { position: 'top' },

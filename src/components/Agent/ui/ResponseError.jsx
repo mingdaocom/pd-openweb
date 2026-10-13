@@ -76,8 +76,11 @@ export function ResponseError({ className, error, errorCode, onRetry, onRecharge
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
 
-  const message = (error && (error.errorMsg || error.message)) || error || _l('请求失败');
   const isCreditExhausted = errorCode === ERROR_CODE_INSUFFICIENT_CREDIT;
+  // 信用点不足文案由前端维护（后端 errorMessage 未做多语言），其它错误仍展示后端原文
+  const message = isCreditExhausted
+    ? _l('组织信用点余额不足，请充值后重试')
+    : (error && (error.errorMsg || error.message)) || error || _l('请求失败');
   const isQuotaExhausted = errorCode === ERROR_CODE_QUOTA_EXHAUSTED;
   const handleClose = () => (onClose ? onClose() : setDismissed(true));
 

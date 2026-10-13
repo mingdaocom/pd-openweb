@@ -629,8 +629,7 @@ function Attachment(props) {
   const attachmentPreviewKey = `${attachment.fileID || ''}-${attachment.previewUrl || ''}-${attachment.ext || ''}`;
   const [imageLoadErrorKey, setImageLoadErrorKey] = useState('');
   const isPicture = RegExpValidator.fileIsPicture(attachment.ext) && imageLoadErrorKey !== attachmentPreviewKey;
-  const shouldUseOriginalPreviewUrl =
-    _.get(window, 'platformENV.isLocal') && ['.HEIC', '.HEIF'].includes((attachment.ext || '').toLocaleUpperCase());
+  const shouldUseOriginalPreviewUrl = ['.HEIC', '.HEIF'].includes((attachment.ext || '').toLocaleUpperCase());
   const previewUrl = attachment.previewUrl || '';
   const smallThumbnailUrl = shouldUseOriginalPreviewUrl
     ? previewUrl

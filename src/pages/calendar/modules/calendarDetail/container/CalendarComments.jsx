@@ -20,7 +20,7 @@ export default class CalendarComments extends Component {
     const fileListProps = {
       sourceId,
       sourceType,
-      appId: md.global.APPInfo.calendarAppID,
+      appId: '42c96ef1-3ab6-4269-9824-e21436f34a38',
     };
     return (
       <div className="calendarComments">

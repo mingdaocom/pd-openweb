@@ -224,17 +224,8 @@ function isColumnStyleView(view) {
   return Number(get(view, 'viewType')) === 0 || isTreeTableView(view);
 }
 
-function getSheetStylesOfObject(object) {
-  const listStyle = get(object, 'advancedSetting.liststyle');
-
-  if (!listStyle) {
-    return {
-      columnStyles: {},
-      sheetColumnWidths: {},
-    };
-  }
-
-  const { time: updateTime, styles = [] } = safeParse(listStyle);
+function getSheetStylesOfListStyle(listStyle) {
+  const { time: updateTime, styles = [] } = listStyle || {};
   const columnStyles = {};
   const sheetColumnWidths = {};
 
@@ -250,13 +241,26 @@ function getSheetStylesOfObject(object) {
   };
 }
 
+// 视图页渲染时在视图 liststyle 与工作表级 liststyle（「应用到所有视图」写入）中取更新时间较新的一份，
+// 这里按同一口径取，保证关联表格与视图页实际显示的列样式一致
+function getDisplayedSheetStylesOfView(view, worksheetInfo) {
+  const listStyleStrOfView = get(view, 'advancedSetting.liststyle');
+  const listStyleStrOfWorksheet = get(worksheetInfo, 'advancedSetting.liststyle');
+
+  if (!listStyleStrOfView && !listStyleStrOfWorksheet) {
+    return getSheetStylesOfListStyle();
+  }
+
+  return getSheetStylesOfListStyle(getListStyle(listStyleStrOfView, listStyleStrOfWorksheet));
+}
+
 /**
  * 解析关联记录、子表或查询记录表格应使用的列宽与列样式。
- * 未继承工作表样式时使用字段列宽；启用继承时在指定视图与数据管理视图中选择有效配置。
+ * 未继承工作表样式时使用字段列宽；启用继承时取指定视图（或数据管理视图）在视图页实际显示的列样式。
  *
  * 数据管理视图（viewId === worksheetId）不在 getWorksheetInfo 返回的 views 里，它的列样式
  * 需要调用方另外用 GetWorksheetViewById 取到后通过 manageView 传入。worksheetInfo 上的
- * liststyle 只是「应用到所有视图」时写的工作表级样式，两者不等价，仅作为兜底。
+ * liststyle 是「应用到所有视图」时写的工作表级样式，与各视图自身 liststyle 按更新时间取较新的一份。
  */
 export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetInfo, manageView } = {}) {
   const useColumnStyle = get(control, 'advancedSetting.usecolumnstyle') === '1';
@@ -283,36 +287,28 @@ export function getSheetStylesOfRelateRecordTable({ control, viewId, worksheetIn
   }
 
   // 开启：继承视图/数据管理视图的列样式（不再使用字段自身列宽）
-  // 优先用调用方拉到的数据管理视图；没传或它没配过列样式时，回退工作表级样式
-  const manageViewStyles = manageView && getSheetStylesOfObject(manageView);
-  const worksheetSheetStyles = get(manageViewStyles, 'updateTime')
-    ? manageViewStyles
-    : getSheetStylesOfObject(worksheetInfo);
-  let result = {};
+  // 没传数据管理视图时只剩工作表级样式
+  const manageViewSheetStyles = getDisplayedSheetStylesOfView(manageView, worksheetInfo);
 
   if (!viewId) {
-    result = worksheetSheetStyles;
-  } else {
-    const view = find(get(worksheetInfo, 'views'), { viewId });
-
-    if (view && isColumnStyleView(view)) {
-      result = getSheetStylesOfObject(view);
-    } else {
-      result = getSheetStylesOfObject(
-        find(get(worksheetInfo, 'views'), v => isColumnStyleView(v) && !!get(v, 'advancedSetting.liststyle')),
-      );
-    }
-
-    // 指定的关联视图自己配过列样式时一律以它为准，不再比更新时间——数据管理视图/工作表级
-    // 改得更晚也不应覆盖用户显式指定的视图。只有该视图没配过列样式才回退。
-    // 用 updateTime 判断"配过没有"：getSheetStylesOfObject 在没有 liststyle 时只返回空的
-    // columnStyles/sheetColumnWidths 而不带 updateTime；不能用 isEmpty(result)，它恒有两个键、永远非空
-    if (!result.updateTime) {
-      result = worksheetSheetStyles;
-    }
+    return manageViewSheetStyles;
   }
 
-  return result;
+  const views = get(worksheetInfo, 'views');
+  const view = find(views, { viewId });
+  const styleView =
+    view && isColumnStyleView(view)
+      ? view
+      : find(views, v => isColumnStyleView(v) && !!get(v, 'advancedSetting.liststyle'));
+
+  // 指定视图没配过列样式时回退数据管理视图/工作表级样式
+  if (!get(styleView, 'advancedSetting.liststyle')) {
+    return manageViewSheetStyles;
+  }
+
+  // 指定视图配过列样式时，与视图页一致：工作表级样式更新时间更晚则以工作表级为准。
+  // 视图自己的旧 liststyle 在视图页已被覆盖，既看不到也改不了，不能在关联表格里单独生效
+  return getDisplayedSheetStylesOfView(styleView, worksheetInfo);
 }
 
 /**

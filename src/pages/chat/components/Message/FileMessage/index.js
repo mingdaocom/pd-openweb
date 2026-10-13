@@ -4,6 +4,7 @@ import { formatFileSize } from 'src/utils/core/file';
 import { getClassNameByExt } from 'src/utils/domain/file/classification';
 import RegExpValidator from 'src/utils/domain/validation/expression';
 import Constant from '../../../utils/constant';
+import { hasAttachmentData } from '../attachment';
 import { handleMessageFilePreview } from '../MessageToolbar';
 import './index.less';
 
@@ -15,31 +16,50 @@ export default class FileMessage extends Component {
       cancel: false,
       cancelShow: false,
     };
-    const { files } = this.props.message.msg;
-    this.iconClassName = getClassNameByExt(RegExpValidator.getExtOfFileName((files || {}).name));
     this.uploader = null;
   }
   componentDidMount() {
     const { message } = this.props;
-    const { files } = message.msg;
-    const { aid } = files;
+    const files = message.msg?.files;
 
-    if (aid) return;
+    if (!message.isPrepare || !hasAttachmentData(files) || !files.id || files.aid) return;
 
-    window[`chatBeforeUpload${files.id}`] = uploader => {
-      // 上传文件对象
-      this.uploader = uploader;
-    };
+    this.uploadFileId = files.id;
+    window[`chatBeforeUpload${files.id}`] = this.handleBeforeUpload;
+    window[`chatUploadProgress${files.id}`] = this.handleUploadProgress;
+  }
+  componentWillUnmount() {
+    this.clearUploadCallbacks();
+  }
+  handleBeforeUpload = uploader => {
+    this.uploader = uploader;
+  };
+  handleUploadProgress = progress => {
+    this.setState({
+      progress: Number(progress),
+      cancelShow: true,
+    });
+  };
+  clearUploadCallbacks() {
+    const id = this.uploadFileId;
 
-    window[`chatUploadProgress${files.id}`] = progress => {
-      this.setState({
-        progress: Number(progress),
-        cancelShow: true,
-      });
-    };
+    if (!id) return;
+
+    if (window[`chatBeforeUpload${id}`] === this.handleBeforeUpload) {
+      delete window[`chatBeforeUpload${id}`];
+    }
+
+    if (window[`chatUploadProgress${id}`] === this.handleUploadProgress) {
+      delete window[`chatUploadProgress${id}`];
+    }
+
+    this.uploadFileId = undefined;
   }
   handleStopFile() {
-    const { files } = this.props.message.msg;
+    const { message } = this.props;
+    const files = message.msg?.files;
+
+    if (!message.isPrepare || !hasAttachmentData(files) || !files.id) return;
 
     if (this.uploader) {
       this.uploader.stop();
@@ -52,14 +72,15 @@ export default class FileMessage extends Component {
         cancel: true,
       },
       () => {
-        delete window[`chatBeforeUpload${files.id}`];
-        delete window[`chatUploadProgress${files.id}`];
+        this.clearUploadCallbacks();
       },
     );
   }
   handleMessageFilePreview() {
     const { message } = this.props;
     const { type } = message;
+
+    if (!hasAttachmentData(message.msg?.files)) return;
 
     if (type === Constant.SESSIONTYPE_CALENDAR) {
       if (message.kcFile) {
@@ -81,14 +102,28 @@ export default class FileMessage extends Component {
   }
   render() {
     const { message } = this.props;
-    const { files = {} } = message.msg;
+    const files = message.msg?.files;
+
+    if (!hasAttachmentData(files)) {
+      return (
+        <div className="Message-file" aria-disabled={true}>
+          <div className="Message-fileIcon">
+            <i className={getClassNameByExt('')} />
+          </div>
+          <div className="Message-fileInfo">
+            <div className="Message-fileName">{_l('附件信息缺失')}</div>
+          </div>
+        </div>
+      );
+    }
+
     const { progress, cancel, cancelShow } = this.state;
     const isKc = message.card ? message.card.md === 'kcfile' : false;
     const size = formatFileSize(files.fsize || files.size);
     return (
       <div className="Message-file" onClick={this.handleMessageFilePreview.bind(this)}>
         <div className="Message-fileIcon">
-          <i className={this.iconClassName} />
+          <i className={getClassNameByExt(RegExpValidator.getExtOfFileName(files.name))} />
         </div>
         <div className="Message-fileInfo">
           <div className="Message-fileName">{files.name}</div>

@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import _ from 'lodash';
 import styled from 'styled-components';
 import { Icon } from 'ming-ui';
-import { Checkbox, Modal, Select } from 'ming-ui/antd-components';
+import { Checkbox, Flex, Modal, Select } from 'ming-ui/antd-components';
 import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
 
@@ -114,6 +114,7 @@ class ExportAttachment extends Component {
 
     const exampleArr = nameMethodList.filter(it => _.includes(nameMethodValues, it.value));
     const visibleAttachmentControls = attachmentControls.filter(item => this.checkControlVisible(item));
+    const selectedCount = visibleAttachmentControls.filter(item => _.includes(selectControlIds, item.controlId)).length;
 
     return (
       <Modal
@@ -131,33 +132,48 @@ class ExportAttachment extends Component {
             {_l('选择需要导出的附件字段，导出附件总数不超过1000个，总大小不超过1GB')}
           </div>
           <div className="bold mBottom10">{_l('选择导出的附件字段')}</div>
-          {visibleAttachmentControls.map(item => {
-            return (
-              <Checkbox
-                key={item.controlId}
-                checked={_.includes(selectControlIds, item.controlId)}
-                onChange={event => {
-                  let copyIds = [...selectControlIds];
-                  copyIds = !event.target.checked
-                    ? copyIds.filter(v => v !== item.controlId)
-                    : copyIds.concat(item.controlId);
-                  this.setState({
-                    selectControlIds: copyIds,
-                  });
-                }}
-                size="small"
-              >
-                {
-                  <Fragment>
-                    {item.controlName || ''}
-                    {isCharge && !this.checkControlVisible(item) && (
-                      <Icon type="workflow_hide" className="Font14 textTertiary mLeft5" />
-                    )}
-                  </Fragment>
-                }
-              </Checkbox>
-            );
-          })}
+          <Flex vertical align="start" gap={10}>
+            <Checkbox
+              checked={visibleAttachmentControls.length > 0 && selectedCount === visibleAttachmentControls.length}
+              indeterminate={selectedCount > 0 && selectedCount < visibleAttachmentControls.length}
+              disabled={!visibleAttachmentControls.length}
+              onChange={event =>
+                this.setState({
+                  selectControlIds: event.target.checked ? visibleAttachmentControls.map(item => item.controlId) : [],
+                })
+              }
+              size="small"
+            >
+              {_l('全选')}
+            </Checkbox>
+            {visibleAttachmentControls.map(item => {
+              return (
+                <Checkbox
+                  key={item.controlId}
+                  checked={_.includes(selectControlIds, item.controlId)}
+                  onChange={event => {
+                    let copyIds = [...selectControlIds];
+                    copyIds = !event.target.checked
+                      ? copyIds.filter(v => v !== item.controlId)
+                      : copyIds.concat(item.controlId);
+                    this.setState({
+                      selectControlIds: copyIds,
+                    });
+                  }}
+                  size="small"
+                >
+                  {
+                    <Fragment>
+                      {item.controlName || ''}
+                      {isCharge && !this.checkControlVisible(item) && (
+                        <Icon type="workflow_hide" className="Font14 textTertiary mLeft5" />
+                      )}
+                    </Fragment>
+                  }
+                </Checkbox>
+              );
+            })}
+          </Flex>
           <div className="bold mTop20">{_l('命名方式')}</div>
           <div className="nameMethodWrap flexRow">
             {nameMethodList.map((it, index) => {
@@ -230,7 +246,7 @@ class ExportAttachment extends Component {
           >
             {_l('为每行记录生成一个文件夹')}
           </Checkbox>
-          <div className="textTertiary Font13">
+          <div className="textTertiary Font13 mTop10">
             {_l('文件夹名和附件名的最大长度为90个汉字。超限的文件不会被导出。')}
           </div>
         </Container>

@@ -596,7 +596,7 @@ class TaskDetail extends Component {
                 <FileList
                   sourceType={FileList.TYPES.TASK}
                   sourceId={taskId}
-                  appId={md.global.APPInfo.taskAppID}
+                  appId={'ab99d0bb-3249-46f9-8a60-6952cb76cac2'}
                   manualRef={fileList => {
                     this.fileList = fileList;
                   }}

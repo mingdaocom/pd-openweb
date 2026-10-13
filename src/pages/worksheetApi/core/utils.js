@@ -1,7 +1,8 @@
 import { APP_ROLE_TYPE } from 'src/utils/domain/worksheet/constants';
 import { FILTER_BELONGS_TYPE, FILTER_CONDITION_MULTI_TYPE, FILTER_CONDITION_TYPE, FILTER_LOGIC_TYPE } from './enum';
 
-export const isDeveloperPermission = permissionType => Number(permissionType) === APP_ROLE_TYPE.DEVELOPERS_ROLE;
+export const isDeveloperPermission = permissionType =>
+  [APP_ROLE_TYPE.DEVELOPERS_ROLE, APP_ROLE_TYPE.RUNNER_DEVELOPERS_ROLE].includes(Number(permissionType));
 
 const getFilterType = ({ dataType, filterType }) => {
   switch (dataType) {

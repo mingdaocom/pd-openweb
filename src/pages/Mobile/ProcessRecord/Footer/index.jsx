@@ -160,7 +160,15 @@ export default class Footer extends Component {
 
     const openOperatorDialog = () => {
       if (_.includes(['pass', 'overrule', 'return'], id)) {
-        if (canDirectSubmitApproveAction({ action: id, auth, encrypt, btnDescMap })) {
+        if (
+          canDirectSubmitApproveAction({
+            action: id,
+            auth,
+            encrypt,
+            btnDescMap,
+            backFlowNodeCount: _.get(instance, 'backFlowNodes.length', 0),
+          })
+        ) {
           this.handleAction({ action: id });
         } else {
           this.setState({ action: id, otherActionVisible: true });

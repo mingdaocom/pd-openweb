@@ -14,8 +14,19 @@ export function hasApproveActionButtonDesc(action, btnDescMap = {}) {
   return !!String(btnDescMap[descKey] || '').trim();
 }
 
-export function canDirectSubmitApproveAction({ action, auth = {}, encrypt = false, btnDescMap = {} } = {}) {
-  if (!APPROVE_ACTION_BUTTON_DESC_KEYS[action] || encrypt || hasApproveActionButtonDesc(action, btnDescMap)) {
+export function canDirectSubmitApproveAction({
+  action,
+  auth = {},
+  encrypt = false,
+  btnDescMap = {},
+  backFlowNodeCount = 0,
+} = {}) {
+  if (
+    !APPROVE_ACTION_BUTTON_DESC_KEYS[action] ||
+    encrypt ||
+    hasApproveActionButtonDesc(action, btnDescMap) ||
+    (action === 'return' && backFlowNodeCount > 1)
+  ) {
     return false;
   }
 

@@ -367,7 +367,7 @@ export default class WorkSheetCommentList extends Component {
       activePlaceholder: _l('输入@成员，按Ctrl+Enter快速发布'),
       sourceId: id,
       sourceType: rowId ? Commenter.TYPES.WORKSHEETROW : Commenter.TYPES.WORKSHEET,
-      appId: rowId ? md.global.APPInfo.worksheetRowAppID : md.global.APPInfo.worksheetAppID,
+      appId: rowId ? 'c8bc1b25-2bbe-4334-b1e3-be1b207f3126' : '1e31c859-1605-4d8d-b3be-437ff871f02d',
       fromAppId: appId,
       projectId,
       remark: JSON.stringify({

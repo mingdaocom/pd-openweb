@@ -65,13 +65,14 @@ export default class SendToolbar extends Component {
   componentDidMount() {
     const { isGroup } = this.props.session;
     // 本地文件上传
-    setTimeout(() => {
+    this.initUploadTimer = setTimeout(() => {
       this.initUpload();
     }, 500);
     // AT
     isGroup && this.initKeyAT();
   }
   componentWillUnmount() {
+    clearTimeout(this.initUploadTimer);
     const { session } = this.props;
     const textarea = $(`#ChatPanel-${session.id}`).find('.ChatPanel-textarea textarea').get(0);
     textarea && textarea.destroy && textarea.destroy();

@@ -10,6 +10,8 @@ import CreateRecordBot from './modules/CreateRecordBot';
 import CreateWorksheetBot from './modules/CreateWorksheetBot';
 import CreateWorksheetDataBot from './modules/CreateWorksheetDataBot';
 
+const agentRuntime = { autoFocus: true };
+
 export default function MingoEntry({
   taskType,
   sheetList,
@@ -55,7 +57,7 @@ export default function MingoEntry({
     // 帮助中心（智能客服）：钉住 help-agent 的单会话帮助对话，详见 HelpAgentChat
     return <HelpAgentChat updateIsChatting={updateIsChatting} />;
   } else if (taskType === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT) {
-    return <Agent />;
+    return <Agent runtime={agentRuntime} />;
   }
 
   return null;

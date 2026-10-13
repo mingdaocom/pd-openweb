@@ -146,7 +146,7 @@ let AddDiscuss = class AddDiscuss extends Component {
         sourceType: newRowId ? 8 : 7,
         message: newValue,
         attachments: JSON.stringify(files),
-        appId: md.global.APPInfo.worksheetAppID,
+        appId: '1e31c859-1605-4d8d-b3be-437ff871f02d',
         extendsId: `${formatEmpty(params.appId)}|${formatEmpty(params.viewId)}`,
         replyId: replyId || undefined,
         entityType: entityType === 2 ? 2 : 0, //后端接口只区分0 2

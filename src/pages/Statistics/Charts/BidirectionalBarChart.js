@@ -176,6 +176,7 @@ export default class extends Component {
     };
 
     const base = {
+      supportCSSTransform: true,
       data: mergeData.length ? mergeData : getEmptyChartData(reportData),
       appendPadding: isVertical ? 10 : [10, 20, 10, 40],
       layout: isVertical ? 'vertical' : null,

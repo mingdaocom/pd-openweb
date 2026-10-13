@@ -198,7 +198,15 @@ export default class Header extends Component {
     const openOperatorDialog = () => {
       // 通过、否决、退回 不配置 意见、签名、安全直接提交
       if (_.includes(['pass', 'overrule', 'return'], id)) {
-        if (canDirectSubmitApproveAction({ action: id, auth, encrypt, btnDescMap: actionBtnDescMap })) {
+        if (
+          canDirectSubmitApproveAction({
+            action: id,
+            auth,
+            encrypt,
+            btnDescMap: actionBtnDescMap,
+            backFlowNodeCount: _.get(data, 'backFlowNodes.length', 0),
+          })
+        ) {
           this.handleAction({ action: id });
         } else {
           this.setState({ action: id, otherActionVisible: true });

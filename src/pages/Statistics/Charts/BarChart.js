@@ -469,6 +469,7 @@ export default class extends Component {
     };
 
     const baseConfig = {
+      supportCSSTransform: true,
       data: data.length ? data : getEmptyChartData(reportData),
       appendPadding: isVertical ? [25, 0, 5, 0] : [10, 70, 0, 0],
       seriesField: isOptionsColor || isCustomColor ? 'originalId' : 'groupName',

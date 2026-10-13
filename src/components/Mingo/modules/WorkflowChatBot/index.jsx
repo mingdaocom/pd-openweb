@@ -154,6 +154,25 @@ function getLoadingText(name = '') {
   return _l('思考中');
 }
 
+// 取某轮回答落库的信用点：用流式最后一条模型消息的 id 在落库列表中定位这一轮（前后两条提问之间），
+// 累加其中各条模型消息的 metadata.price。还没落库（定位不到）时返回 0，调用方保留流式展示值
+function getSavedTurnPrice(list = [], modelMessageId) {
+  if (!modelMessageId) return 0;
+
+  const messages = sortMessagesByCtimeAsc(list);
+  const index = messages.findIndex(item => get(item, 'metadata.id') === modelMessageId);
+
+  if (index === -1) return 0;
+
+  const start = findLastIndex(messages, item => item.role === 'user', index) + 1;
+  const nextUserIndex = messages.findIndex((item, i) => i > index && item.role === 'user');
+  const turnMessages = messages.slice(start, nextUserIndex === -1 ? messages.length : nextUserIndex);
+
+  return sumPrice(
+    turnMessages.filter(item => item.role === 'assistant').map(item => Number(get(item, 'metadata.price')) || 0),
+  );
+}
+
 // 拉会话消息：取原始信封（{ status, data, msg }）自行判定。会话不存在 / 不可访问（已删除、无权访问）时
 // 后端不抛异常，而是返回 status=0 + data=[]，标准契约解析只拿得到空数组，与「这个会话本来就没消息」
 // 无从区分，界面会静默渲染成一个空会话。silent 关掉全局 toast，异常态交给调用方呈现。
@@ -290,15 +309,14 @@ function MingoContent(props, ref) {
         return prev.map((item, index) => (indexes.includes(index) ? { ...item, time: now } : item));
       });
 
-      // 信用点：一轮 LLM 调用会在多个帧上重复下发同一份 usage（price 是该轮的累计值），逐帧相加会把同一笔
-      // 费用算很多次，生成中的数字远大于落库真值。这里按模型消息 id 覆盖记账、再对各轮求和，与历史消息
-      // 逐条累加 metadata.price 的口径保持一致
+      // 信用点：usage.price 是本轮到当前为止的累计值（后一条模型消息从前一条的终值起算），直接取最大值展示，
+      // 不能再按消息求和。流里拿不到最后一次模型调用的费用，结束后由 syncTurnPrice 用落库值校准
       const price = get(messageData, 'usage.price') || 0;
 
       if (price > 0) {
-        const priceMap = cache.current.streamPriceMap || (cache.current.streamPriceMap = {});
-        priceMap[messageData.id || messageData.instanceId || 'current'] = price;
-        const totalPrice = sumPrice(Object.values(priceMap));
+        const totalPrice = Math.max(cache.current.streamPrice || 0, price);
+        cache.current.streamPrice = totalPrice;
+        cache.current.needSyncPrice = true;
 
         setMessages(prev => {
           const targetIndex = findStreamMessageIndex(prev);
@@ -337,6 +355,11 @@ function MingoContent(props, ref) {
     onMessageDone: (messages = []) => {
       setLoadingStatus();
       console.log('onMessageDone', messages);
+
+      if (cache.current.needSyncPrice) {
+        cache.current.needSyncPrice = false;
+        setTimeout(syncTurnPrice);
+      }
     },
     // 后端通过独立的 thinking / reasoning 事件下发思考/工具调用进度，这类事件没有 choices / text-delta，
     // 在 useChat 中会被提前 return，不会进入 onMessagePipe。此时首条消息尚未产生、isRequesting
@@ -428,6 +451,35 @@ function MingoContent(props, ref) {
       });
   }, [isLoadingMore, hasMore, conversationId, pageIndex, chatbotId, hasScrolledToBottom]);
 
+  // 本轮结束后拉一次消息列表，用落库的整轮信用点（记在最后一条模型消息上）覆盖流式过程中的展示值
+  const syncTurnPrice = () => {
+    const { conversationId: syncConversationId, priceSyncSeq } = cache.current;
+
+    if (!syncConversationId) return;
+
+    fetchMessageList({ chatbotId, conversationId: syncConversationId, pageIndex: 1, pageSize: 50 }).then(
+      ({ unavailable, list }) => {
+        if (
+          unavailable ||
+          syncConversationId !== cache.current.conversationId ||
+          priceSyncSeq !== cache.current.priceSyncSeq
+        ) {
+          return;
+        }
+
+        setMessages(prev => {
+          const index = findLastIndex(prev, item => item.role === 'assistant');
+          const target = prev[index];
+          const savedPrice = target && getSavedTurnPrice(list, target.modelMessageId);
+
+          if (!savedPrice || target.price === savedPrice) return prev;
+
+          return prev.map((item, i) => (i === index ? { ...item, price: savedPrice } : item));
+        });
+      },
+    );
+  };
+
   const handleSend = (newMessage, { fromMessageId, files = [], originMessageForRegenerate } = {}) => {
     if (sessionStorage.getItem(`chatbotNewCreate-${chatbotId}`)) {
       handleHideGuide();
@@ -436,8 +488,10 @@ function MingoContent(props, ref) {
     setError();
     setIsChatting(true);
     setHasScrolledToBottom(true);
-    // 每轮回答的信用点单独记账，重新生成时同样从零开始
-    cache.current.streamPriceMap = {};
+    // 每轮回答的信用点单独记账，重新生成时同样从零开始；递增序号让上一轮未返回的校准结果作废
+    cache.current.streamPrice = 0;
+    cache.current.needSyncPrice = false;
+    cache.current.priceSyncSeq = (cache.current.priceSyncSeq || 0) + 1;
     sendMessage(newMessage, {
       fromMessageId,
       media: files.map(file => file.commonAttachment),

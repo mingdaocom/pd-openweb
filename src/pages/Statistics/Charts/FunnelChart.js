@@ -381,6 +381,7 @@ export default class extends Component {
     this.setCount(newYaxisList);
 
     const baseConfig = {
+      supportCSSTransform: true,
       appendPadding: displaySetup.showChartType === 2 ? [50, 0, 50, 0] : [0, 150, 0, 150],
       xField: 'name',
       yField: style.funnelCurvature === 1 ? 'index' : 'value',

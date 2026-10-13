@@ -576,7 +576,7 @@ class OtherAction extends Component {
     const hideContent =
       action === 'addCC' ||
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
-      (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
+      (_.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 101));
     const isSignature = passSignature || overruleSignature;
     const isAttachment =
       _.includes(['pass', 'overrule', 'return', 'after', 'before', 'taskRevoke', 'revoke'], action) &&

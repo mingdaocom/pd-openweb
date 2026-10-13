@@ -326,6 +326,7 @@ export default class extends Component {
     const sizeFieldIndex = inheritLastYaxis ? inheritLastYaxisIndex : 2;
     const sizeField = _.get(yaxisList[sizeFieldIndex], 'controlId');
     const base = {
+      supportCSSTransform: true,
       appendPadding: [20, 20, 5, 0],
       data,
       shapeField: 'originalId',

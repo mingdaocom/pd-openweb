@@ -195,7 +195,10 @@ export const getFilterDataByRuleAction = (
   const sectionControlsMap = {};
 
   tempRenderData.forEach(item => {
-    controlMap[item.controlId] = item;
+    // controlId 可能重复（自定义动作拼接的主记录字段），保留首个，避免取到隐藏的主记录标签页
+    if (!controlMap[item.controlId]) {
+      controlMap[item.controlId] = item;
+    }
 
     if (item.sectionId) {
       sectionControlsMap[item.sectionId] = sectionControlsMap[item.sectionId] || [];

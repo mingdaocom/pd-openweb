@@ -721,7 +721,7 @@ export default class OtherAction extends Component {
     const hideContent =
       action === 'addCC' ||
       (action === 'pass' && _.includes(auth.passTypeList, 101)) ||
-      (action === 'overrule' && _.includes(auth.overruleTypeList, 101));
+      (_.includes(['overrule', 'return'], action) && _.includes(auth.overruleTypeList, 101));
     const onlySelectTemplate =
       _.includes(['pass', 'overrule', 'return', 'after'], action) && _.get(opinionTemplate, 'inputType') === 2;
 
@@ -893,7 +893,7 @@ export default class OtherAction extends Component {
           <Fragment>
             {_.includes([0, 3], callBackNodeType) ? (
               <Fragment>
-                <div className="mTop20 bold">{_l('退回到')}</div>
+                <div className={cx('bold', { mTop20: !hideContent })}>{_l('退回到')}</div>
                 <Select
                   className="mTop10 approveDialogCallBack"
                   options={backFlowNodes}
@@ -902,7 +902,7 @@ export default class OtherAction extends Component {
                 />
               </Fragment>
             ) : (
-              <div className="mTop20">
+              <div className={cx({ mTop20: !hideContent })}>
                 {callBackNodeType === 1
                   ? _l('退回到：%0', backFlowNodes[0].label)
                   : _l('退回上一节点：%0', backFlowNodes[0].label)}

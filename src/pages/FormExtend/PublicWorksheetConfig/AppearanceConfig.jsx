@@ -355,7 +355,7 @@ class AppearanceConfig extends React.Component {
       <Drawer open={open} size={640} onClose={onClose} styles={{ body: { padding: 0 }, header: { display: 'none' } }}>
         <ScrollView>
           <Con>
-            <Absolute right="24" top="-2">
+            <Absolute $right="24">
               <Close onClick={onClose}>
                 <i className="icon icon-close hoverColorPrimary"></i>
               </Close>

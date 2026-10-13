@@ -570,8 +570,10 @@ export default function ChildTableFlatComp(props) {
                     isDraft={isDraft}
                     ref={el => (customWidgetRefs.current[index] = el)}
                     recordId={rowid}
-                    data={expandedFields.map(c => ({
-                      ...c,
+                    // 未显示字段仍需参与默认值和动态筛选，只在渲染时隐藏。
+                    data={controls.map(c => ({
+                      ...formatMobileCardControl(c),
+                      hidden: c.hidden || !_.some(expandedFields, { controlId: c.controlId }),
                       value: item[c.controlId],
                       ignoreDisabled: c.type === 36 && controlPermission.editable,
                       fieldPermission: isRelateRecordTableControl(c) ? '000' : c.fieldPermission,

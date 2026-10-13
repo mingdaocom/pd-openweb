@@ -298,7 +298,7 @@ export function renderText(cell, options = {}) {
           const convertedTime = includes(showFormat, ':')
             ? dateConvertToUserZone(moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat))
             : moment(cell.value, value.indexOf('-') > -1 ? undefined : showFormat);
-          value = moment(convertedTime).format(showFormat);
+          value = getDateToEn(showFormat, convertedTime, advancedSetting.showformat);
         } else {
           if (cell.advancedSetting.autocarry === '1') {
             value = (prefix ? `${prefix} ` : '') + formatFormulaDate({ value: cell.value, unit, dot: cell.dot });

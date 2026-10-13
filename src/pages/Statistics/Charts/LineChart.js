@@ -427,6 +427,7 @@ export default class extends Component {
     this.setState({ newYaxisList });
 
     const baseConfig = {
+      supportCSSTransform: true,
       appendPadding: [15, 0, 5, 0],
       seriesField: 'groupName',
       xField: 'originalId',

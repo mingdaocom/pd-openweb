@@ -968,6 +968,8 @@ class RelateRecordCards extends Component {
     const isMobile = browserIsMobile();
     const isScanQR = getIsScanQR();
     const multiple = enumDefault === 2;
+    // 不允许新建时只能选择已有记录，按钮与关联表格保持一致：关联图标 + “选择xx”，不使用自定义新建按钮名
+    const mainBtnText = allowNewRecord ? sourceBtnName || sourceEntityName || '' : _l('选择%0', sourceEntityName);
 
     if (sheetTemplateLoading) {
       return null;
@@ -1073,11 +1075,11 @@ class RelateRecordCards extends Component {
                         color="default"
                         variant="textBordered"
                         style={RELATE_RECORD_BUTTON_STYLE}
-                        icon={<i className="icon icon-plus Font16" />}
+                        icon={<i className={`icon ${allowNewRecord ? 'icon-plus' : 'icon-link_record'} Font16`} />}
                         onClick={this.handleClick}
                       >
-                        <span className="overflow_ellipsis WordBreak" title={sourceBtnName || sourceEntityName || ''}>
-                          {sourceBtnName || sourceEntityName || ''}
+                        <span className="overflow_ellipsis WordBreak" title={mainBtnText}>
+                          {mainBtnText}
                         </span>
                       </Button>
                     ))

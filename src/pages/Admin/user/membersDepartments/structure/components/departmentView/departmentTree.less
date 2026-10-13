@@ -26,6 +26,9 @@
   --hap-tree-switcher-size: 20px;
   --hap-tree-directory-node-selected-color: var(--color-primary);
   --hap-tree-directory-node-selected-bg: var(--color-primary-transparent);
+  .disabledDepartmentIcon {
+    color: var(--color-warning) !important;
+  }
   .hap-tree-node-content-wrapper {
     display: flex;
     align-items: center;
@@ -39,7 +42,7 @@
     }
   }
   .hap-tree-node-selected {
-    .treeNodeIcon {
+    .treeNodeIcon:not(.disabledDepartmentIcon) {
       color: var(--color-primary) !important;
     }
     .departmentAction {

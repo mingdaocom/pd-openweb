@@ -1,7 +1,20 @@
 import _, { find, get, isNumber } from 'lodash';
 import { turnControl } from 'src/pages/worksheet/common/Sheet/QuickFilter/Conditions';
+import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { ERROR_MESSAGE } from './useRecords';
+
+/**
+ * 选择记录弹窗的表格是否继承关联工作表的列样式。
+ * 关联表格形态按字段的「列样式与工作表保持一致」配置；关联记录卡片、下拉框没有该配置项，弹窗选择时默认继承。
+ */
+export function shouldInheritColumnStyle(control = {}) {
+  if (control.type === 29 && !isRelateRecordTableControl(control)) {
+    return true;
+  }
+
+  return get(control, 'advancedSetting.usecolumnstyle') === '1';
+}
 
 export function enrichFilters(filters) {
   return filters.map(f => ({
