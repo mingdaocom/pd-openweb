@@ -32,7 +32,7 @@ const formatMessage = (id, res) => {
     const { files } = item.msg;
     const isPicture = RegExpValidator.fileIsPicture(`.${RegExpValidator.getExtOfFileName(files.name)}`);
     const bigImg = parseInt(files.size / 1024 / 1024) >= 20;
-    const previewUrl = isPicture && (files.thumbs?.web_2 || files.thumbs?.web_1);
+    const previewUrl = isPicture && (files.thumbs?.web_2 || files.url);
     return {
       fileid: files.id || '',
       name: files.name || '',
