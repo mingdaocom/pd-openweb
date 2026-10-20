@@ -42,7 +42,9 @@ class PostIReply extends React.Component {
 
   render() {
     const postItem = this.props.postItem;
-    const sourceType = postItem.forComment === 'True' ? _l('回复') : _l('动态');
+    // 被回复的对象是「回复」时按纯文本渲染，是「动态」时保持 Markdown
+    const isReplyToComment = postItem.forComment === 'True';
+    const sourceType = isReplyToComment ? _l('回复') : _l('动态');
 
     return (
       <div className={cx('postContainer', this.props.className)}>
@@ -66,7 +68,7 @@ class PostIReply extends React.Component {
                   }}
                 />
                 {_l('的')}
-                {sourceType}: <PostMessage postItem={postItem.reply} inline />
+                {sourceType}: <PostMessage postItem={postItem.reply} inline plainText={isReplyToComment} />
               </span>
             )}
           </div>

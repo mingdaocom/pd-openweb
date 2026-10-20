@@ -155,7 +155,10 @@ export default class PageTableCon extends Component {
             },
           })
         : columns;
-    const scrollWidth = _.reduce(columns, (total, item) => total + item.width, 0);
+    // 自适应列不能参与数值求和，由表格根据内容计算总宽度。
+    const scrollWidth = columns.some(item => item.width === 'fit-content')
+      ? 'max-content'
+      : _.reduce(columns, (total, item) => total + item.width, 0);
 
     const scroll = _.isEmpty(dataSource)
       ? { x: scrollWidth }

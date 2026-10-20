@@ -16,6 +16,10 @@ export default class RowDetail extends React.Component {
     projectId: PropTypes.string,
     controls: PropTypes.arrayOf(PropTypes.shape({})),
     data: PropTypes.shape({}),
+    mobileApprovalRecordInfo: PropTypes.shape({
+      instanceId: PropTypes.string,
+      workId: PropTypes.string,
+    }),
     getMasterFormData: PropTypes.func,
     handleUniqueValidate: PropTypes.func,
     onSave: PropTypes.func,
@@ -197,6 +201,7 @@ export default class RowDetail extends React.Component {
       widgetStyle = {},
       rules,
       isDraft,
+      mobileApprovalRecordInfo,
     } = this.props;
     const { flag } = this.state;
     const formdata = _.isEmpty(data)
@@ -217,6 +222,7 @@ export default class RowDetail extends React.Component {
         value={{
           ...this.context,
           recordBaseInfo: {
+            ..._.pick(mobileApprovalRecordInfo, ['instanceId', 'workId']),
             appId,
             worksheetId,
             recordId: data.rowid,
@@ -225,6 +231,7 @@ export default class RowDetail extends React.Component {
       >
         <div ref={this.formcon}>
           <CustomFields
+            mobileApprovalRecordInfo={mobileApprovalRecordInfo}
             ignoreLock={ignoreLock}
             worksheetId={worksheetId}
             disabled={disabled}

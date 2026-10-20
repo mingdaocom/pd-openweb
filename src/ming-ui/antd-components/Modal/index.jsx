@@ -113,13 +113,33 @@ const getStaticModalStyles = styles => {
 const getStaticAction = (action, manualClose) => {
   if (!_.isFunction(action) || manualClose) return action;
 
+  // Antd 会重置带 close 参数回调的点击标记，成功后需保持锁直到弹框关闭。
+  let executing = false;
+
   return close => {
-    const result = action();
+    if (executing) return;
+    executing = true;
 
-    if (result === false) return;
-    if (_.isFunction(result?.then)) return result;
+    try {
+      const result = action();
 
-    close();
+      if (result === false) {
+        executing = false;
+        return;
+      }
+
+      if (_.isFunction(result?.then)) {
+        return Promise.resolve(result).catch(error => {
+          executing = false;
+          throw error;
+        });
+      }
+
+      close();
+    } catch (error) {
+      executing = false;
+      throw error;
+    }
   };
 };
 

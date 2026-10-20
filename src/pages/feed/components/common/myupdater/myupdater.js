@@ -113,10 +113,14 @@ const MyUpdater = {
       showCategory: true,
       cacheKey: 'updatertext',
       initCallback: () => {
-        textareaUpdaterEl.restore(success => {
+        textareaUpdaterEl.restore((success, data) => {
           if (success) {
             $textareaUpdater.removeClass('textTertiary');
             $('#myupdaterOP').show();
+            // 正文由 Markdown 编辑器承载，草稿需交回编辑器显示
+            if (typeof MyUpdater.options.onRestoreDraft === 'function') {
+              MyUpdater.options.onRestoreDraft(data);
+            }
           } else {
             $textareaUpdater.val(_l('知会工作是一种美德') + '...').addClass('textTertiary');
           }
@@ -151,6 +155,9 @@ const MyUpdater = {
           // });
           updateTextareaHeight(24);
           $('#myupdaterOP').slideUp();
+          if (typeof MyUpdater.options.onCollapse === 'function') {
+            MyUpdater.options.onCollapse();
+          }
         }
       }
     });

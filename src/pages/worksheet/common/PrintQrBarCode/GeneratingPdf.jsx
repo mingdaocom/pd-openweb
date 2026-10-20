@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import _, { includes } from 'lodash';
 import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import worksheetAjax from 'src/api/worksheet';
-import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 import BatchPrintErrorModal from '../BatchPrintErrorModal';
 import { normalizePrintableRows } from '../printRowUtils';
@@ -166,7 +165,7 @@ export default function GeneratingPdf(props) {
           }
         });
     } else if (config.sourceType === SOURCE_TYPE.URL && config.sourceUrlType === SOURCE_URL_TYPE.MEMBER) {
-      execute(rows.current.map(r => pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`)));
+      execute(rows.current.map(r => `${md.global.Config.WebUrl}app/${appId}/${worksheetId}/${viewId}/row/${r.rowid}`));
     } else if (config.sourceType === SOURCE_TYPE.CONTROL) {
       if (config.sourceControlId) {
         execute();

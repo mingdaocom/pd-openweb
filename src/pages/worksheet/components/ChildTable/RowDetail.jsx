@@ -161,6 +161,7 @@ export default class RowDetail extends React.Component {
         value={{
           ...this.context,
           recordBaseInfo: {
+            ..._.pick(_.get(this.context, 'recordBaseInfo'), ['instanceId', 'workId']),
             appId,
             worksheetId,
             recordId: data.rowid,

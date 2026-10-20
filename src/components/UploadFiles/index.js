@@ -129,6 +129,7 @@ class UploadFiles extends Component {
      * 文件退拽上传的区域和黏贴的区域
      */
     dropPasteElement: PropTypes.string,
+    manualRef: PropTypes.func,
     /**
      * 文件退拽上传的区域和黏贴的区域 触发回调函数
      */
@@ -147,7 +148,7 @@ class UploadFiles extends Component {
      */
     headerRightElement: PropTypes.element,
     /**
-     * 文件总大小上限（单位 MB），默认 4G
+     * 文件总大小上限（单位 MB），默认使用系统配置
      */
     maxTotalSize: PropTypes.number,
     openPreviewAttachments: PropTypes.func,
@@ -180,7 +181,7 @@ class UploadFiles extends Component {
   constructor(props) {
     super(props);
     const { attachmentData, temporaryData, kcAttachmentData, originCount, maxTotalSize } = this.props;
-    const defaultMaxTotalSize = _.get(md, 'global.SysSettings.fileUploadLimitSize') || 1024 * 4;
+    const defaultMaxTotalSize = _.get(md, 'global.SysSettings.fileUploadLimitSize');
     this.state = {
       attachmentData,
       temporaryData: formatTemporaryData(temporaryData),
@@ -198,6 +199,9 @@ class UploadFiles extends Component {
   componentDidMount() {
     const { temporaryData, kcAttachmentData } = this.state;
     const { isInitCall } = this.props;
+
+    // 组件由 withOpeners 包裹，ref 拿不到实例，按项目约定用 manualRef 回传
+    this.props.manualRef?.(this);
 
     if (isInitCall) {
       this.props.onTemporaryDataUpdate(temporaryData);
@@ -330,12 +334,17 @@ class UploadFiles extends Component {
       );
     });
   }
+  /** 供调用方把外部拿到的文件（如编辑器里粘贴的图片）加入待上传队列 */
+  addFiles = files => {
+    if (files && files.length && this.qiniuUploadRef?.uploader) {
+      this.qiniuUploadRef.uploader.addFile(files);
+    }
+  };
+
   openPcCameraDialog() {
     const cameraProps = {
       onOk: files => {
-        if (files && files.length && this.qiniuUploadRef?.uploader) {
-          this.qiniuUploadRef.uploader.addFile(files);
-        }
+        this.addFiles(files);
       },
     };
 

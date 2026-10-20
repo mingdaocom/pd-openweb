@@ -1,4 +1,3 @@
-import qs from 'query-string';
 import { getPssId } from 'src/utils/platform/auth/pssId';
 
 /**
@@ -21,13 +20,7 @@ export function downloadBlob(blob, filename) {
  * 根据运行环境为文件下载地址补充合适的认证参数。
  */
 export const downloadFile = url => {
-  if (window.isDingTalk) {
-    const [, search] = decodeURIComponent(url).split('?');
-    const { validation } = qs.parse(search);
-    return addToken(url, validation ? true : false);
-  } else {
-    return addToken(url, md.global.Config.HttpOnly || window.self !== window.top ? false : true);
-  }
+  return addToken(url, md.global.Config.HttpOnly || window.self !== window.top ? false : true);
 };
 
 /**

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
+import { resolveAgentErrorMessage } from '../errorMessages';
 
 // 错误码 → 主操作形态：
 //  - insufficient_credit（后端 AgentErrorCodes.InsufficientCredit）：信用点不足 → 充值；
@@ -77,10 +78,12 @@ export function ResponseError({ className, error, errorCode, onRetry, onRecharge
   if (dismissed) return null;
 
   const isCreditExhausted = errorCode === ERROR_CODE_INSUFFICIENT_CREDIT;
-  // 信用点不足文案由前端维护（后端 errorMessage 未做多语言），其它错误仍展示后端原文
-  const message = isCreditExhausted
-    ? _l('组织信用点余额不足，请充值后重试')
-    : (error && (error.errorMsg || error.message)) || error || _l('请求失败');
+  // 已知错误码文案由前端维护（后端 errorMessage 未做多语言），未收录的码仍展示后端原文
+  const message = resolveAgentErrorMessage(
+    errorCode,
+    (error && (error.errorMsg || error.message)) || error,
+    _l('请求失败'),
+  );
   const isQuotaExhausted = errorCode === ERROR_CODE_QUOTA_EXHAUSTED;
   const handleClose = () => (onClose ? onClose() : setDismissed(true));
 

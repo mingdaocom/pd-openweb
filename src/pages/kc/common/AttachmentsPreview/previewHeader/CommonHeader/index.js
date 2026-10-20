@@ -20,11 +20,7 @@ function AttachmentAction(props) {
   } = props;
   const [showSavePreviewService, setShowSavePreviewService] = useState(false);
   const isMobile = browserIsMobile();
-  const showWpsPreview =
-    !window.platformENV.isOverseas &&
-    !window.platformENV.isLocal &&
-    cauUseWpsPreview &&
-    !md.global.Config.EnableWpsDocPreview;
+  const showWpsPreview = cauUseWpsPreview && !md.global.Config.EnableWpsDocPreview;
 
   return (
     <div className={cx('flexRow flex justifyContentCenter', { mobileAttachmentAction: isMobile })}>
@@ -109,11 +105,7 @@ export default function CommonHeader(props) {
 
   const [showSaveTo, setShowSaveTo] = useState(false);
   const isMobile = browserIsMobile();
-  const showWpsPreview =
-    !window.platformENV.isOverseas &&
-    !window.platformENV.isLocal &&
-    cauUseWpsPreview &&
-    !md.global.Config.EnableWpsDocPreview;
+  const showWpsPreview = cauUseWpsPreview && !md.global.Config.EnableWpsDocPreview;
 
   const handleLogin = () => {
     Modal.confirm({

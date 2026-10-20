@@ -34,6 +34,10 @@ export default class CustomDefaultValue extends Component {
     // 对游离子表属于无效请求，直接关闭规则加载。
     const isBlankSubList =
       _.get(data, 'advancedSetting.detailworksheettype') === '2' || _.includes(data.dataSource, '-');
+    // 复用子表配置面板按完整参数（含主表 id）取到的工作表信息，避免弹窗自行请求时缺少参数拿不到字段；
+    // 复制控件时 sheetInfo 可能是控件对象而非工作表信息，此时不传，回退原请求逻辑
+    const sheetInfo = _.get(window.subListSheetConfig, [data.controlId, 'sheetInfo']);
+    const worksheetInfo = !isBlankSubList && _.get(sheetInfo, 'template.controls') ? sheetInfo : undefined;
     return (
       <Modal
         open={true}
@@ -89,6 +93,7 @@ export default class CustomDefaultValue extends Component {
               },
             }}
             controls={controls}
+            worksheetInfo={worksheetInfo}
             projectId={globalSheetInfo.projectId}
             appId={appId || globalSheetInfo.appId}
             registerCell={comp => {

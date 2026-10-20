@@ -182,7 +182,7 @@ const ChunkDetail = props => {
               <span>{attachmentName}</span>
               <LaunchIcon
                 icon="launch"
-                onClick={() => onPreviewAttachment({ fileId: attachmentId, rowId, worksheet })}
+                onClick={() => onPreviewAttachment({ fileId: attachmentId, rowId, worksheet, type })}
               />
             </div>
           }

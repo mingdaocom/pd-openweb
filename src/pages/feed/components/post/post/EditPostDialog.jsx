@@ -1,29 +1,13 @@
 import React from 'react';
 import _ from 'lodash';
-import { Textarea } from 'ming-ui';
 import { Modal } from 'ming-ui/antd-components';
 import { SelectGroupPopover } from 'ming-ui/functions/quickSelectGroup';
-import useFunctionWrapComponent, { withOpeners } from 'ming-ui/hooks/useFunctionWrapComponent';
-import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
-import { useMentionsInput } from 'src/components/MentionsInput';
+import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
+import PostMarkdownEditor from 'src/components/comment/PostMarkdownEditor';
+import { fromStoredMessage, toSyntaxMessage } from 'src/components/comment/utils/markdownMessageSyntax';
 import UploadFiles from 'src/components/UploadFiles';
-import { htmlDecodeReg } from 'src/utils/core/string';
 import RegExpValidator from 'src/utils/domain/validation/expression';
 import { edit } from '../../../redux/postActions';
-
-class EditPostMentionsOwner extends React.PureComponent {
-  componentDidMount() {
-    this.props.onMount(this.props.openMentionsInput);
-  }
-
-  render() {
-    return <React.Fragment>{this.props.children}</React.Fragment>;
-  }
-}
-
-const EditPostMentionsOwnerWithOpeners = withOpeners(EditPostMentionsOwner, {
-  openMentionsInput: useMentionsInput,
-});
 
 class EditPostDialog extends React.Component {
   state = {
@@ -31,6 +15,8 @@ class EditPostDialog extends React.Component {
     temporaryData: [],
     isUploadComplete: true,
     submitting: false,
+    // 正文即 Markdown 源码，直接回填；旧的「渲染成 HTML 再剥标签」会破坏 Markdown 结构
+    markdownValue: fromStoredMessage(this.props.postItem.message, this.props.postItem),
     scope: {
       shareProjectIds: _.map(this.props.postItem.scope.shareProjects, p => p.projectId),
       shareGroupIds: _.map(this.props.postItem.scope.shareGroups, g => g.groupId),
@@ -81,44 +67,6 @@ class EditPostDialog extends React.Component {
     return attachment;
   }
 
-  initializeMentionsInput = openMentionsInput => {
-    const { postItem } = this.props;
-    const message = htmlDecodeReg(
-      createLinksForMessage(_.assign({ noLink: true, doNotEscapeHTML: true }, postItem))
-        .replace(/<br>/g, '\n')
-        .replace(/<[^>]+>/g, ''),
-    );
-    const messageMentions = createLinksForMessage(
-      _.assign({ noLink: true, doNotEscapeHTML: true }, postItem, {
-        message: postItem.message
-          .replace('/[aid]([0-9a-zA-Z-]*\\|?.*)[/aid]/', 'user:$1')
-          .replace('/[gid]([0-9a-zA-Z-]*\\|?.*)[/gid]/', 'group:$1'),
-      }),
-    )
-      .replace(/<br>/g, '\n')
-      .replace(/<[^>]+>/g, '');
-    const mentionsCollection = _.map(postItem.rUserList, account => ({
-      id: account.aid,
-      fullname: account.name,
-      type: 'user',
-    })).concat(
-      _.map(postItem.rGroupList, group => ({
-        id: group.groupID,
-        value: group.groupName,
-        type: 'group',
-      })),
-    );
-    const textarea = this.textarea;
-
-    openMentionsInput({
-      input: textarea,
-      showCategory: true,
-      initCallback: () => {
-        textarea.setValue(message, messageMentions, mentionsCollection);
-      },
-    });
-  };
-
   submit() {
     if (!this.state.isUploadComplete) {
       alert(_l('文件上传中，请稍等'), 3);
@@ -128,10 +76,8 @@ class EditPostDialog extends React.Component {
     const { scope } = this.state;
     const { postItem } = this.props;
     const { postID } = postItem;
-    const $textarea = $(this.textarea);
-    $textarea.get(0).val(data => {
-      const postMsg = data;
 
+    const submitPost = postMsg => {
       if (!postMsg || !(postMsg || '').trim()) {
         alert(_l('发表内容不能为空'), 3);
         return false;
@@ -164,15 +110,23 @@ class EditPostDialog extends React.Component {
               : undefined,
         },
         () => {
-          $textarea.get(0).reset();
           this.props.onClose();
         },
         () => {
           this.setState({ submitting: false });
         },
       );
-    });
+    };
+
+    submitPost(toSyntaxMessage(this.state.markdownValue));
   }
+
+  /** 编辑器里粘贴或拖入的图片不进 Markdown，仍然走附件上传 */
+  handleEditorUploadFiles = files => {
+    if (!files || !files.length) return;
+
+    this.uploadFilesRef?.addFiles(files);
+  };
 
   handleChangeGroup = value => {
     this.setState({
@@ -215,17 +169,18 @@ class EditPostDialog extends React.Component {
         onOk={() => this.submit()}
         onCancel={this.props.onClose}
       >
-        <EditPostMentionsOwnerWithOpeners onMount={this.initializeMentionsInput}>
-          <Textarea
-            id="textarea_Updater_Edit"
-            className="textarea_Updater_Edit"
-            maxHeight={220}
-            manualRef={textarea => {
-              this.textarea = textarea;
-            }}
-          />
+        <EditPostBody
+          markdownValue={this.state.markdownValue}
+          projectId={_.get(postItem, 'projectIds[0]')}
+          onMarkdownChange={markdownValue => this.setState({ markdownValue })}
+          onUploadFiles={this.handleEditorUploadFiles}
+          onSubmit={() => this.submit()}
+        >
           {(postItem.postType == 2 || postItem.postType == 3 || postItem.postType == 9) && (
             <UploadFiles
+              manualRef={ref => {
+                this.uploadFilesRef = ref;
+              }}
               dropPasteElement="textarea_Updater_Edit"
               className="mTop10"
               isUpload
@@ -244,10 +199,28 @@ class EditPostDialog extends React.Component {
               }}
             />
           )}
-        </EditPostMentionsOwnerWithOpeners>
+        </EditPostBody>
       </Modal>
     );
   }
+}
+
+/** 正文统一按 Markdown 渲染，编辑态也统一用 Markdown 编辑器 */
+function EditPostBody({ markdownValue, projectId, onMarkdownChange, onUploadFiles, onSubmit, children }) {
+  return (
+    <React.Fragment>
+      <PostMarkdownEditor
+        value={markdownValue}
+        minHeight={120}
+        maxHeight={320}
+        projectId={projectId}
+        onChange={onMarkdownChange}
+        onUploadFiles={onUploadFiles}
+        onSubmit={onSubmit}
+      />
+      {children}
+    </React.Fragment>
+  );
 }
 
 const getEditPostDialogProps = ({ postItem, dispatch }) => ({

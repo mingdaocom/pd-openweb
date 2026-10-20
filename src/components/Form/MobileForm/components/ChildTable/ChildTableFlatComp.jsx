@@ -220,6 +220,7 @@ export default function ChildTableFlatComp(props) {
     onDelete,
     showNumber,
     masterData,
+    mobileApprovalRecordInfo,
     h5abstractids = [],
     appId,
     worksheetId,
@@ -562,6 +563,7 @@ export default function ChildTableFlatComp(props) {
                   }}
                 >
                   <CustomFields
+                    mobileApprovalRecordInfo={mobileApprovalRecordInfo}
                     className="mobileChildTableFlatForm"
                     from={/^temp/.test(rowid) ? 2 : from}
                     flag={random}
@@ -625,6 +627,10 @@ ChildTableFlatComp.propTypes = {
   onDelete: PropTypes.func,
   showNumber: PropTypes.bool,
   masterData: PropTypes.object,
+  mobileApprovalRecordInfo: PropTypes.shape({
+    instanceId: PropTypes.string,
+    workId: PropTypes.string,
+  }),
   getMasterFormData: PropTypes.func,
   h5abstractids: PropTypes.array,
   hideExpandAll: PropTypes.bool,

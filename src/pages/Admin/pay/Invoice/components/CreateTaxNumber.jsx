@@ -430,19 +430,29 @@ export default function CreateTaxNumber(props) {
   };
 
   const productColumns = [
-    { title: _l('项目名称'), dataIndex: 'projectName', ellipsis: true, fixed: 'left', width: '100' },
-    { title: _l('税收服务简称'), dataIndex: 'categoryName', ellipsis: true, fixed: 'left' },
-    { title: _l('税收服务编码'), dataIndex: 'categoryCode', width: '7%' },
-    { title: _l('税率'), dataIndex: 'taxRate' },
-    { title: _l('含税标记'), dataIndex: 'isTaxIncluded', render: text => (text ? _l('含税') : _l('不含税')) },
-    { title: _l('是否享受优惠政策'), dataIndex: 'isInDiscountPolicy', render: text => (text ? _l('是') : _l('否')) },
-    { title: _l('商品UUID'), dataIndex: 'productId', width: '7%' },
-    { title: _l('商品分类UUID'), dataIndex: 'projectCategoryCode' },
-    { title: _l('规格型号'), dataIndex: 'specification' },
-    { title: _l('单位'), dataIndex: 'unit' },
-    { title: _l('单价'), dataIndex: 'price' },
-    { title: _l('简码'), dataIndex: 'shortCode' },
-    { title: _l('增值税简易计税类型'), dataIndex: 'discountPolicyType' },
+    { title: _l('项目名称'), dataIndex: 'projectName', ellipsis: true, fixed: 'left', width: 280 },
+    { title: _l('税收服务简称'), dataIndex: 'categoryName', ellipsis: true, fixed: 'left', width: 140 },
+    { title: _l('税收服务编码'), dataIndex: 'categoryCode', width: 200 },
+    { title: _l('税率'), dataIndex: 'taxRate', width: 100 },
+    {
+      title: _l('含税标记'),
+      dataIndex: 'isTaxIncluded',
+      width: 100,
+      render: text => (text ? _l('含税') : _l('不含税')),
+    },
+    {
+      title: _l('是否享受优惠政策'),
+      dataIndex: 'isInDiscountPolicy',
+      width: 140,
+      render: text => (text ? _l('是') : _l('否')),
+    },
+    { title: _l('商品UUID'), dataIndex: 'productId', width: 200 },
+    { title: _l('商品分类UUID'), dataIndex: 'projectCategoryCode', width: 160 },
+    { title: _l('规格型号'), dataIndex: 'specification', width: 100 },
+    { title: _l('单位'), dataIndex: 'unit', width: 100 },
+    { title: _l('单价'), dataIndex: 'price', width: 100 },
+    { title: _l('简码'), dataIndex: 'shortCode', width: 100 },
+    { title: _l('增值税简易计税类型'), dataIndex: 'discountPolicyType', width: 160 },
   ];
 
   return (

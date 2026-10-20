@@ -6,7 +6,6 @@ import worksheetAjax from 'src/api/worksheet';
 import FilterDetailName from 'worksheet/common/WorkSheetFilter/components/FilterDetailName';
 import useSaveTemplateConfirm from 'src/pages/Print/components/SaveDia/saveTemplateConfirm';
 import { FILTER } from 'src/utils/domain/control/dynamicValue';
-import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { addBehaviorLog } from 'src/utils/services/project';
 import {
   A4_LAYOUT,
@@ -150,7 +149,7 @@ export default function PrintQrBarCode(props) {
         controls,
         urls: [
           config.sourceUrlType === SOURCE_URL_TYPE.MEMBER
-            ? pathCompletion(`/app/${appId}/${worksheetId}/${viewId}/row/${previewRow.rowid}`)
+            ? `${md.global.Config.WebUrl}app/${appId}/${worksheetId}/${viewId}/row/${previewRow.rowid}`
             : previewRowPublicUrl || 'error',
         ],
         index: 0,

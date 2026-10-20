@@ -16,7 +16,7 @@ export const shouldLoadAttachmentDetails = value => {
   return !!(file && !isDeletedAttachment(file) && file.fileId && !file.updateTime && !file.createUserName);
 };
 
-export const handleShare = (data, isDownload) => {
+export const handleShare = (data, isDownload, attachmentContext) => {
   if (!md.global.Account.accountId) {
     window.open(pathCompletion(`/login?ReturnUrl=${location.href}`));
     return;
@@ -57,6 +57,7 @@ export const handleShare = (data, isDownload) => {
   import('src/components/shareAttachment/shareAttachment').then(share => {
     const params = {
       attachmentType,
+      attachmentContext,
     };
     const isPicture = RegExpValidator.fileIsPicture('.' + attachment.ext.slice(attachment.ext.indexOf('.') + 1));
     params.id = attachment.id;

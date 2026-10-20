@@ -7,6 +7,7 @@ import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import agentAjax from 'src/api/agent';
 import { browserIsMobile } from 'src/utils/platform/browser/device';
 import { isUnauthorizedError } from 'src/utils/services/request/error';
+import { getAgentFeedbackErrorMessage } from '../errorMessages';
 
 // 嵌入态参数：去掉表单自身的背景 / 页头 / 页脚，提交按钮右对齐并收窄底部间距（弹层自身已贴边），
 // 同时开启 Command/Ctrl + Enter 提交。地址与其上的 traceId / orgId 均由服务端拼好，
@@ -31,19 +32,9 @@ function withDisplayParams(url) {
   return parsed.toString();
 }
 
-// 接口错误码 → 用户可理解的提示；401 由请求层统一引导登录，不走这里。
+// 接口错误码 → 用户可理解的提示（文案统一维护在 errorMessages）；401 由请求层统一引导登录，不走这里。
 function getFeedbackErrorText(error) {
-  switch (error && error.data && error.data.errorCode) {
-    case 'feedback_form_not_found':
-      return _l('反馈入口暂未开放');
-    case 'trace_not_found':
-    case 'invalid_request':
-      return _l('当前请求暂不可反馈');
-    case 'feedback_form_invalid':
-      return _l('反馈服务暂不可用，请稍后重试');
-    default:
-      return _l('打开反馈页面失败，请稍后重试');
-  }
+  return getAgentFeedbackErrorMessage(error && error.data && error.data.errorCode);
 }
 
 // 表单首屏有自己的骨架屏，这里不再叠加 loading，只负责撑出嵌入区域的高度

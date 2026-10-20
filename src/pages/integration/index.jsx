@@ -59,9 +59,7 @@ const getRoutes = param => {
           key={i}
           path={addSubPathOfRoute(path)}
           component={() => {
-            return (window.platformENV.isOverseas || window.platformENV.isLocal) &&
-              !md.global.Config.EnableDataPipeline &&
-              ENABLE_DATAPIPELINE_KEYS.includes(key) ? (
+            return !md.global.Config.EnableDataPipeline && ENABLE_DATAPIPELINE_KEYS.includes(key) ? (
               <div className="flexColumn alignItemsCenter justifyContentCenter h100">
                 {upgradeVersionDialog({
                   hint: window.platformENV.isPlatform ? (

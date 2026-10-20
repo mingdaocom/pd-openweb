@@ -95,7 +95,7 @@ export default function useQuotaActions({
     const min = getMinLimit(businessType);
     const max =
       businessType === 1
-        ? md.global.SysSettings.fileUploadLimitSize || 4 * 1024
+        ? md.global.SysSettings.fileUploadLimitSize
         : businessType === 2
           ? (window.platformENV.isLocal || window.platformENV.isOverseas) && state.limitRowTotal
             ? state.limitRowTotal * 10

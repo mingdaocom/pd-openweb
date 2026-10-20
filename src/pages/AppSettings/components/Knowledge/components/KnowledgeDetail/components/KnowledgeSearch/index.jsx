@@ -5,7 +5,7 @@ import attachmentAjax from 'src/api/attachment';
 import { useRecordInfo } from 'worksheet/common/recordInfo';
 import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import { useEsc } from 'src/utils/platform/react/interaction';
-import { ATTACHMENT_TYPE_ENUM, CHUNK_TYPE_TEXT, SEARCH_MODE } from '../../../../core/config';
+import { ATTACHMENT_TYPE, ATTACHMENT_TYPE_ENUM, CHUNK_TYPE_TEXT, SEARCH_MODE } from '../../../../core/config';
 import { useLinkTargetBlank } from '../../../../core/hooks';
 import EnhanceInfo from '../../../EnhanceInfo';
 import MarkdownPreview from '../../../MarkdownPreview';
@@ -49,19 +49,23 @@ const KnowledgeSearch = ({ knowledgeDetail, onClose }) => {
       });
   };
 
-  const handlePreviewAttachment = async ({ fileId, rowId, worksheet }) => {
+  const handlePreviewAttachment = async ({ fileId, rowId, worksheet, type }) => {
     if (!fileId) return;
 
     const data = await attachmentAjax.getAttachmentDetail({
       fileId,
-      worksheetId: worksheet.workSheetId,
-      rowId,
+      ...(type === ATTACHMENT_TYPE.RECORD_ATTACHMENT
+        ? { callSource: 3, worksheetId: worksheet.workSheetId, rowId }
+        : {}),
     });
 
     if (data) {
       setActiveEsc(false);
       openPreviewAttachments({
         index: 0,
+        ...(type === ATTACHMENT_TYPE.RECORD_ATTACHMENT
+          ? { callSource: 3, worksheetId: worksheet.workSheetId, recordId: rowId }
+          : {}),
         callFrom: 'player',
         attachments: [data],
         hideFunctions: ['editFileName'],
@@ -153,7 +157,7 @@ const KnowledgeSearch = ({ knowledgeDetail, onClose }) => {
                                         <span
                                           className="attachmentTitle"
                                           onClick={() =>
-                                            handlePreviewAttachment({ fileId: attachmentId, rowId, worksheet })
+                                            handlePreviewAttachment({ fileId: attachmentId, rowId, worksheet, type })
                                           }
                                         >
                                           {attachmentName}

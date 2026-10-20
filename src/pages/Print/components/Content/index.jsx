@@ -7,7 +7,6 @@ import { putControlByOrder, replaceHalfWithSizeControls } from 'src/utils/domain
 import { permitList } from 'src/utils/domain/control/formEnum';
 import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
 import RegExpValidator from 'src/utils/domain/validation/expression';
-import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { getAppTimeZone } from 'src/utils/platform/runtime/config';
 import { dateConvertToUserZone } from 'src/utils/platform/runtime/timeZone';
 import { getTranslateInfo } from 'src/utils/services/app';
@@ -122,9 +121,9 @@ export default class Con extends React.Component {
     }
 
     // 对内分享链接
-    const url = pathCompletion(`/app/${appId}/${worksheetId}/${viewId || ''}/row/${rowId || rowIdForQr}`);
-    // 门户站内链接可能为相对路径，二维码使用当前页面域名补齐。
-    this.setState({ shareUrl: md.global.Account.isPortal ? new URL(url, window.location.origin).href : url });
+    let baseUrl = `${md.global.Config.WebUrl}app/${appId}/${worksheetId}`;
+    if (viewId) baseUrl += `/${viewId}`;
+    this.setState({ shareUrl: `${baseUrl}/row/${rowId || rowIdForQr}` });
   };
 
   getPlaceholderMode = () => {

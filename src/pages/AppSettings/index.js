@@ -369,9 +369,7 @@ class AppSettings extends Component {
           >
             {loading ? (
               <LoadDiv />
-            ) : (window.platformENV.isOverseas || window.platformENV.isLocal) &&
-              !md.global.Config.EnableDataPipeline &&
-              'aggregations' === currentConfigType ? (
+            ) : !md.global.Config.EnableDataPipeline && 'aggregations' === currentConfigType ? (
               <div className="flexColumn alignItemsCenter justifyContentCenter h100">
                 {upgradeVersionDialog({
                   hint: window.platformENV.isPlatform ? (

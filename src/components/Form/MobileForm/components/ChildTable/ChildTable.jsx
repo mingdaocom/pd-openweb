@@ -1186,6 +1186,7 @@ class ChildTable extends React.Component {
       pagination = {},
       updatePagination = () => {},
     } = this.props;
+    const mobileApprovalRecordInfo = _.pick(this.props.base, ['instanceId', 'workId']);
     const { projectId, rules } = this.worksheetInfo;
     const { searchConfig } = this;
     let {
@@ -1428,6 +1429,7 @@ class ChildTable extends React.Component {
         {!showExpand && !isInitialEmpty && renderOperateComp()}
         {!loading && (
           <Component
+            mobileApprovalRecordInfo={mobileApprovalRecordInfo}
             sheetSwitchPermit={sheetSwitchPermit}
             allowcancel={allowcancel}
             allowadd={allowadd}
@@ -1538,6 +1540,7 @@ class ChildTable extends React.Component {
 
         {recordVisible && (
           <RowDetailMobile
+            mobileApprovalRecordInfo={mobileApprovalRecordInfo}
             widgetStyle={this.worksheetInfo.advancedSetting}
             isEditCurrentRow={isEditCurrentRow}
             masterData={masterData}

@@ -233,6 +233,7 @@ class AttachmentsPreview extends React.Component {
       >
         {isShare && <DocumentTitle title={name + '.' + ext} />}
         <PreviewHeader
+          attachmentContext={options}
           showSwitchHtmlPreview={!!htmlPreviewUrl}
           clickSwitchHtmlPreview={() => this.setState({ showHtmlSource: !this.state.showHtmlSource })}
           logExtend={{

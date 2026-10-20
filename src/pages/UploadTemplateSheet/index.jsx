@@ -720,14 +720,13 @@ export default class UploadTemplateSheet extends React.Component {
         placement="bottomRight"
         menu={{
           style: { width: 180 },
-          items: (md.global.Config.EnableDocEdit === false || popupVisible === 'Xlsx'
-            ? OPTIONS.slice(0, 1)
-            : OPTIONS
-          ).map(item => ({
-            key: item.value,
-            label: item.label,
-            onClick: () => this.onEdit(item.value),
-          })),
+          items: (!md.global.Config.EnableDocEdit || popupVisible === 'Xlsx' ? OPTIONS.slice(0, 1) : OPTIONS).map(
+            item => ({
+              key: item.value,
+              label: item.label,
+              onClick: () => this.onEdit(item.value),
+            }),
+          ),
         }}
       >
         <span>

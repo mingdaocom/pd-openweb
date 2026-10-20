@@ -51,6 +51,7 @@ export default function generateStore(
     workId,
     initRowIsCreate,
     DataFormat,
+    worksheetInfo: presetWorksheetInfo,
   } = {},
 ) {
   let worksheetInfo;
@@ -93,13 +94,16 @@ export default function generateStore(
       let { max, treeLayerControlId } = parseAdvancedSetting(control.advancedSetting);
 
       if (!controls) {
-        worksheetInfo = await loadWorksheetInfo(worksheetId, {
-          relationWorksheetId,
-          controlId: control.controlId,
-          recordId,
-          instanceId,
-          workId,
-        });
+        // 调用方已持有工作表信息（如字段配置的子表默认值弹窗）时直接复用，避免参数不全的二次请求
+        worksheetInfo =
+          presetWorksheetInfo ||
+          (await loadWorksheetInfo(worksheetId, {
+            relationWorksheetId,
+            controlId: control.controlId,
+            recordId,
+            instanceId,
+            workId,
+          }));
         // await new Promise(resolve => setTimeout(resolve, 5000)); // TEST: 测试子表未加载完成时的提交问题
         controls = get(worksheetInfo, 'template.controls');
         controls = handleUpdateDefsourceOfControl({

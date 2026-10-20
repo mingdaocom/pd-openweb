@@ -59,6 +59,7 @@ const MentionsInput = props => {
     defaultMaxHeight,
     getAtData,
     initCallback,
+    onMentionSelected,
   } = props;
   const [triggerPopupVisible, setTriggerPopupVisible] = useState(false);
   const [results, setResults] = useState({});
@@ -161,18 +162,20 @@ const MentionsInput = props => {
       localStorage.removeItem(key);
     };
 
-    input.store = () => {
-      if (!input.value) {
+    // draft 可选：由调用方给出要缓存的内容（如 Markdown 编辑器需连同源码一起保存），缺省取输入框当前值
+    input.store = draft => {
+      var data = draft || {
+        text: input.value,
+        messageText: input.messageText,
+        mentionsCollection: getMentionsCollection(),
+      };
+
+      if (!data.text) {
         input.clearStore();
         return;
       }
 
       var key = 'mentionsInputCache_' + md.global.Account.accountId + '_' + (props.cacheKey || '');
-      var data = {
-        text: input.value,
-        messageText: input.messageText,
-        mentionsCollection: getMentionsCollection(),
-      };
       safeLocalStorageSetItem(key, JSON.stringify(data));
     };
 
@@ -264,6 +267,21 @@ const MentionsInput = props => {
   const handleAddMention = mention => {
     const state = mentionState.current;
     const currentType = state.currentType;
+
+    // 由调用方接管插入：contenteditable 编辑器无法按字符偏移改写 value，
+    // 由它自己删除触发词并以自身格式插入（如 Markdown 的链接语法）
+    if (_.isFunction(onMentionSelected)) {
+      const query = state.currentDataQuery || '';
+
+      state.isAt = false;
+      state.atPos = 0;
+      state.currentDataQuery = '';
+      state.currentType = '';
+      onMentionSelected(mention, { query, triggerChar: currentType });
+      updateTriggerPopupVisible(false);
+      return;
+    }
+
     var currentMessage = input.value;
     var position = getInputCaretPosition(input);
 

@@ -9,6 +9,7 @@ import { getBarCodeValue } from 'src/utils/domain/control/barCode';
 import { getTitleTextFromRelateControl, renderText as renderCellText } from 'src/utils/domain/control/display';
 import { parseDataSource } from 'src/utils/domain/control/metadata';
 import { getSwitchItemNames } from 'src/utils/domain/control/options';
+import { getCheckAndOther } from 'src/utils/domain/control/value';
 import RegExpValidator from 'src/utils/domain/validation/expression';
 import { USER_CONTROLS } from './config';
 import STYLE_PRINT from './exportWordPrintTemCssString';
@@ -693,13 +694,7 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
       if (!printOption || (type === 10 && _.get(item, ['advancedSetting', 'checktype']) === '1')) {
         return renderCellText(dataItem) || placeholderMode;
       } else {
-        let selectedKeys = [];
-
-        try {
-          selectedKeys = JSON.parse(dataItem.value);
-        } catch (err) {
-          console.log(err);
-        }
+        const { checkIds: selectedKeys, otherValue } = getCheckAndOther(dataItem.value);
 
         return dataItem.options
           .filter(l => !l.isDeleted)
@@ -714,9 +709,10 @@ const getPrintContent = (item, sourceControlType, valueItem) => {
             }
 
             return (
-              <span className="InlineBlock pTop0 pBottom0" style={{ marginRight: 14 }}>
+              <span key={o.key} className="InlineBlock pTop0 pBottom0" style={{ marginRight: 14 }}>
                 <b className="InlineBlock TxtTop TxtCenter">{str}</b>
                 {o.value}
+                {o.key === 'other' && otherValue ? `（${otherValue}）` : ''}
               </span>
             );
           });

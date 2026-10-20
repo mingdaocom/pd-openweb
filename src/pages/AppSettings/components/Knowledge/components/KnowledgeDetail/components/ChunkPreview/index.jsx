@@ -183,6 +183,9 @@ const ChunkPreview = props => {
       if (!attachment) return;
       openPreviewAttachments({
         index: 0,
+        ...(chunkHeader.type === ATTACHMENT_TYPE.RECORD_ATTACHMENT
+          ? { callSource: 3, worksheetId: worksheet.workSheetId, recordId: chunkHeader.rowId }
+          : {}),
         callFrom: 'player',
         attachments: [attachment],
         hideFunctions: ['editFileName'],

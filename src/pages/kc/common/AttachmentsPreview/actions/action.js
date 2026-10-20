@@ -31,7 +31,7 @@ export function getAttachmentEditDetail(params) {
   } = params;
   const isNewTab = location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1;
   const featureType = getFeatureStatus(projectId, VersionProductType.editAttachment);
-  const docEditEnabled = md.global.Config.EnableDocEdit || window.platformENV.isHap;
+  const docEditEnabled = md.global.Config.EnableDocEdit;
 
   if ((!isNewTab && featureType !== '1') || !allowEdit || !docEditEnabled) return;
 
@@ -80,6 +80,7 @@ export function init(options, extra) {
     currentAttachment = attachments[index];
     dispatch({
       type: 'FILE_PREVIEW_INIT',
+      options,
       index,
       attachments,
       showThumbnail,
@@ -175,7 +176,7 @@ function preLoadMoreAttachments(state, dispatch) {
 
 function changeIndexThunk(dispatch, getState, index, flag, extra = {}) {
   const state = getState();
-  const options = { ...(state.extra || {}), ...extra };
+  const options = { ...(state.extra || {}), ...(state.options || {}), ...extra };
 
   if (flag && flag === 'prev') {
     index = state.index - 1;

@@ -216,6 +216,17 @@ const Files = props => {
   const [smallSize, setSmallSize] = useState(false);
   const [wpsEditUrls, setWpsEditUrls] = useState({});
   const { recordBaseInfo = {}, openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
+  const attachmentContext = {
+    worksheetId: recordBaseInfo.worksheetId,
+    recordId: recordBaseInfo.recordId,
+    controlId,
+    isDraft: props.isDraft,
+    masterWorksheetId: _.get(masterData, 'worksheetId'),
+    masterRecordId: _.get(masterData, 'recordId'),
+    masterControlId: _.get(masterData, 'controlId'),
+    workId: recordBaseInfo.workId || workId,
+    instanceId: recordBaseInfo.instanceId || instanceId,
+  };
   const ref = useRef(null);
 
   const { showType, allowSort } = props;
@@ -328,23 +339,15 @@ const Files = props => {
 
   // 明道云附件预览
   const handleMDPreview = data => {
-    const { allowShare, allowDownload = false, advancedSetting, projectId, isDraft, allowEditOnline } = props;
+    const { allowShare, allowDownload = false, advancedSetting, projectId, allowEditOnline } = props;
     const { allowedit, onlyeditself } = advancedSetting;
     const attachmentEditContext = {
-      worksheetId: recordBaseInfo.worksheetId,
-      recordId: recordBaseInfo.recordId,
-      controlId,
+      ...attachmentContext,
       projectId,
-      isDraft,
-      masterWorksheetId: _.get(masterData, 'worksheetId'),
-      masterRecordId: _.get(masterData, 'recordId'),
-      masterControlId: _.get(masterData, 'controlId'),
       allowEdit:
         allowEditOnline &&
         allowedit === '1' &&
         ((onlyeditself === '1' && md.global.Account.accountId === data.accountId) || onlyeditself !== '1'),
-      workId: recordBaseInfo.workId || workId,
-      instanceId: recordBaseInfo.instanceId || instanceId,
       ...customButton,
     };
     const hideFunctions = ['editFileName', 'saveToKnowlege']
@@ -543,7 +546,7 @@ const Files = props => {
       ((onlyeditself === '1' && md.global.Account.accountId === file.accountId) || onlyeditself !== '1') &&
       isWpsPreview(RegExpValidator.getExtOfFileName(file.ext), true) &&
       !_.get(window, 'shareState.shareId') &&
-      (window.platformENV.isOverseas || window.platformENV.isLocal ? md.global.Config.EnableDocEdit : true)
+      md.global.Config.EnableDocEdit
     ) {
       let attachmentShareId;
 
@@ -607,6 +610,7 @@ const Files = props => {
         isOtherSheet={isOtherSheet}
         isSubListFile={isSubListFile}
         masterData={masterData}
+        attachmentContext={attachmentContext}
         onDeleteMDFile={handleDeleteMDFile}
         onDeleteKCFile={handleDeleteKCFile}
         onDeleteFile={handleDeleteFile}

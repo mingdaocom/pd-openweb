@@ -262,6 +262,8 @@ function NewRecord(props) {
             base: {
               appId,
               worksheetId,
+              // 显式带上（可为 undefined），避免 Mingo 合并当前页面 base 时串入父表视图，导致提交不返回行数据
+              viewId,
               projectId: worksheetInfo.projectId,
               worksheetInfo,
               defaultFormData: _.get(props, 'defaultFormData', {}),

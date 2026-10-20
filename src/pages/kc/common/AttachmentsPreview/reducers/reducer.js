@@ -63,6 +63,15 @@ function extra(state = {}, action) {
   }
 }
 
+function options(state = {}, action) {
+  switch (action.type) {
+    case 'FILE_PREVIEW_INIT':
+      return action.options || {};
+    default:
+      return state;
+  }
+}
+
 function loading(state = true, action) {
   switch (action.type) {
     case 'FILE_PREVIEW_LOAD_FILE_SUCESS':
@@ -177,6 +186,7 @@ export default combineReducers({
   index,
   loading,
   extra,
+  options,
   error,
   showThumbnail,
   showAttInfo,

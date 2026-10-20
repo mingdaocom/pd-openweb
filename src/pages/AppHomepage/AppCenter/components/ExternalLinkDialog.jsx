@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useRef, useState } from 'react';
+import React, { Fragment, useRef, useState } from 'react';
 import { useSetState } from 'react-use';
 import { generate } from '@ant-design/colors';
 import _ from 'lodash';
@@ -142,16 +142,6 @@ export default function ExternalLinkDialog(props) {
   const tagTextAreaRef = useRef();
   const inputRef = useRef();
 
-  useEffect(() => {
-    if (record && record.urlTemplate) {
-      tagTextAreaRef.current.setValue(record.urlTemplate);
-    }
-
-    if (inputRef && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, []);
-
   const onSave = () => {
     if (!appInfo.name) {
       alert(_l('页面名称不能为空'), 3);
@@ -193,6 +183,11 @@ export default function ExternalLinkDialog(props) {
       width={640}
       onOk={onSave}
       onCancel={onCancel}
+      afterOpenChange={open => {
+        if (open) {
+          inputRef.current?.focus();
+        }
+      }}
     >
       <Wrapper>
         <div className="formItem">
@@ -219,6 +214,7 @@ export default function ExternalLinkDialog(props) {
             <div className="flexRow">
               <CustomTagTextarea
                 className="flex"
+                defaultValue={appInfo.urlTemplate}
                 placeholder={_l('输入完整链接，以http://或https://开头')}
                 renderTag={tag => {
                   const tagName = _.get(

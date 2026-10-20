@@ -49,6 +49,7 @@ import {
   isAppListPage,
 } from './buildContext';
 import { formatPartTs, IS_DEBUG, logSseEvent } from './debug';
+import { getAgentErrorMessage } from './errorMessages';
 import { buildSessionShareProps } from './sessionShare';
 import {
   appendEventToParts,
@@ -472,6 +473,16 @@ function getStreamFailureError(error, anonymous) {
     const anonError = getAnonStreamError(error);
 
     if (anonError) return anonError;
+  }
+
+  // 登录态 HTTP 非 2xx：error.data 为解析后的 { errorCode, errorMessage }，带上 errorCode 由拦截卡换成前端文案，
+  // 解析不出时沿用原有 error.message
+  const body = (error && error.data) || {};
+  const errorCode = stringValue(readField(body, 'errorCode')) || '';
+  const message = stringValue(readField(body, 'errorMessage'));
+
+  if (errorCode || message) {
+    return { errorCode, message: message || (error && error.message) || _l('Agent 请求失败') };
   }
 
   return { errorCode: '', message: (error && error.message) || _l('Agent 请求失败') };
@@ -1853,7 +1864,7 @@ export default function ChatPanel({ runtime = {}, isSingleMingoPlan = false }) {
           // 会话已在其它端被删除（V6.3.1 起 404）：与 loadSession 的 404 处理同一套语义
           if (helpMode) {
             if (rememberHelpSession && !anonymous) saveHelpAgentSessionId('');
-            alert(_l('会话已删除'), 2);
+            alert(getAgentErrorMessage(errorCode), 2);
             emitter.emit(AGENT_HEADER_EVENT.BACK_TO_WELCOME);
           } else {
             const accountId =
@@ -1865,11 +1876,11 @@ export default function ChatPanel({ runtime = {}, isSingleMingoPlan = false }) {
           }
         } else if (errorCode === 'message_not_found') {
           // messageId 不存在 / 不属于该会话 / 已被删（服务端刻意不区分原因）：提示后重拉会话消息对齐服务端
-          alert(_l('消息不存在'), 2);
+          alert(getAgentErrorMessage(errorCode), 2);
           reloadAfterError = true;
         } else if (errorCode === 'regenerate_not_supported') {
           // 正常不可达（按钮已按 agent 名单隐藏），服务端名单可能扩充：提示并还原旧答案兜底
-          alert(_l('该类对话暂不支持重新生成'), 3);
+          alert(getAgentErrorMessage(errorCode), 3);
           restoreSnapshot();
         } else {
           // 其余（余额不足 / 限流等）沿用既有贴底拦截卡；旧答案未被删除，先还原再提示
@@ -2608,7 +2619,7 @@ export default function ChatPanel({ runtime = {}, isSingleMingoPlan = false }) {
               ) : sessionDeleted && !messages.length ? (
                 // 会话已删除终态：比照空态样式展示；开始新对话 / 成功加载其它会话后自动清除
                 <EmptyState>
-                  <div>{_l('会话已删除')}</div>
+                  <div>{getAgentErrorMessage('session_not_found')}</div>
                 </EmptyState>
               ) : (
                 messages.map(message => {

@@ -90,6 +90,17 @@ export const EventActionWrap = styled.div`
 `;
 
 export const CustomActionWrap = styled.div`
+  .promptMessageTypes {
+    flex-wrap: wrap;
+    gap: 10px;
+    .alertContent {
+      min-width: 0;
+      line-height: 20px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      overflow-wrap: anywhere;
+    }
+  }
   .ant-radio-group {
     width: 70%;
   }

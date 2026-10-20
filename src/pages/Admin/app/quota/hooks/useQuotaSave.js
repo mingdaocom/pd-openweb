@@ -15,7 +15,7 @@ export default function useQuotaSave({ projectId, businessType, updateData, stat
     const { limits, size, initialLimits, initialSize, loading, total, limitRowTotal } = state;
     const limitSize =
       businessType === 1
-        ? md.global.SysSettings.fileUploadLimitSize || 4 * 1024
+        ? md.global.SysSettings.fileUploadLimitSize
         : businessType === 2
           ? window.platformENV.isLocal || window.platformENV.isOverseas
             ? limitRowTotal * 10

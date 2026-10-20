@@ -508,7 +508,7 @@ export default function AttachmentVerify(props) {
   const featureType = getFeatureStatus(globalSheetInfo.projectId, VersionProductType.waterMark);
   const isLocalOrOverseas = window.platformENV.isOverseas || window.platformENV.isLocal;
   const watermarkFileSize = isLocalOrOverseas ? '10M' : '20M';
-  const showDocEditSetting = isLocalOrOverseas ? md.global.Config.EnableDocEdit : true;
+  const showDocEditSetting = md.global.Config.EnableDocEdit;
 
   const editFeatureType = getFeatureStatus(globalSheetInfo.projectId, VersionProductType.editAttachment);
 

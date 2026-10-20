@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useImperativeHandle,
   useLayoutEffect,
+  useMemo,
   useReducer,
   useRef,
 } from 'react';
@@ -49,6 +50,15 @@ const LoadableDesktopForm = lazy(() => import('./DesktopForm'));
 const Entrance = React.forwardRef((componentProps, ref) => {
   const props = _.defaults({}, componentProps, commonDefaultProps);
   const recordInfoContext = useContext(RecordInfoContext);
+  const workflowInstanceId = _.get(recordInfoContext, 'recordBaseInfo.instanceId');
+  const workflowWorkId = _.get(recordInfoContext, 'recordBaseInfo.workId');
+  const originalControlProps = props.controlProps;
+  const controlProps = useMemo(() => {
+    if (isMobile || !(workflowInstanceId || workflowWorkId)) return originalControlProps;
+
+    // 流程实例 ID 传给控件，不能覆盖表单事件隔离使用的 instanceId。
+    return { ...originalControlProps, instanceId: workflowInstanceId, workId: workflowWorkId };
+  }, [originalControlProps, workflowInstanceId, workflowWorkId]);
   const dataFormat = useRef(null);
   const abortController = useRef(new AbortController());
   const controlRefs = useRef({});
@@ -646,6 +656,7 @@ const Entrance = React.forwardRef((componentProps, ref) => {
           <Component
             {...props}
             {...widgetEventProps}
+            controlProps={controlProps}
             renderData={state.renderData}
             errorItems={state.errorItems}
             uniqueErrorItems={state.uniqueErrorItems}

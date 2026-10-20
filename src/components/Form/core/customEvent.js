@@ -783,10 +783,12 @@ const triggerCustomActions = async props => {
           type: 2,
           advancedSetting: { defsource: message },
         });
-        const splitMessage = String(messageInfo).substr(0, 50);
+        const messageChars = Array.from(String(messageInfo));
+        const messageText =
+          messageChars.length > 200 ? `${messageChars.slice(0, 200).join('')}...` : messageChars.join('');
 
-        if (splitMessage) {
-          alert(splitMessage, Number(advancedSetting.alerttype), undefined, undefined, undefined, { marginTop: 32 });
+        if (messageText) {
+          alert(messageText, Number(advancedSetting.alerttype), undefined, undefined, undefined, { marginTop: 32 });
         }
 
         completeActionsCount += 1;

@@ -23,6 +23,10 @@ export async function downloadAttachmentById({
   parentWorksheetId,
   parentRowId,
   sourceControlId,
+  masterControlId,
+  instanceId,
+  workId,
+  from,
 }) {
   try {
     if (!fileId && !refId) {
@@ -38,16 +42,38 @@ export async function downloadAttachmentById({
         worksheetId,
       });
     } else {
-      data = await attachmentAjax.getAttachmentDetail({
+      const args = {
         fileId,
+        callSource: instanceId || workId ? 2 : 1,
         worksheetId,
         rowId,
         controlId,
-      });
+        masterWorksheetId: parentWorksheetId,
+        masterRowId: parentRowId,
+        masterControlId,
+        instanceId,
+        workId,
+      };
+      const shareState = window.shareState;
+
+      if (shareState && shareState.shareId) {
+        args.type =
+          shareState.isPublicRecord || shareState.isPublicView || shareState.isPublicPage
+            ? 3
+            : shareState.isPublicForm || shareState.isPublicQuery
+              ? 11
+              : 14;
+      }
+
+      if (from === 21) {
+        args.type = 21;
+      }
+
+      data = await attachmentAjax.getAttachmentDetail(args);
     }
 
     const logExtend = qs.stringify({
-      controlId: sourceControlId || controlId,
+      controlId: sourceControlId || masterControlId || controlId,
       rowId,
       parentWorksheetId,
       parentRowId,

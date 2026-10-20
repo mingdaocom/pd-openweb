@@ -6,10 +6,9 @@ import { SettingItem } from '../../styled';
 const SELECT_FIELD_NAMES = { label: 'text', value: 'value' };
 
 export default function Relation({ data, onChange }) {
-  const isLocalOrOverseas = window.platformENV.isOverseas || window.platformENV.isLocal;
-  const relationOptions = isLocalOrOverseas
-    ? RELATION_OPTIONS.filter(item => (item.isHide ? item.isHide(md.global.SysSettings.forbidSuites) : true))
-    : RELATION_OPTIONS;
+  const relationOptions = RELATION_OPTIONS.filter(item =>
+    item.isHide ? item.isHide(md.global.SysSettings.forbidSuites) : true,
+  );
 
   return (
     <Fragment>

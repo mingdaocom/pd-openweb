@@ -339,6 +339,8 @@ function previewAttachment({
   masterRecordId,
   masterControlId,
   sourceControlId,
+  instanceId,
+  workId,
   openPreviewAttachments = previewAttachments,
 }) {
   const recordAttachmentSwitch = isOpenPermit(permitList.recordAttachmentSwitch, sheetSwitchPermit, viewId);
@@ -396,6 +398,8 @@ function previewAttachment({
           masterRecordId,
           masterControlId,
           sourceControlId,
+          instanceId,
+          workId,
         },
         {
           openControlAttachmentInNewTab: handleOpenControlAttachmentInNewTab,
@@ -421,6 +425,8 @@ function HoverPreviewPanel(props) {
     masterData,
     from,
     projectId,
+    instanceId,
+    workId,
   } = props;
   const { originalFilename, ext = '', filesize } = attachment;
   const { controlId, advancedSetting, sourceControlId } = cell;
@@ -544,10 +550,14 @@ function HoverPreviewPanel(props) {
                     refId: attachment.refId,
                     worksheetId,
                     rowId: recordId,
-                    controlId: _.get(masterData, 'controlId') || controlId,
+                    controlId,
                     parentWorksheetId: _.get(masterData, 'worksheetId'),
                     parentRowId: _.get(masterData, 'recordId'),
+                    masterControlId: _.get(masterData, 'controlId'),
                     sourceControlId: sourceControlId,
+                    instanceId,
+                    workId,
+                    from,
                   })
                 }
               ></i>
@@ -623,6 +633,8 @@ function Attachment(props) {
     deleteLocalAttachment,
     projectId,
     openPreviewAttachments,
+    instanceId,
+    workId,
   } = props;
   const { appId, recordId, worksheetId, from, masterData = () => {} } = cellInfo;
   const { attachment } = props;
@@ -712,6 +724,8 @@ function Attachment(props) {
         masterRecordId: _.get(currentMasterData, 'recordId'),
         masterControlId: _.get(currentMasterData, 'controlId'),
         sourceControlId: cell.sourceControlId,
+        instanceId,
+        workId,
         openPreviewAttachments,
       });
     }, 300);
@@ -766,6 +780,8 @@ function Attachment(props) {
           deleteLocalAttachment={deleteLocalAttachment}
           from={from}
           projectId={projectId}
+          instanceId={instanceId}
+          workId={workId}
         />
       }
       getPopupContainer={getDefaultPopupContainer}
@@ -830,7 +846,7 @@ function CellAttachments(props, sourceRef) {
   } = props;
   let { editable } = props;
   const { value, strDefault = '', advancedSetting = {}, enumDefault } = cell;
-  const { openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
+  const { recordBaseInfo, openPreviewAttachments = previewAttachments } = useContext(RecordInfoContext) || props;
   const showShape =
     {
       4: 'rect',
@@ -971,6 +987,8 @@ function CellAttachments(props, sourceRef) {
       viewId={viewId}
       projectId={projectId}
       openPreviewAttachments={openPreviewAttachments}
+      instanceId={_.get(recordBaseInfo, 'instanceId')}
+      workId={_.get(recordBaseInfo, 'workId')}
       onUpdate={valueStr => {
         setAttachments(parseValue(valueStr));
       }}

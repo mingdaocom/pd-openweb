@@ -37,7 +37,7 @@ const ChildTableComp = connect(state => ({
 export default class extends React.Component {
   constructor(props) {
     super(props);
-    const { appId, worksheetId, recordId, masterData } = props;
+    const { appId, worksheetId, recordId, masterData, worksheetInfo } = props;
     this.store =
       props.control.store ||
       generateStore(props.control, {
@@ -47,6 +47,7 @@ export default class extends React.Component {
         recordId,
         masterData,
         DataFormat,
+        worksheetInfo,
       });
     this.store.init();
     this.bindSubscribe();

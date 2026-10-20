@@ -167,10 +167,52 @@ ShareAttachment.prototype = {
   fetchBaseData: function (callback) {
     var SA = this;
     switch (SA.options.attachmentType) {
-      case ATTACHMENT_TYPE.COMMON:
-        AttachmentController.shareAttachmentByPost({
-          fileId: SA.options.id,
-        })
+      case ATTACHMENT_TYPE.COMMON: {
+        const {
+          callSource,
+          worksheetId,
+          recordId,
+          controlId,
+          masterWorksheetId,
+          masterRecordId,
+          masterControlId,
+          instanceId,
+          workId,
+          isDraft,
+          from,
+        } = SA.options.attachmentContext || {};
+        const args = { fileId: SA.options.id };
+
+        if (worksheetId || callSource || instanceId || workId) {
+          Object.assign(args, {
+            callSource: callSource || (instanceId || workId ? 2 : 1),
+            worksheetId,
+            rowId: recordId,
+            controlId,
+            masterWorksheetId,
+            masterRowId: masterRecordId,
+            masterControlId,
+            instanceId,
+            workId,
+          });
+
+          const shareState = window.shareState;
+
+          if (shareState && shareState.shareId) {
+            args.type =
+              shareState.isPublicRecord || shareState.isPublicView || shareState.isPublicPage
+                ? 3
+                : shareState.isPublicForm || shareState.isPublicQuery
+                  ? 11
+                  : 14;
+          }
+
+          if (isDraft || from === 21) {
+            args.type = 21;
+          }
+        }
+
+        AttachmentController.shareAttachmentByPost(args)
           .then(function (data) {
             SA.options.node = data;
             if (callback && typeof callback === 'function') {
@@ -181,6 +223,8 @@ ShareAttachment.prototype = {
             console.log(err);
           });
         break;
+      }
+
       case ATTACHMENT_TYPE.KC:
         KcController.getNodeDetail({
           id: SA.options.id,

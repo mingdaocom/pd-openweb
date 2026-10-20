@@ -32,9 +32,16 @@ import { calculatePoleCenter, calculateZoomLevel, parseRecord } from './utils';
 
 const DEFAULT_MAP_ZOOM = 5;
 
-const getValidZoom = value => {
-  const zoom = Number(value);
-  return _.isFinite(zoom) ? zoom : undefined;
+const getValidMapNumber = value => {
+  if (typeof value !== 'number' && (typeof value !== 'string' || !value.trim())) return undefined;
+
+  const number = Number(value);
+  return _.isFinite(number) ? number : undefined;
+};
+
+const getValidMapPosition = position => {
+  const coordinates = [position?.x, position?.y].map(getValidMapNumber);
+  return coordinates.every(value => value !== undefined) ? coordinates : undefined;
 };
 
 const getMapZoomStorageKey = viewId => `mapViewZoom-${viewId}`;
@@ -42,7 +49,7 @@ const getMapZoomStorageKey = viewId => `mapViewZoom-${viewId}`;
 const getLocalMapZoom = viewId => {
   if (!viewId) return undefined;
 
-  return getValidZoom(localStorage.getItem(getMapZoomStorageKey(viewId)));
+  return getValidMapNumber(localStorage.getItem(getMapZoomStorageKey(viewId)));
 };
 
 const Con = styled.div`
@@ -145,7 +152,7 @@ function MapView(props) {
   const newRecordBtnRef = useRef();
   const rippleRef = useRef(null);
   const ignoreNextZoomChangeRef = useRef();
-  const [zoom, setZoom] = useState(getLocalMapZoom(viewId) ?? getValidZoom(mapLocation.zoom) ?? DEFAULT_MAP_ZOOM);
+  const [zoom, setZoom] = useState(getLocalMapZoom(viewId) ?? getValidMapNumber(mapLocation.zoom) ?? DEFAULT_MAP_ZOOM);
   const [center, setCenter] = useState([116.4, 39.9]);
   const [originalCenter, setOriginalCenter] = useState([116.4, 39.9]);
   const [markers, setMarkers] = useState([]);
@@ -167,7 +174,7 @@ function MapView(props) {
   const saveMapZoom = useMemo(
     () =>
       _.debounce(nextZoom => {
-        const validZoom = getValidZoom(nextZoom);
+        const validZoom = getValidMapNumber(nextZoom);
 
         if (_.isUndefined(validZoom) || validZoom === getLocalMapZoom(viewId)) return;
 
@@ -185,7 +192,7 @@ function MapView(props) {
   }, [mapViewConfig]);
 
   const handleZoomChange = nextZoom => {
-    const validZoom = getValidZoom(nextZoom);
+    const validZoom = getValidMapNumber(nextZoom);
 
     if (_.isUndefined(validZoom)) return;
     setZoom(validZoom);
@@ -260,8 +267,11 @@ function MapView(props) {
     if (!viewId || !viewControl || !mapViewState.searchData) return;
 
     const coordinate = parseRecord(mapViewState.searchData, mapViewConfig, controls);
+    const nextCenter = getValidMapPosition(coordinate.position);
+    if (!nextCenter) return;
+
     setIsCurrentPosition(false);
-    setCenter([coordinate.position.x, coordinate.position.y]);
+    setCenter(nextCenter);
     resetAddRecordBtn();
   }, [controls, mapViewConfig, mapViewState.searchData, resetAddRecordBtn, viewControl, viewId]);
 
@@ -276,8 +286,10 @@ function MapView(props) {
         .map(r => parseRecord(r, mapViewConfig, controls))
         .filter(d => !_.isEmpty(d.position));
       const coordinates = parsedData.map(c => [c.position.y, c.position.x]);
-      const savedZoom = getLocalMapZoom(viewId) ?? getValidZoom(mapLocation.zoom);
-      let newZoom = savedZoom ?? calculateZoomLevel(coordinates, size.width, size.height, 1) ?? DEFAULT_MAP_ZOOM;
+      const savedZoom = getLocalMapZoom(viewId) ?? getValidMapNumber(mapLocation.zoom);
+      const newZoom =
+        savedZoom ??
+        (getValidMapNumber(calculateZoomLevel(coordinates, size.width, size.height, 1)) || DEFAULT_MAP_ZOOM);
 
       ignoreNextZoomChangeRef.current = newZoom;
       setMarkers(parsedData);
@@ -292,7 +304,7 @@ function MapView(props) {
       if (isSpecified) {
         if (Number(location) === 1 && value) {
           // 指定位置
-          newCenter = [mapLocationValue.x, mapLocationValue.y];
+          newCenter = getValidMapPosition(mapLocationValue);
           setIsCurrentPosition(false);
         } else {
           // 当前位置
@@ -501,7 +513,9 @@ function MapView(props) {
 
     const eventProps = {
       onZoomChange: handleZoomChange,
-      ...(isMobile ? {} : { setCenter, getLatLngOnClick, resetAddRecordBtn, setOriginalCenter }),
+      setCenter,
+      setOriginalCenter,
+      ...(isMobile ? {} : { getLatLngOnClick, resetAddRecordBtn }),
     };
 
     return (

@@ -125,7 +125,7 @@ const ImageCard = props => {
       label: _l('分享'),
       onClick: ({ domEvent }) => {
         domEvent.stopPropagation();
-        handleShare(data, isDownload);
+        handleShare(data, isDownload, props.attachmentContext);
         setDropdownVisible(false);
       },
     },

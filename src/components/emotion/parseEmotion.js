@@ -19,6 +19,22 @@ const PARSE_RULES = emotionParseGroups.flatMap(group =>
   ),
 );
 
+/** 经典表情标记的匹配规则，供 Markdown 链路在渲染前保护表情标记使用 */
+export const EMOTION_PARSE_RULES = PARSE_RULES;
+
+/** 生成单个经典表情的图片 HTML */
+export function buildEmotionImageHtml(group, item) {
+  const src = getEmotionImageSrc(group, item, { animated: group.id === EMOTION_GROUP_IDS.BEAR });
+  const height = group.size ? ` height="${group.size}"` : '';
+
+  return `<img src="${src}" class="${group.itemClassName}"${height} />`;
+}
+
+/** 把 Unicode emoji 转换为图片 HTML，标签内部不受影响 */
+export function parseUnicodeEmotion(value) {
+  return transformHtmlText(value, text => twemoji.parse(text, TWEMOJI_OPTIONS));
+}
+
 export function transformHtmlText(html, transform) {
   let result = '';
   let text = '';
@@ -67,14 +83,11 @@ export default function parseEmotion(value) {
       if (!pattern.test(parsedText)) return;
 
       pattern.lastIndex = 0;
-      const src = getEmotionImageSrc(group, item, { animated: group.id === EMOTION_GROUP_IDS.BEAR });
-      const height = group.size ? ` height="${group.size}"` : '';
-
-      parsedText = parsedText.replace(pattern, `<img src="${src}" class="${group.itemClassName}"${height} />`);
+      parsedText = parsedText.replace(pattern, buildEmotionImageHtml(group, item));
     });
 
     return parsedText;
   });
 
-  return transformHtmlText(result, text => twemoji.parse(text, TWEMOJI_OPTIONS));
+  return parseUnicodeEmotion(result);
 }

@@ -296,7 +296,7 @@ function PrintTemSetting(props) {
         >
           {_l('允许成员下载打印文件')}
         </Checkbox>
-        {md.global.Config.EnableDocEdit !== false && (
+        {md.global.Config.EnableDocEdit && (
           <Checkbox
             className="Font14 mTop12"
             checked={allowEditAfterPrint}

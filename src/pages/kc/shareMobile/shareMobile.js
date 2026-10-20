@@ -467,6 +467,4 @@ MobileSharePreview.prototype = {
   },
 };
 
-md.global.Config.disableKf5 = true;
-
 export default MobileSharePreview;

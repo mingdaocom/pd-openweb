@@ -85,6 +85,7 @@ export default class WriteFields extends Component {
       formProperties.forEach(item => {
         if (!checked) {
           item.property = 4;
+          item.showCard = 0;
         } else if (item.property === 4) {
           item.property = 1;
         }
@@ -182,6 +183,14 @@ export default class WriteFields extends Component {
       formProperties.forEach(o => {
         if (o.sectionId === item.id && (!this.isDisabled(o) || _.includes([1, 4], value))) {
           o[key] = value;
+        }
+      });
+    }
+
+    if (key === 'property' && value === 4) {
+      formProperties.forEach(o => {
+        if (o.property === 4) {
+          o.showCard = 0;
         }
       });
     }

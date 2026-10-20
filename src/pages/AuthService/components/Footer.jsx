@@ -63,7 +63,7 @@ export default function Footer() {
     });
   }, [isPrivateDeployment]);
 
-  const showRight = window.platformENV.isPlatform && _.get(md, 'global.Config.IsCobranding');
+  const showRight = _.get(md, 'global.Config.IsCobranding');
   return (
     isPrivateDeployment &&
     (links.length > 0 || showRight) && (

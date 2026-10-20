@@ -48,7 +48,7 @@ const Knowledge = props => {
   };
 
   const renderContent = () => {
-    if ((window.platformENV.isLocal || window.platformENV.isOverseas) && !md.global.Config.EnableRAG) {
+    if (!md.global.Config.EnableRAG) {
       return renderUnavailableContent();
     }
 

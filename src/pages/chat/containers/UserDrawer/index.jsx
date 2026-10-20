@@ -78,8 +78,7 @@ export default props => {
     getHasProjectAdminAuth(currentProject)
   );
 
-  const showHDP =
-    !sandboxEnvironment && md.global.Config.HDPUrl && (window.platformENV.isHap ? true : md.global.Config.EnableHDP);
+  const showHDP = !sandboxEnvironment && md.global.Config.HDPUrl && md.global.Config.EnableHDP;
   return (
     <Wrap className="flexColumn h100">
       {keyboardShortcutsDialogHolder}

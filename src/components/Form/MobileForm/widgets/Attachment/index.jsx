@@ -35,6 +35,13 @@ export default class Widgets extends Component {
     controlId: PropTypes.string,
     controlName: PropTypes.string,
     isDraft: PropTypes.bool,
+    masterData: PropTypes.shape({
+      worksheetId: PropTypes.string,
+      recordId: PropTypes.string,
+      controlId: PropTypes.string,
+    }),
+    instanceId: PropTypes.string,
+    workId: PropTypes.string,
     formData: PropTypes.array,
     enumDefault: PropTypes.number,
     enumDefault2: PropTypes.number,
@@ -106,7 +113,7 @@ export default class Widgets extends Component {
   }
 
   loadAttachments(props) {
-    const { value, worksheetId, recordId, controlId, isDraft } = props || this.props;
+    const { value, worksheetId, recordId, controlId, isDraft, masterData, instanceId, workId } = props || this.props;
     let fileIds = [];
 
     try {
@@ -116,15 +123,27 @@ export default class Widgets extends Component {
       this.setState({ loading: false, value: '' });
     }
 
-    const args = { fileIds, worksheetId, rowId: recordId, controlId };
+    const args = {
+      callSource: instanceId || workId ? 2 : 1,
+      fileIds,
+      worksheetId,
+      rowId: recordId,
+      controlId,
+      masterWorksheetId: _.get(masterData, 'worksheetId'),
+      masterRowId: _.get(masterData, 'recordId'),
+      masterControlId: _.get(masterData, 'controlId'),
+      instanceId,
+      workId,
+    };
 
     if (window.shareState && window.shareState.shareId) {
       args.shareId = window.shareState.shareId;
-      args.type = window.shareState.isPublicRecord
-        ? 3
-        : _.get(window, 'shareState.isPublicForm') || _.get(window, 'shareState.isPublicForm')
-          ? 11
-          : 14;
+      args.type =
+        window.shareState.isPublicRecord || window.shareState.isPublicView || window.shareState.isPublicPage
+          ? 3
+          : window.shareState.isPublicForm || window.shareState.isPublicQuery
+            ? 11
+            : 14;
     }
 
     if (isDraft) {
@@ -605,6 +624,8 @@ export default class Widgets extends Component {
     const coverType = advancedSetting.covertype || '0';
 
     const filesProps = {
+      instanceId: this.props.instanceId,
+      workId: this.props.workId,
       recordBaseInfo: {
         worksheetId,
         recordId,

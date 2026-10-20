@@ -289,6 +289,7 @@ export function getFilter({
         currentTimeForSecond,
         ignoreFilterControl: control.ignoreFilterControl,
         abortFilterWhenEmpty,
+        ignoreEmptyRule,
       });
     }
   }
@@ -340,6 +341,7 @@ function fillConditionValue({
   currentTimeForSecond,
   ignoreFilterControl = false,
   abortFilterWhenEmpty = false,
+  ignoreEmptyRule = false,
 }) {
   const { dataType, controlId } = condition;
   const dynamicSource = condition.dynamicSource[0];
@@ -360,6 +362,10 @@ function fillConditionValue({
 
   if ((cid === 'current-rowid' || cid === 'rowid') && !_.includes(['fastFilter', 'navGroup'], rcid)) {
     if (!relateControl.recordId) {
+      if (ignoreEmptyRule) {
+        return condition;
+      }
+
       return;
     }
 

@@ -41,6 +41,14 @@ const ContentWrap = styled.div`
   height: 100%;
   flex: 1;
   overflow: auto;
+  &:not(.adjustScreen) {
+    scrollbar-gutter: stable;
+    /* 自然高度容器由页面统一滚动，避免高度回写期间出现内层滚动条。 */
+    .widgetContent.tabs.web,
+    .widgetContent.card.web {
+      overflow: visible;
+    }
+  }
   // position: relative;
   &.componentsEmpty {
     display: flex;

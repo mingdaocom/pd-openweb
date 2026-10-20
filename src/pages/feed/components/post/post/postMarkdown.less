@@ -1,0 +1,224 @@
+// Markdown 格式动态正文的排版。动态流的栏宽有限，标题字号需要整体压制，
+// 表格、代码块等宽内容在自身容器内横向滚动，不撑破卡片。
+// 编辑态排版在 src/components/comment/PostMarkdownEditor 中单独实现，改动需两边同步。
+.postMarkdownBody {
+  word-break: break-word;
+
+  > :first-child {
+    margin-top: 0;
+  }
+
+  > :last-child {
+    margin-bottom: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+
+  // 引用动态等行内场景：首段与前面的「回复 xxx 的动态:」保持同一行，后续段落照常换行
+  &.postMarkdownInline > p:first-child {
+    display: inline;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 14px 0 8px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-text-title);
+  }
+
+  h1 {
+    font-size: 18px;
+  }
+
+  h2 {
+    font-size: 16px;
+  }
+
+  h3 {
+    font-size: 15px;
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: 14px;
+  }
+
+  ul,
+  ol {
+    margin: 0 0 8px;
+    padding-left: 22px;
+  }
+
+  // 列表符号逐级切换，与编辑器（MdMarkdown）保持一致
+  ul {
+    list-style: disc;
+
+    ul {
+      list-style: circle;
+
+      ul {
+        list-style: square;
+      }
+    }
+  }
+
+  ol {
+    list-style: decimal;
+
+    ol {
+      list-style: lower-latin;
+
+      ol {
+        list-style: lower-roman;
+      }
+    }
+  }
+
+  li {
+    display: list-item;
+    // 全局 reset 把 li 设成了 list-style: none，需显式继承 ul / ol 上的列表符号
+    list-style: inherit;
+    margin-bottom: 2px;
+  }
+
+  // 任务列表：复选框取代列表符号，与编辑器（vditor 的 .vditor-task）保持一致
+  li.vditor-task {
+    list-style: none;
+    word-break: break-all;
+
+    input {
+      margin: 0 0.2em 0.25em -1.6em;
+      font-size: 12px;
+      vertical-align: middle;
+    }
+  }
+
+  blockquote {
+    margin: 8px 0;
+    padding: 2px 0 2px 12px;
+    border-left: 3px solid var(--color-border-primary);
+    color: var(--color-text-secondary);
+  }
+
+  hr {
+    margin: 12px 0;
+    border: 0;
+    border-top: 1px solid var(--color-hr);
+  }
+
+  code {
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: var(--color-background-secondary);
+    font-family: Menlo, Consolas, monospace;
+    font-size: 0.92em;
+  }
+
+  pre {
+    margin: 8px 0;
+    border-radius: 4px;
+    background: var(--color-background-secondary);
+    overflow-x: auto;
+
+    // 内边距放在 code 上：高亮后的行号相对 code 绝对定位，需与首行文字对齐。
+    // 颜色与阴影需显式指定：全局 prism 主题会给 language-* 代码加黑字和白色文字阴影，暗色主题下出现白边；
+    // 高亮主题（monokai）的深色底、浅色字同样由这里覆盖，正文只保留它的语法着色
+    > code {
+      display: block;
+      padding: 10px 12px;
+      color: var(--color-text-primary);
+      background: none;
+      text-shadow: none;
+      white-space: pre;
+    }
+
+    // monokai 的 pre code.hljs 自带 1em 内边距且样式表后加载，需更高优先级覆盖
+    > code.hljs {
+      padding: 10px 12px;
+    }
+
+    .vditor-linenumber__rows {
+      top: 10px;
+    }
+  }
+
+  // 代码块外的包裹层，用于定位复制按钮：按钮不随代码横向滚动
+  // 外边距挪到包裹层：pre 包进去后不再是正文直接子节点，首尾去边距的规则需要作用在包裹层上
+  .postMarkdownCodeBlock {
+    position: relative;
+    margin: 8px 0;
+
+    > pre {
+      margin: 0;
+    }
+
+    &:hover .postMarkdownCodeCopy {
+      opacity: 1;
+    }
+  }
+
+  .postMarkdownCodeCopy {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 1px solid var(--color-border-primary);
+    border-radius: 4px;
+    background: var(--color-background-primary);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0;
+
+    &:hover {
+      color: var(--color-primary);
+    }
+
+    &:focus-visible {
+      opacity: 1;
+    }
+
+    // 触屏设备没有悬停，按钮常显
+    @media (hover: none) {
+      opacity: 1;
+    }
+  }
+
+  table {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    margin: 8px 0;
+    overflow-x: auto;
+    border-collapse: collapse;
+
+    th,
+    td {
+      padding: 5px 10px;
+      border: 1px solid var(--color-border-primary);
+    }
+
+    th {
+      background: var(--color-background-secondary);
+      font-weight: 600;
+    }
+  }
+
+  // 内容图片跟随栏宽，表情图片保持原始尺寸
+  img:not([class*='emotion']) {
+    max-width: 100%;
+  }
+}

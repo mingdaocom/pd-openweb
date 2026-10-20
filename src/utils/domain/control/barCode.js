@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { getStrBytesLength, getStringBytes } from 'src/utils/core/string';
 import { getNewRecordPageUrl } from 'src/utils/domain/worksheet/record';
-import { pathCompletion } from 'src/utils/platform/navigation/path';
 
 /**
  * 根据记录状态生成新增记录或已有记录的站内访问地址。
@@ -11,9 +10,9 @@ const getCodeUrl = ({ appId, worksheetId, viewId, recordId }) => {
     return getNewRecordPageUrl({ appId, worksheetId, viewId });
   }
 
-  let baseUrl = `/app/${appId}/${worksheetId}`;
+  let baseUrl = `${md.global.Config.WebUrl}app/${appId}/${worksheetId}`;
   if (viewId) baseUrl += `/${viewId}`;
-  return pathCompletion(`${baseUrl}/row/${recordId}`);
+  return `${baseUrl}/row/${recordId}`;
 };
 
 /**

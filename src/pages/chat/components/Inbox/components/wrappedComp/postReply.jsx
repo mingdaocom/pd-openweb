@@ -1,5 +1,6 @@
 import React from 'react';
 import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
+import { stripMarkdownForMessage } from 'src/components/comment/utils/markdownMessageSyntax';
 import { formatInboxItem } from '../../util';
 import BaseMessageComponent from '../baseComponent/messageContent';
 
@@ -35,7 +36,7 @@ export default class PostReply extends React.Component {
     // 转成html
     return {
       message: createLinksForMessage({
-        message: message || '',
+        message: stripMarkdownForMessage(message),
         rUserList,
         rGroupList,
         categories,
@@ -56,7 +57,7 @@ export default class PostReply extends React.Component {
     } = inboxItem;
     // source
     const fromMessage = createLinksForMessage({
-      message: message || '',
+      message: stripMarkdownForMessage(message),
       rUserList,
       rGroupList,
       categories,

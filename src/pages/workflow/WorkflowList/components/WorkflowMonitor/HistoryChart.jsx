@@ -47,8 +47,8 @@ export default class HistoryChart extends PureComponent {
   renderChart = () => {
     const _this = this;
     let initChartData = [];
-    let diffMinite = Math.floor(moment().subtract(5, 'm').format('mm') % 5);
-    let currentDate = moment().minute(moment().add(5, 'm').format('mm') - diffMinite);
+    const currentDate = moment();
+    currentDate.add(5 - (currentDate.minute() % 5), 'm');
     const { Line } = this.g2plotComponent;
 
     for (let i = 12; i > 0; i--) {
@@ -202,9 +202,9 @@ export default class HistoryChart extends PureComponent {
 
   // 整理chart数据
   dealChartData = data => {
-    // 当前时间的整5分钟数（向下取整）
-    let diffMinite = Math.floor(moment().subtract(5, 'm').format('mm') % 5);
-    let currentDate = moment().minute(moment().add(5, 'm').format('mm') - diffMinite);
+    // 保留原有秒和毫秒分组边界，通过增加分钟处理跨小时和跨日进位
+    const currentDate = moment();
+    currentDate.add(5 - (currentDate.minute() % 5), 'm');
     let result = [];
     let emptyChartData = [];
 

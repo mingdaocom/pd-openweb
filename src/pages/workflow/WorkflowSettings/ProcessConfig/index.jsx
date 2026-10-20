@@ -821,7 +821,7 @@ class ProcessConfig extends Component {
 
   renderResponseType() {
     const { flowInfo } = this.props;
-    const { data, errorItems, tab } = this.state;
+    const { data, errorItems } = this.state;
     const exportData = data.processVariables.filter(item => item.processVariableType === 2);
     const options = [
       {
@@ -855,10 +855,6 @@ class ProcessConfig extends Component {
       },
     ];
     const featureType = getFeatureStatus(flowInfo.companyId, VersionProductType.encapsulatingBusinessProcess);
-
-    if (tab === 5) {
-      _.remove(options, o => _.includes([1, 2], o.value));
-    }
 
     return (
       <Fragment>

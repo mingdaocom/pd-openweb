@@ -39,7 +39,7 @@ class AttachmentError {
 }
 
 export function loadAttachment(attachment, options = {}) {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     if (!attachment) attachment = {};
     let { previewAttachmentType, previewType } = attachment;
     const { refId } = attachment.sourceNode || {};
@@ -113,26 +113,37 @@ export function loadAttachment(attachment, options = {}) {
       const { fileId, fileID } = attachment.sourceNode;
       const args = {
         fileId: fileId || fileID,
-        rowId: options.recordId,
-        controlId: options.controlId,
       };
 
-      if (window.shareState && window.shareState.shareId) {
-        args.type =
-          _.get(window, 'shareState.isPublicRecord') ||
-          _.get(window, 'shareState.isPublicView') ||
-          _.get(window, 'shareState.isPublicPage')
-            ? 3
-            : _.get(window, 'shareState.isPublicQuery') || _.get(window, 'shareState.isPublicForm')
-              ? 11
-              : 14;
+      if (options.worksheetId || options.callSource || options.instanceId || options.workId) {
+        Object.assign(args, {
+          callSource: options.callSource || (options.instanceId || options.workId ? 2 : 1),
+          worksheetId: options.worksheetId,
+          rowId: options.recordId,
+          controlId: options.controlId,
+          masterWorksheetId: options.masterWorksheetId,
+          masterRowId: options.masterRecordId,
+          masterControlId: options.masterControlId,
+          instanceId: options.instanceId,
+          workId: options.workId,
+        });
+
+        const shareState = window.shareState;
+
+        if (shareState && shareState.shareId) {
+          args.type =
+            shareState.isPublicRecord || shareState.isPublicView || shareState.isPublicPage
+              ? 3
+              : shareState.isPublicForm || shareState.isPublicQuery
+                ? 11
+                : 14;
+        }
+
+        if (options.isDraft || options.from === 21) {
+          args.type = 21;
+        }
       }
 
-      if (options.from === 21) {
-        args.type = 21;
-      }
-
-      args.worksheetId = options.worksheetId;
       attachmentPromise = attachmentAjax.getAttachmentDetail(args).then(data => {
         if (!data) {
           throw new AttachmentError({
@@ -180,7 +191,7 @@ export function loadAttachment(attachment, options = {}) {
           if (htmlPreviewUrl) {
             resolve(newAttachment);
           } else if (previewType === PREVIEW_TYPE.IFRAME) {
-            ajax
+            return ajax
               .fetchViewUrl(attachment)
               .then(fetchedAttachment => {
                 resolve(fetchedAttachment);
@@ -205,9 +216,7 @@ export function loadAttachment(attachment, options = {}) {
         }
       })
       .catch(err => {
-        throw new AttachmentError({
-          text: err,
-        });
+        reject(err instanceof AttachmentError ? err : new AttachmentError({ text: err?.message || err }));
       });
   });
 }

@@ -25,6 +25,7 @@ const getShareImgSrc = viewUrl => `${viewUrl}${String(viewUrl).includes('?') ? '
 class PreviewHeader extends React.Component {
   static propTypes = {
     attachment: PropTypes.object,
+    attachmentContext: PropTypes.object,
     onClose: PropTypes.func,
     renameFile: PropTypes.func,
     saveToKnowlwdge: PropTypes.func,
@@ -59,6 +60,7 @@ class PreviewHeader extends React.Component {
     import('src/components/shareAttachment/shareAttachment').then(share => {
       const params = {
         attachmentType,
+        attachmentContext: { ...this.props.extra, ...this.props.attachmentContext },
       };
       const sourceNode = attachment.sourceNode;
       const isPicture = attachment.previewType === PREVIEW_TYPE.PICTURE;
@@ -163,7 +165,7 @@ class PreviewHeader extends React.Component {
     const isRecordFileNewTab =
       location.pathname.indexOf('recordfile') > -1 || location.pathname.indexOf('rowfile') > -1; // 记录内附件新开页
     const showEdit =
-      (md.global.Config.EnableDocEdit || window.platformENV.isHap) &&
+      md.global.Config.EnableDocEdit &&
       allowEdit &&
       (featureType || isRecordFileNewTab) &&
       wpsEditUrl &&

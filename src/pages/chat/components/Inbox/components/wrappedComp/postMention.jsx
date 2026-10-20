@@ -1,5 +1,6 @@
 import React from 'react';
 import createLinksForMessage from 'src/components/comment/utils/createLinksForMessage';
+import { stripMarkdownForMessage } from 'src/components/comment/utils/markdownMessageSyntax';
 import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { MSGTYPES } from '../../constants';
 import { formatInboxItem } from '../../util';
@@ -71,7 +72,7 @@ export default class PostMention extends React.Component {
     if (fromPost) {
       return {
         message: createLinksForMessage({
-          message: message || '',
+          message: stripMarkdownForMessage(message),
           rUserList,
           rGroupList,
           categories,
@@ -85,7 +86,7 @@ export default class PostMention extends React.Component {
     } else {
       return {
         message: createLinksForMessage({
-          message: message || '',
+          message: stripMarkdownForMessage(message),
           rUserList,
           rGroupList,
           categories,
@@ -113,7 +114,7 @@ export default class PostMention extends React.Component {
     } else {
       // source
       const fromMessage = createLinksForMessage({
-        message: message || '',
+        message: stripMarkdownForMessage(message),
         rUserList,
         rGroupList,
         categories,

@@ -29,6 +29,12 @@
   color: var(--color-primary);
 }
 
+/* 弹层右上角有关闭按钮，全屏编辑按钮左移到它旁边避免重叠，并与关闭按钮垂直居中对齐 */
+.MDUpdater .createFeedMarkdownEditor .postMarkdownFullScreen {
+  top: 2px;
+  right: 28px;
+}
+
 .MDUpdater .middleContent {
   clear: both;
 }

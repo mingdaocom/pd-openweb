@@ -1,6 +1,7 @@
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import { Provider } from 'react-redux';
 import cx from 'classnames';
+import { createGlobalStyle } from 'styled-components';
 import { MobilePopup } from 'ming-ui/antd-mobile-components';
 import functionWrap from 'ming-ui/components/FunctionWrap';
 import Back from 'mobile/components/Back';
@@ -8,6 +9,15 @@ import RecordInfo from 'mobile/components/RecordInfo/RecordInfo';
 import workflowPushSoket from 'mobile/components/socket/workflowPushSoket';
 import { configureStore } from 'src/redux/configureStore';
 import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
+
+// 独立详情页沿用根容器的安全区留白，仅在页面挂载期间统一背景色。
+const RecordInfoPageStyle = createGlobalStyle`
+  html:root,
+  html body,
+  html #app {
+    background: var(--color-background-primary) !important;
+  }
+`;
 
 const RecordInfoPage = props => {
   const { params } = props.match;
@@ -24,16 +34,19 @@ const RecordInfoPage = props => {
   }, []);
 
   return (
-    <RecordInfo
-      className="recordInfoPage"
-      appId={appId}
-      worksheetId={worksheetId}
-      viewId={viewId}
-      recordId={rowId}
-      from={from || RECORD_INFO_FROM.WORKSHEET_ROW_LAND}
-      getDataType={from}
-      isLandPage
-    />
+    <>
+      <RecordInfoPageStyle />
+      <RecordInfo
+        className="recordInfoPage"
+        appId={appId}
+        worksheetId={worksheetId}
+        viewId={viewId}
+        recordId={rowId}
+        from={from || RECORD_INFO_FROM.WORKSHEET_ROW_LAND}
+        getDataType={from}
+        isLandPage
+      />
+    </>
   );
 };
 

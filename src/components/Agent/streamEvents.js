@@ -5,6 +5,7 @@
 import { parse as parsePartial } from 'partial-json';
 import { summarizeUnknown } from './agentService';
 import { BUILD_STEPS } from './buildSteps';
+import { resolveAgentErrorMessage } from './errorMessages';
 import { readField, stringValue } from './valueUtils';
 import { carveWorkParts } from './workParts';
 
@@ -129,7 +130,7 @@ function describeAsReasoning(event) {
   }
 
   if (event.eventName === 'error') {
-    return event.payload.errorMessage || _l('执行失败');
+    return resolveAgentErrorMessage(event.payload.errorCode, event.payload.errorMessage, _l('执行失败'));
   }
 
   return '';

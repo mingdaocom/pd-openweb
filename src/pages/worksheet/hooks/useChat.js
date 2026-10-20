@@ -440,6 +440,10 @@ function useChat({
     handleFetch([...messages.filter(item => !item.disabled), userMessage], { agentParams });
   };
 
+  /**
+   * 在指定回答上追加生成（不新增消息）。agent 接口只认 agentParams.message、不读 messages 历史，
+   * 追加的指令（如「继续生成10条」）需同时经 agentParams 传过去，否则服务端收不到。
+   */
   const reGenerateMessageAndNoUpdateMessages = function (messageId, content) {
     const indexOfMessageId = findIndex(messages, { id: messageId });
 
@@ -452,6 +456,7 @@ function useChat({
         {
           noUpdateMessages: true,
           targetMessageId: messageId,
+          agentParams: content ? { message: content } : undefined,
         },
       );
     }

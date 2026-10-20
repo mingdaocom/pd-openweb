@@ -358,8 +358,7 @@ class EditPrint extends React.Component {
     const { templateId, roleType, fileType } = this.props;
     const isAdmin = roleType === 2;
 
-    if (!isAdmin || featureType !== '1' || md.global.Config.EnableDocEdit === false || fileType === 'Excel')
-      return null;
+    if (!isAdmin || featureType !== '1' || !md.global.Config.EnableDocEdit || fileType === 'Excel') return null;
 
     if (templateId)
       return (
@@ -526,7 +525,7 @@ class EditPrint extends React.Component {
                     <br />
                     {isAdmin &&
                       featureType === '1' &&
-                      md.global.Config.EnableDocEdit !== false &&
+                      md.global.Config.EnableDocEdit &&
                       fileType !== 'Excel' &&
                       _l('您也可以在线新增模板')}
                   </span>

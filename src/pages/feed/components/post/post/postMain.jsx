@@ -162,7 +162,12 @@ class PostMain extends React.Component {
                 <span key={1}> : </span>
               </span>
             ) : undefined}
-            <PostMessage postItem={postItem} keywords={this.props.keywords} inline={this.props.inlineMessage} />
+            <PostMessage
+              postItem={postItem}
+              keywords={this.props.keywords}
+              inline={this.props.inlineMessage}
+              plainText={!!postItem.commentID}
+            />
           </div>
           {this.state.isOverflowing && !this.state.isFullHeight && (
             <Button type="link" size="small" className="showMore" onClick={this.showMore}>

@@ -3,6 +3,7 @@ import _ from 'lodash';
 import { Modal } from 'ming-ui/antd-components';
 import postAjax from 'src/api/post';
 import 'src/components/autoTextarea/autoTextarea';
+import { toSyntaxMessage } from 'src/components/comment/utils/markdownMessageSyntax';
 import createShare from 'src/components/createShare/createShare';
 import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
@@ -138,6 +139,7 @@ export default function createFeed(options) {
 
       const $textarea = $('#MDUpdater_textarea_Updater');
       const textareaElement = $textarea.get(0);
+      const markdownState = MDUpdater.controller?.getMarkdownState?.() || {};
 
       const handlePost = data => {
         const postMsg = data || '';
@@ -258,6 +260,7 @@ export default function createFeed(options) {
                 textareaElement.clearStore();
               }
 
+              MDUpdater.controller?.resetMarkdown?.();
               MDUpdater.resetUpdater(true);
             },
             _requestError => {
@@ -274,6 +277,12 @@ export default function createFeed(options) {
             }
           });
       };
+
+      // Markdown 模式下正文来自编辑器：只把 @人 / 话题换成后端认识的私有标记，源码本身直接作为正文提交
+      if (markdownState.isMarkdown) {
+        handlePost(toSyntaxMessage(markdownState.value));
+        return;
+      }
 
       if (_.isFunction(textareaElement.val)) {
         textareaElement.val(handlePost);
@@ -326,6 +335,8 @@ export default function createFeed(options) {
             initialActiveTab={initialActiveTab}
             initialShareGroup={initialShareGroup}
             knowledge={MDUpdater.options.knowledge}
+            getPlaceholder={MDUpdater.getPlaceholder}
+            isPlaceholder={MDUpdater.isPlaceholder}
             postMsg={MDUpdater.options.postMsg}
             selectGroupOptions={selectGroupOptions}
             showToFeed={MDUpdater.options.showToFeed}

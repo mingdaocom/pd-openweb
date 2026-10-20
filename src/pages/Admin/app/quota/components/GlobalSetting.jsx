@@ -21,13 +21,14 @@ export default function GlobalSetting({
   onChange,
   onBlur,
 }) {
-  const limitSize = window.platformENV.isHap
-    ? hapLimitSize
-    : businessType === 1
-      ? md.global.SysSettings.fileUploadLimitSize || 4 * 1024
-      : businessType === 2
-        ? limitRowTotal * 10
-        : 0;
+  const limitSize =
+    businessType === 1
+      ? md.global.SysSettings.fileUploadLimitSize
+      : window.platformENV.isHap
+        ? hapLimitSize
+        : businessType === 2
+          ? limitRowTotal * 10
+          : 0;
 
   return (
     <Wrap className="mBottom32">

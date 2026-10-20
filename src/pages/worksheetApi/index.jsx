@@ -118,10 +118,7 @@ class WorksheetApi extends Component {
   }
 
   get hideDataPipeline() {
-    return (
-      _.get(md, 'global.SysSettings.hideDataPipeline') ||
-      ((window.platformENV.isOverseas || window.platformENV.isLocal) && !_.get(md, 'global.Config.EnableDataPipeline'))
-    );
+    return _.get(md, 'global.SysSettings.hideDataPipeline') || !_.get(md, 'global.Config.EnableDataPipeline');
   }
 
   get isDeveloperMode() {

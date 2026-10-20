@@ -83,10 +83,7 @@ export default class SheetModal extends Component {
       appType: props.appType,
     };
     const featureType = getFeatureStatus(props.projectId, VersionProductType.aggregation);
-    this.hideAggregation =
-      ((window.platformENV.isOverseas || window.platformENV.isLocal) && !md.global.Config.EnableDataPipeline) ||
-      !featureType ||
-      featureType === '2';
+    this.hideAggregation = !md.global.Config.EnableDataPipeline || !featureType || featureType === '2';
   }
   componentDidMount() {
     const { activeKey, newWorksheetId } = this.state;

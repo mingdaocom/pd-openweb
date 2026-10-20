@@ -10,6 +10,7 @@ import { SHARE_STATE, ShareState, VerificationPass } from 'worksheet/components/
 import preall from 'src/common/entries/preall';
 import AntdThemeProvider from 'src/common/providers/theme/AntdThemeProvider';
 import { continueSharedSession, SHARE_ERROR } from 'src/components/Agent/agentService';
+import { getAgentErrorMessage } from 'src/components/Agent/errorMessages';
 import RestrictAccessStatus from 'src/components/restrictAccessStatus';
 import abnormal from 'src/pages/worksheet/assets/abnormal.png';
 import { browserIsMobile } from 'src/utils/platform/browser/device';
@@ -80,7 +81,7 @@ const Entry = () => {
     const code = err && err.errorCode;
 
     if (code === SHARE_ERROR.RATE_LIMIT) {
-      alert(_l('访问过于频繁，请稍后重试'), 3);
+      alert(getAgentErrorMessage(code), 3);
       return;
     }
 
