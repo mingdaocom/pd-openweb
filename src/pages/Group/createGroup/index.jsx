@@ -122,7 +122,7 @@ function CreateGroup(props) {
         groupAvatar: avatarName,
         isApproval,
         projectId: type === 0 ? orgId : '',
-        mapDepartmentId: isApproval ? _.get(department, 'departmentId', '') : '',
+        mapDepartmentId: _.get(department, 'departmentId', ''),
       })
       .then(res => {
         setState({ createLoading: false });
