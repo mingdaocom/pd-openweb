@@ -42,7 +42,7 @@ export default class UploadFile extends Component {
   }
 
   initUpload() {
-    const { fileUploaded = () => {}, onFilesAdded = () => {}, type = 8 } = this.props;
+    const { fileUploaded = () => {}, onFilesAdded = () => {}, type = 8, getTokenParam } = this.props;
     this.uploader = createUploader({
       runtimes: 'html5',
       browse_button: this.uplaodaExcel,
@@ -54,6 +54,7 @@ export default class UploadFile extends Component {
         mime_types: [{ extensions: 'xlsx,xls,csv' }],
       },
       type,
+      getTokenParam,
       init: {
         Error: (up, err) => {
           const {

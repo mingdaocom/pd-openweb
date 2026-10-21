@@ -7,7 +7,15 @@ import { Button } from 'ming-ui/antd-components';
 import Checkbox from 'src/components/Form/DesktopForm/widgets/Checkbox';
 import Dropdown from 'src/components/Form/DesktopForm/widgets/Dropdown';
 
-const Con = styled.div`
+const EmptyOptionContainer = styled.div`
+  .isEmpty,
+  .isEmpty .customRadioItem,
+  .isEmpty .icon-close {
+    color: var(--color-text-primary) !important;
+  }
+`;
+
+const Con = styled(EmptyOptionContainer)`
   position: relative;
   display: flex;
   align-items: center;
@@ -42,6 +50,12 @@ const SELECTED_MULTIPLE_OPTION_BUTTON_STYLE = {
   ...OPTION_BUTTON_STYLE,
   borderColor: 'var(--hap-color-primary-border)',
 };
+
+function renderOptionsPopup(menu) {
+  return <EmptyOptionContainer>{menu}</EmptyOptionContainer>;
+}
+
+const QUICK_FILTER_SELECT_PROPS = { popupRender: renderOptionsPopup };
 
 function pickOptions(options, navfilters) {
   try {
@@ -139,6 +153,7 @@ export default function Options(props) {
           }}
           default={undefined}
           dropdownClassName="scrollInTable"
+          selectProps={QUICK_FILTER_SELECT_PROPS}
           value={JSON.stringify(values)}
           onChange={newValue => {
             handleChange({ values: safeParse(newValue) });
@@ -162,6 +177,7 @@ export default function Options(props) {
           fromFilter
           isFocus
           dropdownClassName="scrollInTable"
+          selectProps={QUICK_FILTER_SELECT_PROPS}
           value={JSON.stringify(values)}
           onChange={newValue => {
             let parsedValue = JSON.parse(newValue);

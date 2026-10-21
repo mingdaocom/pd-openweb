@@ -8,13 +8,14 @@ import { Input, Select, Tooltip } from 'ming-ui/antd-components';
 import { VerticalMiddle } from 'worksheet/components/Basics';
 import { isCustomOptions } from 'src/utils/domain/control/dynamicValue';
 import { getIconByType } from 'src/utils/domain/control/metadata';
-import { getConditionOverrideValue, getFilterTypes } from 'src/utils/domain/worksheet/filterCondition';
+import { getConditionOverrideValue, getFilterTypes, getTypeKey } from 'src/utils/domain/worksheet/filterCondition';
 import {
   API_ENUM_TO_TYPE,
   CONDITION_OPTIONS,
   CONTROL_FILTER_WHITELIST,
   FILTER_CONDITION_TYPE,
   getControlSelectType,
+  getFilterTypeLabel,
   valueTypeOptions,
 } from 'src/utils/domain/worksheet/filterConstants';
 import renderConditionValue from './contents';
@@ -32,8 +33,6 @@ const listType = [
 ];
 // 附件 检查框 地区 地区 地区
 const listControlType = [API_ENUM_TO_TYPE.ATTACHMENT, API_ENUM_TO_TYPE.SWITCH, API_ENUM_TO_TYPE.LOCATION];
-const HIDDEN_OPTION_STYLE = { display: 'none' };
-
 const ParamsSelect = styled(Select)`
   flex: 1;
   min-width: 0;
@@ -53,11 +52,9 @@ const ParamsSelect = styled(Select)`
 `;
 
 const getSelectOptions = (options, hiddenValues = []) =>
-  options.map(({ text, ...option }) => ({
-    ...option,
-    label: text,
-    style: _.includes(hiddenValues, option.value) ? HIDDEN_OPTION_STYLE : option.style,
-  }));
+  options
+    .filter(option => !_.includes(hiddenValues, option.value))
+    .map(({ text, ...option }) => ({ ...option, label: text }));
 
 const VALUE_TYPE_SELECT_OPTIONS = getSelectOptions(valueTypeOptions);
 
@@ -378,6 +375,10 @@ export default class Condition extends Component {
                     }
                     disabled={!canEdit}
                     options={getSelectOptions(conditionFilterTypes, hiddenValue)}
+                    // 历史条件仍可回显，但不重新加入当前可选项。
+                    labelRender={({ label, value }) =>
+                      label ?? (getFilterTypeLabel(getTypeKey(control.type), value, control) || _l('请选择'))
+                    }
                     popupMatchSelectWidth={false}
                     showSearch={false}
                     size="small"

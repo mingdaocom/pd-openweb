@@ -29,7 +29,9 @@ export const widgets = {
   },
   embedUrl: {
     icon: 'url',
-    name: _l('嵌入url'),
+    get name() {
+      return _l('嵌入 URL');
+    },
   },
   subsection: {
     icon: 'divider',

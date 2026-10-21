@@ -513,6 +513,8 @@ export default function ImportData(props) {
   const {
     dialogHeight,
     importDataActiveType,
+    appId,
+    projectId,
     worksheetId,
     controls,
     onParseExcel,
@@ -550,6 +552,7 @@ export default function ImportData(props) {
           <Fragment>
             <UploadFile
               style={{ height: '100%' }}
+              getTokenParam={{ appId, projectId, worksheetId }}
               onFilesAdded={() => {
                 setLoading(true);
               }}
@@ -587,6 +590,8 @@ export default function ImportData(props) {
 }
 
 ImportData.propTypes = {
+  appId: string,
+  projectId: string,
   worksheetId: string,
   dialogHeight: number,
   importDataActiveType: number,

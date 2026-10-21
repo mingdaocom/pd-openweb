@@ -15,7 +15,7 @@ const Con = styled.div`
 `;
 
 export default function ImportFileToChildTable(props) {
-  const { maxCount = 1000, dataCount, projectId, worksheetId, controlId, onClose, onAddRows } = props;
+  const { maxCount = 1000, dataCount, appId, projectId, worksheetId, controlId, onClose, onAddRows } = props;
   const controls = (props.controls || []).filter(c => _.includes(CHILD_TABLE_ALLOW_IMPORT_CONTROL_TYPES, c.type));
   const [sheets, setSheets] = useState([]);
   const [cellsData, setCellsData] = useState([]);
@@ -46,6 +46,8 @@ export default function ImportFileToChildTable(props) {
             dialogHeight={dialogHeight}
             importDataActiveType={importDataActiveType}
             setImportDataActiveType={setImportDataActiveType}
+            appId={appId}
+            projectId={projectId}
             worksheetId={worksheetId}
             controls={controls}
             onParseExcel={(data, url) => {
@@ -94,6 +96,7 @@ export default function ImportFileToChildTable(props) {
 ImportFileToChildTable.propTypes = {
   dataCount: number,
   maxCount: number,
+  appId: string,
   projectId: string,
   worksheetId: string,
   controlId: string,

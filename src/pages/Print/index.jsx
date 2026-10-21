@@ -788,7 +788,7 @@ class PrintForm extends React.Component {
             $('.iframeDiv').show();
           }}
           src={
-            useWps || fileTypeNum === 5 || md.global.Config.EnableWpsDocPreview
+            window.platformENV.isHap && (useWps || fileTypeNum === 5 || md.global.Config.EnableWpsDocPreview)
               ? `${md.global.Config.WpsDocPreviewUrl}/print?url=${encodeURIComponent(this.state.ajaxUrlStr)}&attname=${
                   printData.name
                 }.${fileTypeNum === 5 ? 'xlsx' : 'docx'}`

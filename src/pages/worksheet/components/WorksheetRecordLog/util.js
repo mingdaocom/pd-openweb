@@ -6,6 +6,7 @@ import filterXSS from 'xss';
 import { Icon } from 'ming-ui';
 import { Tooltip } from 'ming-ui/antd-components';
 import { renderText } from 'src/utils/domain/control/display';
+import { addSubPathOfRoute } from 'src/utils/platform/navigation/path';
 import {
   EDIT_TYPE_TEXT,
   FILTER_FIELD_BY_ATTR,
@@ -17,6 +18,13 @@ import {
 } from './enum.js';
 
 const reg = new RegExp('<[^<>]+>', 'g');
+const WORKFLOW_LOG_HTML_OPTIONS = {
+  safeAttrValue: (tag, name, value, cssFilter) => {
+    const attributeValue = tag === 'a' && name === 'href' && /^\/(?!\/)/.test(value) ? addSubPathOfRoute(value) : value;
+
+    return filterXSS.safeAttrValue(tag, name, attributeValue, cssFilter);
+  },
+};
 
 export function assembleListData(data) {
   let _resArr = [];
@@ -365,7 +373,7 @@ export const renderTitleAvatar = (data, isMobile) => {
         {isMobile ? (
           <span className="textPrimary breakAll">{_fullName.replace(reg, '')}</span>
         ) : (
-          <span dangerouslySetInnerHTML={{ __html: filterXSS(_fullName) }}></span>
+          <span dangerouslySetInnerHTML={{ __html: filterXSS(_fullName, WORKFLOW_LOG_HTML_OPTIONS) }}></span>
         )}
       </span>
     ) : null;

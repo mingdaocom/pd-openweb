@@ -75,7 +75,11 @@ export default function Header(props) {
           setKeyword(value);
           onSearch(value);
         }}
-        onKeyDown={onKeyDown}
+        onKeyDown={event => {
+          // 搜索框自动聚焦时，底层表格可能仍保留选中单元格，避免全局键盘监听抢回焦点。
+          event.stopPropagation();
+          onKeyDown(event);
+        }}
       />
 
       {showFastFilters && (

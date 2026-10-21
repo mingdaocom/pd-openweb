@@ -79,7 +79,7 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
       onCancel={onClose}
     >
       <Header>
-        <div className="typeName">{_l('嵌入url')}</div>
+        <div className="typeName">{_l('嵌入 URL')}</div>
         <div className="flexRow valignWrapper">
           <Button block className="save" shape="round" type="primary" onClick={handleSave}>
             {_l('保存')}
@@ -99,7 +99,7 @@ function EmbedUrl({ onClose, onEdit, widget = {}, info }) {
         </div>
         <div className="configWrap">
           <div className="content">
-            <p>{_l('输入url')}</p>
+            <p>{_l('输入 URL')}</p>
             <Input.TextArea
               className="urlInput"
               autoSize={{ minRows: 4, maxRows: 30 }}

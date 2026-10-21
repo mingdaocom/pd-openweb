@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Button, Modal, Switch } from 'ming-ui/antd-components';
 import aiModelAuthAjax from 'src/api/dataLimit.js';
+import AdminTitle from 'src/pages/Admin/common/AdminTitle';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import Search from 'src/pages/workflow/components/Search';
 import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
@@ -237,10 +238,11 @@ export default function AIModelRule(props) {
 
   return (
     <div className="orgManagementWrap">
+      <AdminTitle prefix={_l('安全 - AI 模型授权规则')} />
       <div className="orgManagementHeader">
         <div className="flexRow alignItemsCenter">
           <Icon icon="backspace" className="Font22 hoverColorPrimary pointer" onClick={onClose} />
-          <div className="Font17 bold flex mLeft10">{_l('AI模型')}</div>
+          <div className="Font17 bold flex mLeft10">{_l('AI 模型授权规则')}</div>
         </div>
       </div>
 
