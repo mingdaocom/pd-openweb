@@ -308,6 +308,8 @@ const getRelateData = (control = {}, content, extra = {}, worksheetInfo = {}, up
   const requestParams = {
     appId,
     worksheetId: control.dataSource,
+    relationWorksheetId: worksheetInfo.worksheetId,
+    controlId: control.controlId,
     viewId,
     searchType: 1,
     pageSize: 20,

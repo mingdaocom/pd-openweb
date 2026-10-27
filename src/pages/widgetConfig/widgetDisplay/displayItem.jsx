@@ -386,8 +386,11 @@ function DisplayItem(props) {
   };
 
   const handleOperate = (mode, option = {}) => {
-    const deleteWidgetById = ({ widgets, controlId, path }) => {
-      const [row, col] = path;
+    const deleteWidgetById = ({ widgets, controlId }) => {
+      // 普通字段与标签页字段分区显示，显示位置不一定对应原始数组位置。
+      const targetPath = getPathById(widgets, controlId);
+      if (targetPath.length !== 2) return widgets;
+      const [row, col] = targetPath;
 
       if (activeWidget.controlId === controlId) {
         let nextActiveWidget = {};
@@ -457,7 +460,7 @@ function DisplayItem(props) {
 
       // 如果是关联本表 则要删除对应的控件
       if (type === 29 && dataSource === globalSheetId) {
-        const nextWidgets = deleteWidgetById({ widgets, controlId, path });
+        const nextWidgets = deleteWidgetById({ widgets, controlId });
         const currentRelatePath = getPathById(nextWidgets, sourceControlId);
 
         // 如果父子关联控件找不到 则直接删除当前控件
@@ -470,7 +473,6 @@ function DisplayItem(props) {
           deleteWidgetById({
             widgets: nextWidgets,
             controlId: sourceControlId,
-            path: currentRelatePath,
           }),
         );
         return;
@@ -481,7 +483,7 @@ function DisplayItem(props) {
         return;
       }
 
-      setWidgets(deleteWidgetById({ widgets, controlId, path }));
+      setWidgets(deleteWidgetById({ widgets, controlId }));
       return;
     }
 

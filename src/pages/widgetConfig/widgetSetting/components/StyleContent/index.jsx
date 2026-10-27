@@ -38,7 +38,7 @@ const getItems = props => {
       label: _l('样式规则'),
       children: (
         <WidgetConfigRuleItem
-          {..._.pick(props, ['allControls', 'globalSheetInfo', 'data', 'ruleList'])}
+          {..._.pick(props, ['allControls', 'globalSheetInfo', 'data', 'ruleList', 'setConfig'])}
           saveIndex={status.saveIndex}
         />
       ),

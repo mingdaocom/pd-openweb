@@ -37,7 +37,7 @@ export const getReportConfigDetail = (data, callBack) => {
   return (dispatch, getState) => {
     const { reportId, reportType, appId, customPageConfig = {} } = data;
     const { currentReport: oldReport, base } = getState().statistics;
-    const { viewId, permissions, pageId, appType } = base;
+    const { viewId, permissions, pageId, appType, settingVisible } = base;
     const isPublicShare = _.get(window, 'shareState.shareId') || window.shareAuthor;
 
     if (reportType) {
@@ -47,7 +47,7 @@ export const getReportConfigDetail = (data, callBack) => {
       });
     }
 
-    if (!permissions) {
+    if (!permissions || !settingVisible) {
       if (isPublicShare) {
         dispatch(getReportData());
       } else {
@@ -55,6 +55,13 @@ export const getReportConfigDetail = (data, callBack) => {
       }
 
       return;
+    }
+
+    if (!reportType) {
+      dispatch({
+        type: 'CHANGE_STATISTICS_DETAIL_LOADING',
+        data: true,
+      });
     }
 
     if (reportConfigDetailRequest) {
@@ -70,7 +77,13 @@ export const getReportConfigDetail = (data, callBack) => {
     });
     reportConfigDetailRequest.then(result => {
       const { id } = window.appInfo || {};
-      const { currentReport, axisControls } = initConfigDetail(reportId, result, oldReport, customPageConfig);
+      // 只有切换图表类型时沿用当前配置，进入编辑时使用接口返回的完整配置。
+      const { currentReport, axisControls } = initConfigDetail(
+        reportId,
+        result,
+        reportType ? oldReport : {},
+        customPageConfig,
+      );
 
       if (viewId && !reportId && !_.get(currentReport, ['filter', 'viewId'])) {
         currentReport.filter.viewId = viewId;
@@ -134,11 +147,12 @@ export const getReportData = ({ reload = false } = {}) => {
       const data = fillValueMap(result, pageId);
 
       if (permissions) {
-        const param = mergeReportData(currentReport, result, report ? report.id : null);
+        const nextReport = settingVisible ? currentReport : { ...data, ...currentReport };
+        const param = mergeReportData(nextReport, result, report ? report.id : null);
         dispatch({
           type: 'CHANGE_STATISTICS_CURRENT_REPORT',
           data: {
-            ...currentReport,
+            ...nextReport,
             ...param,
             name: data.name || currentReport.name,
             // yaxisList: data.yaxisList,

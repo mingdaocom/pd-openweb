@@ -196,7 +196,7 @@ export default function Text(props) {
               .filter(_.identity);
             setValueForMultiple(v);
             setIsMultiple(!!newValues.length);
-            handleChange({ values: newValues }, { forceUpdate: true });
+            handleChange({ values: newValues });
           }}
         />
       )}

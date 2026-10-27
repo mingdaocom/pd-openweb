@@ -201,11 +201,14 @@ class WidgetConfigRuleItem extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps !== this.props) {
-      const { initGlobalRuleInfo, initWorksheetRuleList, ruleList, saveIndex } = this.props;
+      const { initGlobalRuleInfo, initWorksheetRuleList, ruleList, saveIndex, columnRulesListData, setConfig } =
+        this.props;
 
       if (!_.isUndefined(ruleList) && _.isUndefined(prevProps.ruleList)) {
         initGlobalRuleInfo(this.props);
         initWorksheetRuleList(this.props);
+      } else if (!_.isUndefined(ruleList) && columnRulesListData !== prevProps.columnRulesListData) {
+        setConfig?.({ ruleList: columnRulesListData });
       }
 
       if (saveIndex !== prevProps.saveIndex) {

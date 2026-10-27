@@ -14,12 +14,12 @@ import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Sort from './Sort';
 import { Wrap } from './style';
 
-let lineChart = null;
 let ajaxFetch = null;
 
 export default function (props) {
   const chantRef = useRef();
   const g2plotComponent = useRef({});
+  const lineChartRef = useRef(null);
   const cache = useRef({});
   const listLoadingRef = useRef(false);
   const { currentProjectId: projectId } = props;
@@ -161,11 +161,17 @@ export default function (props) {
 
   const isDark = window.themeMode === 'dark';
 
+  const destroyChart = useCallback(() => {
+    const chart = lineChartRef.current;
+    lineChartRef.current = null;
+    if (chart) chart.destroy();
+  }, []);
+
   const renderChart = useCallback(
     (initChartData = []) => {
       const { Line } = g2plotComponent.current.value;
-      lineChart && lineChart.destroy();
-      lineChart = new Line(chantRef.current, {
+      destroyChart();
+      const lineChart = new Line(chantRef.current, {
         data: initChartData,
         xField: 'date',
         yField: 'value',
@@ -229,6 +235,7 @@ export default function (props) {
           },
         },
       });
+      lineChartRef.current = lineChart;
       lineChart.on('slider:mouseup', (e = {}) => {
         const { filteredData = [] } = e.view;
         setState({
@@ -239,7 +246,7 @@ export default function (props) {
       });
       lineChart.render();
     },
-    [dimension, isDark, setState],
+    [destroyChart, dimension, isDark, setState],
   );
 
   useEffect(() => {
@@ -252,9 +259,9 @@ export default function (props) {
     getG2plotComponent();
     return () => {
       g2plotCache.value = null;
-      lineChart && lineChart.destroy();
+      destroyChart();
     };
-  }, [getG2plotComponent]);
+  }, [destroyChart, getG2plotComponent]);
 
   useEffect(() => {
     chantRef.current && g2plotComponent.current.value && renderChart(history);

@@ -131,6 +131,7 @@ const TreeLoadingIcon = styled.div`
 
 const AddChildBtn = styled.div`
   position: absolute;
+  z-index: 2;
   cursor: pointer;
   display: flex;
   justify-content: center;
@@ -722,7 +723,7 @@ function Cell(props) {
           <Tooltip mouseEnterDelay={0.6} title={_l('添加子记录')} placement="bottom">
             <AddChildBtn
               className={cx('addChildBtn hoverShow hoverColorPrimary', tableType)}
-              style={{ right: tableType === 'classic' || !(lineEditable && cellEditable) ? 8 : 36 }}
+              style={{ right: lineEditable && cellEditable ? 36 : 8 }}
               onClick={() => {
                 if (_.isFunction(actions.handleAddNewRecord)) {
                   actions.handleAddNewRecord(row, { addParentControl, addChildControl });

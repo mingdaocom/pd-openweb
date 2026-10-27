@@ -318,23 +318,23 @@ let ChartDialog = class ChartDialog extends Component {
                   active: settingVisible,
                 })}
                 onClick={() => {
-                  this.setState(
-                    {
-                      settingVisible: !settingVisible,
-                      scopeVisible: false,
-                      sheetVisible: false,
-                    },
-                    () => {
-                      this.props.changeBase({
-                        settingVisible: !settingVisible,
-                        sheetVisible: false,
-                        reportSingleCacheId: null,
-                        apkId: null,
-                        match: null,
-                      });
-                      this.props.getReportData();
-                    },
-                  );
+                  this.props.changeBase({
+                    settingVisible: true,
+                    sheetVisible: false,
+                    reportSingleCacheId: null,
+                    apkId: null,
+                    match: null,
+                  });
+                  this.props.getReportConfigDetail({
+                    reportId: this.state.reportId,
+                    appId: this.state.worksheetId,
+                    customPageConfig,
+                  });
+                  this.setState({
+                    settingVisible: true,
+                    scopeVisible: false,
+                    sheetVisible: false,
+                  });
                 }}
               />
             </Tooltip>

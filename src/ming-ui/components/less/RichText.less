@@ -28,6 +28,14 @@
   .ck-content .table {
     display: table;
     margin: 0.9em auto;
+    &.table-style-block-align-left {
+      margin-left: 0;
+      margin-right: auto;
+    }
+    &.table-style-block-align-right {
+      margin-left: auto;
+      margin-right: 0;
+    }
     table {
       border: 1px double var(--color-text-disabled);
       border-collapse: collapse;
