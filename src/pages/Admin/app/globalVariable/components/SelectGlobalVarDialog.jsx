@@ -106,7 +106,7 @@ function SelectGlobalVar(props) {
               </div>
             ))}
         </div>
-        <div className="flex">
+        <div className="flex overflowHidden">
           <GlobalVarTable
             data={varList.filter(
               item =>

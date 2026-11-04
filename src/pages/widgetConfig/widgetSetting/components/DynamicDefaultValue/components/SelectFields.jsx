@@ -92,7 +92,7 @@ let SelectFields = class SelectFields extends Component {
     );
   };
   filterFieldList = () => {
-    const { from, globalSheetInfo, controls, data = {}, fromCustomEventApi } = this.props;
+    const { from, isDefaultValue, globalSheetInfo, controls, data = {}, fromCustomEventApi } = this.props;
     const subListControls = this.omitSelfAndNest(controls) || [];
     const globalSheetControls = this.omitSelfAndNest(this.props.globalSheetControls);
     const { worksheetId } = globalSheetInfo;
@@ -124,12 +124,14 @@ let SelectFields = class SelectFields extends Component {
         controls: filterSys(subListControls, fromCustomEventApi),
         isCurrent: true,
         from,
+        isDefaultValue,
       }),
       [worksheetId]: getControls({
         data,
         controls: filterSys(globalSheetControls),
         isCurrent: true,
         from,
+        isDefaultValue,
       }),
     }; // 获取关联表控件下的所有符合条件的字段
 
@@ -147,6 +149,7 @@ let SelectFields = class SelectFields extends Component {
         data,
         controls: relationControls,
         from,
+        isDefaultValue,
       });
       fieldList[id] = filteredRelationControls;
     });

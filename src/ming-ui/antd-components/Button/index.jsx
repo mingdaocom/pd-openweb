@@ -3,6 +3,7 @@ import AntdButton from 'antd/es/button';
 import { ConfigContext } from 'antd/es/config-provider';
 import cx from 'classnames';
 import PropTypes from 'prop-types';
+import useColorMix from 'ming-ui/hooks/useColorMix';
 import './index.less';
 
 const CSS_VARIABLE_COLOR_PATTERN = /^var\(\s*--[^,\s)]+(?:\s*,[\s\S]+)?\s*\)$/;
@@ -15,6 +16,13 @@ const WIDE_STYLE = {
   '--hap-button-padding-inline-sm': '22px',
   '--hap-button-padding-inline-lg': '32px',
 };
+const COLOR_MIX_LEVELS = [
+  ['color-hover', 85, 'white'],
+  ['color-active', 85, 'black'],
+  ['color-light', 10, 'transparent'],
+  ['color-light-hover', 15, 'transparent'],
+  ['color-light-active', 20, 'transparent'],
+];
 const ANTD_BUTTON_COLORS = new Set([
   'default',
   'primary',
@@ -90,6 +98,22 @@ const Button = forwardRef(
     const rootPrefixCls = getPrefixCls();
     const hasCustomColor = isCustomColor(color);
     const isTextBordered = variant === TEXT_BORDERED_VARIANT;
+    const colorMixes = useMemo(
+      () =>
+        hasCustomColor
+          ? COLOR_MIX_LEVELS.reduce((mixes, [slot, percent, mixColor]) => {
+              const name = `--${rootPrefixCls}-btn-${slot}`;
+
+              if (!Object.prototype.hasOwnProperty.call(style || {}, name)) {
+                mixes[name] = { color, percent, mixColor };
+              }
+
+              return mixes;
+            }, {})
+          : null,
+      [color, hasCustomColor, rootPrefixCls, style],
+    );
+    const colorMixRef = useColorMix(colorMixes, ref);
     const mergedClassNames = useMemo(
       () => (ellipsis ? mergeEllipsisClassNames(classNames) : classNames),
       [classNames, ellipsis],
@@ -110,7 +134,7 @@ const Button = forwardRef(
     return (
       <AntdButton
         {...props}
-        ref={ref}
+        ref={colorMixRef}
         classNames={mergedClassNames}
         color={hasCustomColor ? 'primary' : color}
         title={getEllipsisTitle(ellipsis, title, children)}

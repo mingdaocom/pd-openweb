@@ -18,7 +18,7 @@ const RadioWidget = props => {
 
   const renderItem = (item, checkIds) => {
     const { otherValue } = getCheckAndOther(value);
-    const content = otherValue && disabled ? otherValue : item.value;
+    const content = item.key === 'other' && otherValue && disabled ? otherValue : item.value;
 
     if (enumDefault2 === 1) {
       return <CustomOptionCapsule $tagColor={item.color}>{content}</CustomOptionCapsule>;
@@ -42,6 +42,7 @@ const RadioWidget = props => {
   return (
     <div
       className={cx('customFormControlBox customFormControlNoBorder RadioGroupCon', {
+        readonlyShowAll: disabled && readonlyshowall === '1',
         flexColumn: vertical,
         horizonArrangement: direction === '0' || direction === '2',
         verticalArrangement: direction === '1',

@@ -358,6 +358,7 @@ export default function CalendarView({
         title={title}
         view={view}
         onCreate={() => createCalendar({ callback: refresh })}
+        onRefresh={refresh}
         onViewChange={handleViewChange}
         onOpenSettings={() => {
           hideCreateHint();

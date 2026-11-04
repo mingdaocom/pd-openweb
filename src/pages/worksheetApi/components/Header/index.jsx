@@ -126,11 +126,12 @@ const TABS_OPTS = [
 const isMobile = browserIsMobile();
 
 const getIconColor = ({ iconColor, navColor }) => {
-  const lightColor = generate(iconColor)[0];
+  const color = iconColor || 'var(--color-primary)';
+  const lightColor = iconColor ? generate(iconColor)[0] : 'var(--color-primary-transparent)';
   const light = [lightColor, '#ffffff', '#f5f6f7'].includes(navColor);
   const black = '#1b2025' === navColor;
-  const backgroundColor = light ? lightColor : navColor || iconColor;
-  const fillColor = black || light ? iconColor : '#fff';
+  const backgroundColor = light ? lightColor : navColor || color;
+  const fillColor = black || light ? color : '#fff';
   return { backgroundColor, fillColor };
 };
 

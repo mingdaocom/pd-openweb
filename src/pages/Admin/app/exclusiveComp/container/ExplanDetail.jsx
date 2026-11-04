@@ -11,7 +11,7 @@ import resourceApi from 'src/pages/workflow/api/resource';
 import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import Search from 'src/pages/workflow/components/Search';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
-import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import IsAppAdmin from '../../../components/IsAppAdmin';
 import PaginationWrap from '../../../components/PaginationWrap';
@@ -327,7 +327,7 @@ function ExplanDetail(props) {
               }
               createType={2}
               ckeckSuccessCb={() => {
-                navigateTo(`/workflowedit/${value}`);
+                window.open(pathCompletion(`/workflowedit/${value}`), '_blank');
               }}
             />
           </div>

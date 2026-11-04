@@ -3,6 +3,7 @@ import { Icon } from 'ming-ui';
 import { Badge, Button, Menu, Modal } from 'ming-ui/antd-components';
 import LoadDiv from 'ming-ui/components/LoadDiv';
 import { dialogSelectUser } from 'ming-ui/functions';
+import useColorMix from 'ming-ui/hooks/useColorMix';
 import calendarAjax from 'src/api/calendar';
 import TaskDetail from 'src/pages/task/containers/taskDetail/taskDetail';
 import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
@@ -33,6 +34,9 @@ const CALENDAR_MENU_STYLES = {
   },
   itemContent: { flex: 1, minWidth: 0, marginLeft: 15 },
 };
+const CALENDAR_COLOR_MIXES = {
+  '--calendar-loading-background': { color: 'var(--color-background-primary)', percent: 72 },
+};
 
 const getCategoriesForUpdate = categories =>
   categories
@@ -47,6 +51,7 @@ const getValidCategoryIds = (categoryIds, categories) => {
 };
 
 export default function CalendarEntrypoint() {
+  const colorMixRef = useColorMix(CALENDAR_COLOR_MIXES);
   const [initialSettings] = useState(() => getInitialSettings());
   const accountId = md.global.Account.accountId;
   const loadingCountRef = useRef(0);
@@ -492,7 +497,7 @@ export default function CalendarEntrypoint() {
         )}
       </aside>
 
-      <main className="calendarMain boxSizing">
+      <main className="calendarMain boxSizing" ref={colorMixRef}>
         {activeContent === 'invites' ? (
           <div className="invitedMain">
             <Button

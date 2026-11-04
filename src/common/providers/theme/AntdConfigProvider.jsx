@@ -1,6 +1,8 @@
 import React from 'react';
+import { StyleProvider } from '@ant-design/cssinjs';
 import { ConfigProvider } from 'ming-ui/antd-components';
 import { antdConfigProviderProps } from 'src/common/config/theme/antdConfig';
+import { getAntdStyleProviderProps } from 'src/common/config/theme/antdStyle';
 import { getAntdThemeConfig, getCurrentAntdThemeMode } from 'src/common/config/theme/antdTheme';
 
 export const getCurrentAntdThemeConfig = () =>
@@ -8,8 +10,10 @@ export const getCurrentAntdThemeConfig = () =>
 
 export default function AntdConfigProvider({ children }) {
   return (
-    <ConfigProvider {...antdConfigProviderProps} theme={getCurrentAntdThemeConfig()}>
-      {children}
-    </ConfigProvider>
+    <StyleProvider {...getAntdStyleProviderProps()}>
+      <ConfigProvider {...antdConfigProviderProps} theme={getCurrentAntdThemeConfig()}>
+        {children}
+      </ConfigProvider>
+    </StyleProvider>
   );
 }

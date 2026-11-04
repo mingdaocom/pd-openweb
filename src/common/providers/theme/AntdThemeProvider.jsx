@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { StyleProvider } from '@ant-design/cssinjs';
 import { App, ConfigProvider } from 'ming-ui/antd-components';
 import { GlobalFunctionWrapHolder } from 'ming-ui/components/FunctionWrap';
 import { antdConfigProviderProps } from 'src/common/config/theme/antdConfig';
+import { getAntdStyleProviderProps } from 'src/common/config/theme/antdStyle';
 import { getAntdThemeConfig, getCurrentAntdThemeMode, HAP_PREFIX_CLS } from 'src/common/config/theme/antdTheme';
 import { emitter } from 'src/utils/platform/browser/dom';
 
@@ -21,9 +23,11 @@ export default function AntdThemeProvider({ children }) {
     ConfigProvider.config({
       prefixCls: HAP_PREFIX_CLS,
       holderRender: holderChildren => (
-        <ConfigProvider {...antdConfigProviderProps} theme={themeConfig}>
-          {holderChildren}
-        </ConfigProvider>
+        <StyleProvider {...getAntdStyleProviderProps()}>
+          <ConfigProvider {...antdConfigProviderProps} theme={themeConfig}>
+            {holderChildren}
+          </ConfigProvider>
+        </StyleProvider>
       ),
     });
   }, [themeConfig]);
@@ -59,11 +63,13 @@ export default function AntdThemeProvider({ children }) {
   }, []);
 
   return (
-    <ConfigProvider {...antdConfigProviderProps} theme={themeConfig}>
-      <App rootClassName="h100">
-        {children}
-        <GlobalFunctionWrapHolder />
-      </App>
-    </ConfigProvider>
+    <StyleProvider {...getAntdStyleProviderProps()}>
+      <ConfigProvider {...antdConfigProviderProps} theme={themeConfig}>
+        <App rootClassName="h100">
+          {children}
+          <GlobalFunctionWrapHolder />
+        </App>
+      </ConfigProvider>
+    </StyleProvider>
   );
 }

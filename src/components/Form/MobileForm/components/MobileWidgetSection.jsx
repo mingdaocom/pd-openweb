@@ -330,7 +330,6 @@ function MobileWidgetSection(props) {
         <div className="flex">
           {desc && <div className="mTop16 mBottom16 pLeft20 pRight20 textTertiary">{desc}</div>}
           <div className="customMobileFormContainer pBottom60 mTop8">
-            {/* 稳定 renderForm 在 layout effect 后才更新闭包，验证码需使用本次渲染的回调。 */}
             {renderForm(activeControl.child, errorItemsMap, renderVerifyCode)}
           </div>
         </div>

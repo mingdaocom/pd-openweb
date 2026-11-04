@@ -65,7 +65,7 @@ export default function WidgetBase(props) {
       {/* 快速创建字段暂时隐藏更多内容 */}
       {!rest.quickAddControl && (
         <Fragment>
-          {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...props} from={0} />}
+          {HAS_DYNAMIC_DEFAULT_VALUE_CONTROL.includes(type) && <DynamicDefaultValue {...props} isDefaultValue />}
           {!NO_VERIFY_WIDGET.includes(type) && <WidgetVerify {...props} />}
           {/* 选项其他项必填提示文案 */}
           {_.includes([9, 10, 11], type) && _.find(options, (i = {}) => i.key === 'other' && !i.isDeleted) && (

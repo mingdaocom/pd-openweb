@@ -143,7 +143,6 @@ export default function PortalUserInfoDrawer(props) {
         focusable={isMobile && showUserInfoDialog ? DRAWER_WITH_USER_INFO_FOCUSABLE : undefined}
         mask={{ enabled: true, closable: true }}
         closable={false}
-        getContainer={[1, 3].includes(currentPcNaviStyle) ? false : undefined}
         styles={{ body: { padding: 0 } }}
       >
         <Wrap className={cx('flexColumn h100', { isMobile, leftNaviStyle: [1, 3].includes(currentPcNaviStyle) })}>

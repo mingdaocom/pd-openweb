@@ -44,7 +44,7 @@ const FormDatePicker = styled(DatePicker)`
 
 const TimeZoneInput = styled(Input)`
   flex: none;
-  width: 64px;
+  width: 64px !important;
   height: auto;
   padding-inline: 5px;
   font-size: 12px;

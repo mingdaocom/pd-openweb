@@ -91,14 +91,8 @@ export default function RelateSearchConfig(props) {
       'controlId',
     ) || get(head(searchableControls), 'value');
 
-  const {
-    showtype,
-    searchtype = '1',
-    searchcontrol = '',
-    clicksearch = '0',
-    fastfilterstype = '1',
-    fastfiltersview,
-  } = advancedSetting;
+  const { showtype, searchcontrol = '', clicksearch = '0', fastfilterstype = '1', fastfiltersview } = advancedSetting;
+  const searchtype = advancedSetting.searchtype || '0';
   const searchfilters = getAdvanceSetting(data, 'searchfilters') || [];
   const isDropdown = showtype === '3';
   const showFastFilter = isDropdown ? advancedSetting.openfastfilters || '0' : '1';
@@ -141,6 +135,7 @@ export default function RelateSearchConfig(props) {
               handleChange(
                 handleAdvancedSettingChange(data, {
                   searchcontrol: value ? searchcontrol || defaultSearchControl : '',
+                  ...(value ? { searchtype: '1' } : {}),
                 }),
               );
             }}

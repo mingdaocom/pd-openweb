@@ -6,8 +6,9 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import PropTypes from 'prop-types';
 import { browserIsMobile } from 'src/utils/platform/browser/device';
 import instancePlugin from './plugins';
-import 'overlayscrollbars/styles/overlayscrollbars.css';
 import './index.less';
+// 本地 2.11.4 样式移除了 @property，规避旧版浏览器的属性注册兼容问题。
+import './overlayscrollbars.css';
 
 OverlayScrollbars.plugin(instancePlugin);
 

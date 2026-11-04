@@ -154,7 +154,10 @@ const CheckboxWidget = props => {
                 styles={TILE_CHECKBOX_STYLES}
                 onChange={event => onChange(!event.target.checked, item.key, event)}
               >
-                {renderListItem(item, disabled && direction !== '1' && index !== displayOptions.length - 1)}
+                {renderListItem(
+                  item,
+                  disabled && readonlyshowall !== '1' && direction !== '1' && index !== displayOptions.length - 1,
+                )}
               </Checkbox>
               {item.key === 'other' && !disabled && <OtherInput {...props} />}
             </div>
@@ -224,8 +227,9 @@ const CheckboxWidget = props => {
         </Fragment>
       ) : (
         <TileWrap
-          $notGap={disabled && direction !== '1' && enumDefault2 === 0}
+          $notGap={disabled && readonlyshowall !== '1' && direction !== '1' && enumDefault2 === 0}
           className={cx('customFormControlBox customFormControlNoBorder CheckboxGroupCon', {
+            readonlyShowAll: disabled && readonlyshowall === '1',
             verticalArrangement: direction === '1',
           })}
         >

@@ -3,7 +3,7 @@ import _ from 'lodash';
 import styled from 'styled-components';
 import flowMonitor from 'src/pages/workflow/api/processVersion.js';
 import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
-import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import ExecutionDetails from './ExecutionDetails';
 import HistoryChart from './HistoryChart';
 import RealTimeData from './RealTimeData';
@@ -187,7 +187,7 @@ export default class WorkflowMonitor extends Component {
               title: _l('管理工作流“%0”', name),
               description: _l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限'),
               callback: () => {
-                navigateTo(`/workflowedit/${id}`);
+                window.open(pathCompletion(`/workflowedit/${id}`), '_blank');
               },
             })
           }

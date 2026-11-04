@@ -3,7 +3,7 @@ import _ from 'lodash';
 import { FunctionWrap } from 'ming-ui';
 import { Modal } from 'ming-ui/antd-components';
 import appManagementAjax from 'src/api/appManagement.js';
-import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import { addBehaviorLog } from 'src/utils/services/project';
 
 export function CheckIsAppAdminCon(props) {
@@ -22,7 +22,7 @@ export function CheckIsAppAdminCon(props) {
         }
 
         addBehaviorLog('app', appId); // 浏览应用埋点
-        navigateTo(`/app/${appId}`);
+        window.open(pathCompletion(`/app/${appId}`), '_blank');
       } else {
         setLoading(false);
       }
@@ -44,7 +44,7 @@ export function CheckIsAppAdminCon(props) {
           }
 
           addBehaviorLog('app', appId); // 浏览应用埋点
-          navigateTo(`/app/${appId}`);
+          window.open(pathCompletion(`/app/${appId}`), '_blank');
         }
       });
   };

@@ -3,12 +3,21 @@ import { createPortal } from 'react-dom';
 import cx from 'classnames';
 import styled, { keyframes } from 'styled-components';
 import { BgIconButton, Icon } from 'ming-ui';
+import useColorMix from 'ming-ui/hooks/useColorMix';
 import { PromptInput } from 'src/components/Agent/ui';
 import { compatibleMDJS } from 'src/utils/services/project';
 import { chooseMingoApp } from '../../services/chooseImage';
 import { getMobileComposerClassName } from './utils';
 
 const APP_PICKER_LAUNCH_GUARD_MS = 500;
+const RECORDING_COLOR_MIXES = {
+  '--mobile-mingo-glow-mingo': { color: 'var(--color-mingo)', percent: 6 },
+  '--mobile-mingo-glow-primary': { color: 'var(--color-primary)', percent: 6 },
+  '--mobile-mingo-glow-success': { color: 'var(--color-success)', percent: 5 },
+  '--mobile-mingo-glow-yellow': { color: 'var(--color-yellow)', percent: 5 },
+  '--mobile-mingo-glow-warning': { color: 'var(--color-warning)', percent: 6 },
+  '--mobile-mingo-glow-error': { color: 'var(--color-error)', percent: 6 },
+};
 
 const promptExpand = keyframes`
   0% {
@@ -224,22 +233,22 @@ const StyledPromptInput = styled(PromptInput)`
     box-shadow:
       45px calc(12px + var(--mobile-mingo-recording-glow-offset, 0px))
         calc(60px + var(--mobile-mingo-recording-glow-size, 0px)) 6px
-        color-mix(in srgb, var(--color-mingo) 6%, transparent),
+        var(--mobile-mingo-glow-mingo, color-mix(in srgb, var(--color-mingo) 6%, transparent)),
       25px calc(25px + var(--mobile-mingo-recording-glow-offset, 0px))
         calc(60px + var(--mobile-mingo-recording-glow-size, 0px)) 6px
-        color-mix(in srgb, var(--color-primary) 6%, transparent),
+        var(--mobile-mingo-glow-primary, color-mix(in srgb, var(--color-primary) 6%, transparent)),
       5px calc(32px + var(--mobile-mingo-recording-glow-offset, 0px))
         calc(60px + var(--mobile-mingo-recording-glow-size, 0px)) 6px
-        color-mix(in srgb, var(--color-success) 5%, transparent),
+        var(--mobile-mingo-glow-success, color-mix(in srgb, var(--color-success) 5%, transparent)),
       -5px calc(32px + var(--mobile-mingo-recording-glow-offset, 0px))
         calc(60px + var(--mobile-mingo-recording-glow-size, 0px)) 6px
-        color-mix(in srgb, var(--color-yellow) 5%, transparent),
+        var(--mobile-mingo-glow-yellow, color-mix(in srgb, var(--color-yellow) 5%, transparent)),
       -25px calc(25px + var(--mobile-mingo-recording-glow-offset, 0px))
         calc(60px + var(--mobile-mingo-recording-glow-size, 0px)) 6px
-        color-mix(in srgb, var(--color-warning) 6%, transparent),
+        var(--mobile-mingo-glow-warning, color-mix(in srgb, var(--color-warning) 6%, transparent)),
       -45px calc(12px + var(--mobile-mingo-recording-glow-offset, 0px))
         calc(60px + var(--mobile-mingo-recording-glow-size, 0px)) 6px
-        color-mix(in srgb, var(--color-error) 6%, transparent);
+        var(--mobile-mingo-glow-error, color-mix(in srgb, var(--color-error) 6%, transparent));
 
     .mentionEditor {
       color: var(--color-text-primary);
@@ -307,6 +316,7 @@ const StyledPromptInput = styled(PromptInput)`
 function MobileMingoPromptInput({ className, ...props }, ref) {
   const { attachmentSlot, cameraSlot, enableMention = true, onCameraOpen, onSubmit, ...promptInputProps } = props;
   const containerRef = useRef(null);
+  const colorMixRef = useColorMix(RECORDING_COLOR_MIXES, containerRef);
   const promptInputRef = useRef(null);
   const attachmentProxyRef = useRef(null);
   const attachmentTriggerRef = useRef(null);
@@ -426,7 +436,7 @@ function MobileMingoPromptInput({ className, ...props }, ref) {
   }, []);
 
   return (
-    <PromptInputContainer ref={containerRef}>
+    <PromptInputContainer ref={colorMixRef}>
       <StyledPromptInput
         {...promptInputProps}
         ref={setPromptInputRef}

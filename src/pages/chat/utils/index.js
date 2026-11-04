@@ -653,7 +653,7 @@ export const getToolbarConfig = () => {
   const favoriteFixing = localStorage.getItem('favoriteFixing') === 'true';
   const toolBarOpenType = localStorage.getItem('toolBarOpenType');
   return {
-    mingoVisible: toolBarOpenType === 'mingo' && mingoFixing,
+    mingoVisible: !md.global.SysSettings.hideAIBasicFun && toolBarOpenType === 'mingo' && mingoFixing,
     mingoFixing,
     sessionListVisible: toolBarOpenType === 'sessionList' && sessionListFixing,
     sessionListFixing,

@@ -288,6 +288,20 @@
     gap: 10px;
     min-height: initial;
 
+    &:not(.readonlyShowAll) {
+      .hap-radio-wrapper-disabled,
+      .hap-checkbox-wrapper-disabled {
+        .hap-radio,
+        .hap-checkbox {
+          display: none;
+        }
+
+        > span:last-child {
+          padding-inline-start: 0 !important;
+        }
+      }
+    }
+
     .hap-radio-wrapper {
       display: flex;
       align-items: center;
@@ -299,12 +313,7 @@
         color: var(--color-text-primary) !important;
         opacity: 1 !important;
 
-        .hap-radio {
-          display: none;
-        }
-
         > span:last-child {
-          padding-inline-start: 0 !important;
           color: var(--color-text-primary) !important;
         }
       }
@@ -321,12 +330,7 @@
         color: var(--color-text-primary) !important;
         opacity: 1 !important;
 
-        .hap-checkbox {
-          display: none;
-        }
-
         > span:last-child {
-          padding-inline-start: 0 !important;
           color: var(--color-text-primary) !important;
         }
       }

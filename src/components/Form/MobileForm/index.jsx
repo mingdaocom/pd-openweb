@@ -297,7 +297,6 @@ const MobileForm = props => {
     return formList;
   };
 
-  const stableRenderForm = useEventCallback(renderForm);
   const stableSectionTriggerCustomEvent = useEventCallback(value => triggerCustomEvent({ ...props, ...value }));
   const stableSetActiveTabControlId = useEventCallback(props.setActiveTabControlId);
   const stableSectionOnChange = useEventCallback((value, cid, control) => handleChange(value, cid, control));
@@ -325,7 +324,8 @@ const MobileForm = props => {
       errorItemsMap,
       mobileApprovalRecordInfo,
       setActiveTabControlId: stableSetActiveTabControlId,
-      renderForm: stableRenderForm,
+      // Tab 在渲染期间调用，必须使用本轮闭包中的完整表单数据。
+      renderForm,
       renderVerifyCode,
       triggerCustomEvent: stableSectionTriggerCustomEvent,
       onChange: stableSectionOnChange,

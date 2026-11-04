@@ -268,6 +268,7 @@ export default class CreateCalendarContent extends React.PureComponent {
       calendarPrivate: !!settings.calendarPrivate,
     };
     this.busyRequestId = 0;
+    this.addressInputRef = React.createRef();
   }
 
   componentDidMount() {
@@ -663,6 +664,7 @@ export default class CreateCalendarContent extends React.PureComponent {
             <div className="createCalendarLabel">{_l('会议地点')}</div>
             <Input
               placeholder={_l('添加会议地点…')}
+              ref={this.addressInputRef}
               value={address}
               onChange={event => this.updateState({ address: event.target.value })}
             />
@@ -697,7 +699,10 @@ export default class CreateCalendarContent extends React.PureComponent {
         </div>
         <div className="calendarTabs flexRow gap28">
           {!showAddress && (
-            <span className="calendarTextAction colorPrimary" onClick={() => this.setState({ showAddress: true })}>
+            <span
+              className="calendarTextAction colorPrimary"
+              onClick={() => this.setState({ showAddress: true }, () => this.addressInputRef.current?.focus())}
+            >
               {_l('会议地点')}
             </span>
           )}

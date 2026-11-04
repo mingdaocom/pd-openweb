@@ -4,7 +4,6 @@ import styled from 'styled-components';
 import { Icon, SvgIcon } from 'ming-ui';
 import { Dropdown } from 'ming-ui/antd-components';
 import checkIsAppAdmin from 'src/components/checkIsAppAdmin';
-import { navigateTo } from 'src/router/navigation/navigateTo';
 
 const AppDisplayWrap = styled.div`
   .iconWrap {
@@ -58,7 +57,6 @@ export default function AppDisplay(props) {
     checkIsAppAdmin({
       appId: app.appId,
       appName: app.appName,
-      callback: () => navigateTo(`/app/${app.appId}`),
     });
   };
 

@@ -46,7 +46,8 @@ const SelectApp = props => {
                 <SvgIcon url={app.iconUrl} fill="#fff" size={20} />
               </div>
               <div className="flex mLeft10 mRight10 ellipsis Font15">{app.name}</div>
-              {selectAppId === app.id && <Icon icon="done" className="colorPrimary Font18" />}
+              {selectAppId === app.id && <Icon icon="done" className="colorPrimary Font18 mRight8" />}
+              <div className="textSecondary">{item.count}</div>
             </div>
           );
         })}
@@ -86,8 +87,9 @@ const Process = props => {
               onClose();
             }}
           >
-            <div className="flex ellipsis">{item.name}</div>
-            {processId === item.id && <Icon icon="done" className="colorPrimary Font18" />}
+            <div className="flex mRight10 ellipsis">{item.name}</div>
+            {processId === item.id && <Icon icon="done" className="colorPrimary Font18 mRight8" />}
+            <div className="textSecondary">{item.count}</div>
           </div>
         ))}
       </div>

@@ -14,7 +14,7 @@ import PaginationWrap from 'src/pages/Admin/components/PaginationWrap';
 import PurchaseExpandPack from 'src/pages/Admin/components/PurchaseExpandPack';
 import SelectUser from 'src/pages/Admin/components/SelectUser';
 import Config from 'src/pages/Admin/config';
-import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import Search from '../components/Search';
 import MsgTemplate from './components/MsgTemplate';
 import PublishBtn from './components/PublishBtn';
@@ -299,7 +299,7 @@ class AdminWorkflowList extends Component {
                 title: _l('管理工作流“%0”', item.processName),
                 description: _l('如果你不是工作流所在应用的管理员，需要将自己加为管理员以获得权限'),
                 callback: () => {
-                  navigateTo(`/workflowedit/${item.id}`);
+                  window.open(pathCompletion(`/workflowedit/${item.id}`), '_blank');
                 },
               })
             }

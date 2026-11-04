@@ -4,7 +4,7 @@ import { UserHead } from 'ming-ui';
 import { ConfigProvider, Empty } from 'ming-ui/antd-components';
 import { Table } from 'src/ming-ui/antd-components/AsyncAntd';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
-import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import IsAppAdmin from '../../../components/IsAppAdmin';
 
 const renderEmpty = () => <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={_l('暂无数据')} />;
@@ -26,7 +26,7 @@ export const getHistoryWorkflowColumns = ({ projectId }) => [
             defaultIcon={workflowType.iconName}
             iconColor={workflowType.iconColor}
             createType={2}
-            ckeckSuccessCb={() => navigateTo(`/workflowedit/${value}`)}
+            ckeckSuccessCb={() => window.open(pathCompletion(`/workflowedit/${value}`), '_blank')}
           />
         </div>
       );

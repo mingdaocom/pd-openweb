@@ -1882,6 +1882,6 @@ export const setSocketState = state => {
 export const setToolbarConfig = config => {
   return {
     type: 'SET_TOOLBAR_CONFIG',
-    result: config,
+    result: md.global.SysSettings.hideAIBasicFun ? { ...config, mingoVisible: false } : config,
   };
 };

@@ -59,6 +59,8 @@ const Mingo = props => {
   };
 
   const handleOpenMingo = () => {
+    if (!mingoVisible && md.global.SysSettings.hideAIBasicFun) return;
+
     dismissBuildTip();
     if (mingoVisible) {
       setToolbarConfig({ mingoVisible: false });
@@ -85,6 +87,8 @@ const Mingo = props => {
   };
 
   const handleForcedSetMingoVisible = ({ mingoVisible = true } = {}) => {
+    if (mingoVisible && md.global.SysSettings.hideAIBasicFun) return;
+
     setToolbarConfig({
       mingoVisible,
       mingoFixing: true,

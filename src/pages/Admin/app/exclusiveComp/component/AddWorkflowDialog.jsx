@@ -10,7 +10,7 @@ import processVersion from 'src/pages/workflow/api/processVersion';
 import resourceApi from 'src/pages/workflow/api/resource';
 import Search from 'src/pages/workflow/components/Search';
 import { START_APP_TYPE } from 'src/pages/workflow/WorkflowList/utils';
-import { navigateTo } from 'src/router/navigation/navigateTo';
+import { pathCompletion } from 'src/utils/platform/navigation/path';
 import IsAppAdmin from '../../../components/IsAppAdmin';
 import WorkflowConflictDialog from './WorkflowConflictDialog';
 
@@ -353,7 +353,7 @@ function AddWorkflowDialog(props) {
                   iconColor={(START_APP_TYPE[item.child ? 'subprocess' : item.startAppType] || {}).iconColor}
                   createType={2}
                   ckeckSuccessCb={() => {
-                    navigateTo(`/workflowedit/${item.id}`);
+                    window.open(pathCompletion(`/workflowedit/${item.id}`), '_blank');
                   }}
                 />
               </div>

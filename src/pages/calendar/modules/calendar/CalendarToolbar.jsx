@@ -3,7 +3,15 @@ import { Icon } from 'ming-ui';
 import { Button, Tabs, Tooltip } from 'ming-ui/antd-components';
 import { getViewItems } from './viewConfig';
 
-export default function CalendarToolbar({ calendarRef, title, view, onCreate, onViewChange, onOpenSettings }) {
+export default function CalendarToolbar({
+  calendarRef,
+  title,
+  view,
+  onCreate,
+  onRefresh,
+  onViewChange,
+  onOpenSettings,
+}) {
   const viewItems = useMemo(() => getViewItems(), []);
 
   const runCalendarAction = action => {
@@ -41,6 +49,22 @@ export default function CalendarToolbar({ calendarRef, title, view, onCreate, on
         <Tabs className="reactCalendarViewTabs" activeKey={view} items={viewItems} onChange={onViewChange} />
       </div>
       <div className="reactCalendarToolbarRight">
+        <Tooltip title={_l('刷新')}>
+          <Icon
+            icon="refresh1"
+            className="Font20 textTertiary pointer hoverColorPrimary"
+            role="button"
+            tabIndex={0}
+            aria-label={_l('刷新')}
+            onClick={onRefresh}
+            onKeyDown={event => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                onRefresh();
+              }
+            }}
+          />
+        </Tooltip>
         {(view === 'agendaWeek' || view === 'month') && (
           <Tooltip title={_l('日历设置')}>
             <Icon

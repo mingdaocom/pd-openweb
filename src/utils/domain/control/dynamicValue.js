@@ -256,18 +256,18 @@ export const filterControls = (data = {}, controls = []) => {
 };
 
 /** 按目标字段类型和配置场景筛选可用动态值字段。 */
-export const getControls = ({ data = {}, controls, isCurrent, from }) => {
+export const getControls = ({ data = {}, controls, isCurrent, from, isDefaultValue = false }) => {
   const { type, enumDefault, dataSource, advancedSetting: { usertype } = {} } = data;
   const filterFn = FILTER[type];
 
   if (
+    isDefaultValue ||
     _.includes(
       [
         DYNAMIC_FROM_MODE.SEARCH_PARAMS,
         DYNAMIC_FROM_MODE.USER_CONFIG,
         DYNAMIC_FROM_MODE.ORG_CONFIG,
         DYNAMIC_FROM_MODE.DEPART_CONFIG,
-        DYNAMIC_FROM_MODE.DYNAMIC_VALUE,
         DYNAMIC_FROM_MODE.RULES,
         DYNAMIC_FROM_MODE.CUSTOM_EVENT,
       ],
