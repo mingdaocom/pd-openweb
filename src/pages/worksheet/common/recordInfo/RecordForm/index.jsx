@@ -207,18 +207,20 @@ function RecordForm(props) {
   const getRulesData = updateRulesData({
     from: dealFrom,
     rules: recordinfo.rules,
-    data: formdata,
-    recordId,
-  })
-    .map(control => {
+    data: formdata.map(control => {
       const runtimeControl = runtimeControlMap[control.controlId];
+
       return runtimeControl && runtimeControl.store
         ? {
             ...control,
             store: runtimeControl.store,
+            // 外层编辑快照会清除子表值；已加载时由 store 中的实际行数判断。
+            value: control.type === 34 && control.value === undefined ? runtimeControl.value : control.value,
           }
         : control;
-    })
+    }),
+    recordId,
+  })
     .filter(control => controlState(control, dealFrom).visible)
     .map(c =>
       Object.assign(

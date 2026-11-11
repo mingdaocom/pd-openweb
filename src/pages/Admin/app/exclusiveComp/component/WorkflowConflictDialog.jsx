@@ -115,7 +115,7 @@ export function WorkflowConflictDialog(props) {
               <div className="columnName flex">
                 <IsAppAdmin
                   className="alignItemsCenter workflowInfoWrap"
-                  appId={item.app.id}
+                  appId={item.app?.id}
                   appName={item.process.name}
                   defaultIcon={
                     (START_APP_TYPE[item.process.child ? 'subprocess' : item.process.startAppType] || {}).iconName

@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { Icon } from 'ming-ui';
 import { Select, Tooltip } from 'ming-ui/antd-components';
 import * as actions from 'worksheet/redux/actions/gunterview';
+import { saveGunterExportFilters } from 'worksheet/views/GunterView/components/GunterExport/filterSnapshot';
 import { PERIODS } from 'worksheet/views/GunterView/config';
 import SearchRecord from 'src/pages/worksheet/views/components/SearchRecord';
 import { browserIsMobile } from 'src/utils/platform/browser/device';
@@ -45,6 +46,24 @@ let ToolBar = class ToolBar extends Component {
   componentWillUnmount() {
     this.actionSheetHandler && this.actionSheetHandler.close();
   }
+
+  exportImage = () => {
+    const { base, filters, quickFilter, loading } = this.props;
+
+    if (loading) return;
+
+    try {
+      const exportId = saveGunterExportFilters({ base, filters, quickFilter });
+
+      window.open(
+        pathCompletion(`/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport?exportId=${exportId}`),
+        '_blank',
+        'noopener,noreferrer',
+      );
+    } catch {
+      alert(_l('无法保存导出条件，请重试'), 2);
+    }
+  };
 
   renderPeriodSelect() {
     const { periodType, changeViewType, isMobile } = this.props;
@@ -130,14 +149,12 @@ let ToolBar = class ToolBar extends Component {
           </SearchRecord>
         )}
         {!isMobile && (
-          <Tooltip title={_l('导出为图片')}>
+          <Tooltip title={this.props.loading ? _l('正在加载，请稍后导出') : _l('导出为图片')}>
             <Icon
               icon="download"
               className="textSecondary Font18 mRight14 pointer mLeft24"
-              onClick={() => {
-                const { base } = this.props;
-                window.open(pathCompletion(`/app/${base.appId}/${base.worksheetId}/${base.viewId}/gunterExport`));
-              }}
+              aria-disabled={this.props.loading}
+              onClick={this.exportImage}
             />
           </Tooltip>
         )}
@@ -147,8 +164,8 @@ let ToolBar = class ToolBar extends Component {
 };
 ToolBar = connect(
   state => ({
-    ..._.pick(state.sheet, ['base']),
-    ..._.pick(state.sheet.gunterView, ['periodType']),
+    ..._.pick(state.sheet, ['base', 'filters', 'quickFilter']),
+    ..._.pick(state.sheet.gunterView, ['periodType', 'loading']),
     searchData: browserIsMobile() ? getSearchData(state.sheet) : {},
     mobileViewType: _.get(state.mobile, ['base', 'type']),
   }),

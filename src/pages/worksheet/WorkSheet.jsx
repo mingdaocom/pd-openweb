@@ -42,8 +42,6 @@ const Drag = styled.div(
 `,
 );
 
-let request = null;
-
 const LoadableCreateRecordSideMask = lazy(
   () => import('src/components/Mingo/modules/CreateRecordBot/CreateRecordSideMask'),
 );
@@ -57,23 +55,23 @@ const WorkSheetContainer = props => {
   const cache = useRef({});
   const [data, setData] = useState({});
   const [loading, setLoading] = useState(true);
-  const routeKey = `${params.groupId || ''}_${id || ''}`;
+  const routeKey = `${appId}_${params.groupId || ''}_${id || ''}`;
 
   useEffect(() => {
+    let active = true;
+
     setLoading(true);
     if (_.isUndefined(type)) {
       if (id) {
-        if (request && request.abort) {
-          request.abort();
-        }
-
-        request = homeAppApi.getPageInfo({
+        const request = homeAppApi.getPageInfo({
           appId,
           id,
           sectionId: params.groupId,
         });
 
         request.then(data => {
+          if (!active) return;
+
           const storage = JSON.parse(localStorage.getItem(`mdAppCache_${md.global.Account.accountId}_${appId}`)) || {};
 
           if (![1, 4].includes(data.resultCode) || (storage.lastWorksheetId === id && data.resultCode === 4)) {
@@ -84,7 +82,9 @@ const WorkSheetContainer = props => {
                 appSectionId: params.groupId,
               })
               .then(data => {
-                navigateTo(`/app/${appId}/${data.appSectionId}/${data.workSheetId || ''}`);
+                if (active) {
+                  navigateTo(`/app/${appId}/${data.appSectionId}/${data.workSheetId || ''}`);
+                }
               });
             return;
           }
@@ -97,7 +97,12 @@ const WorkSheetContainer = props => {
       setData({ wsType: type, resultCode: 1, routeKey });
       setLoading(false);
     }
-  }, [routeKey, params.groupId]);
+
+    // 切换到已知页面或卸载后，旧请求也不能再更新数据、清理缓存或触发回退。
+    return () => {
+      active = false;
+    };
+  }, [appId, id, params.groupId, routeKey, type]);
 
   useEffect(() => {
     if (!id && !sheetListLoading) {
@@ -111,7 +116,7 @@ const WorkSheetContainer = props => {
         setLoading(false);
       }
     }
-  }, [id, sheetListLoading, sheetList]);
+  }, [appId, id, isCharge, params.groupId, sheetListLoading, sheetList, type]);
 
   if (id ? !(data.routeKey === routeKey) || loading : sheetListLoading) {
     return <LoadDiv size="big" className="mTop32" />;
@@ -426,7 +431,7 @@ class WorkSheet extends Component {
     const { sheetList = [], match, appPkg, isCharge, sheetListLoading, sheetListIsUnfold } = this.props;
     const { projectId, currentPcNaviStyle } = appPkg;
     const { navWidth, dragMaskVisible, createRecordSideMaskVisible, createRecordSideMaskBase } = this.state;
-    const worksheetId = this.props.worksheetId || this.getValidedWorksheetId();
+    const worksheetId = this.getValidedWorksheetId();
     let { appId, groupId } = match.params;
 
     if (md.global.Account.isPortal) {

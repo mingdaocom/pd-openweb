@@ -80,7 +80,12 @@ export default class Orgothers extends Component {
                     <div className="toolItemLabel">{item.label}</div>
                     <div className="toolItemRight">
                       <div>
-                        <Button color="primary" variant="link" onClick={() => this[item.click](item.key, true)}>
+                        <Button
+                          className="pLeft5"
+                          color="primary"
+                          variant="link"
+                          onClick={() => this[item.click](item.key, true)}
+                        >
                           {item.clickValue}
                         </Button>
                       </div>

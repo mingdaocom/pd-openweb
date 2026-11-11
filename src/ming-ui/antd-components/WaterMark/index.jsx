@@ -177,9 +177,11 @@ const WaterMarkBase = props => {
     [font, fontColor, fontFamily, fontStyle, fontWeight, mergedFontSize],
   );
 
+  // 页面水印已通过高层级覆盖弹层，默认关闭继承，避免 Modal / Drawer 内再生成一层。
   return (
     <StyledWatermark
       {...restProps}
+      inherit={restProps.inherit ?? false}
       className={wrapperCls}
       rootClassName={mergedRootClassName}
       style={style}

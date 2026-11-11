@@ -141,7 +141,12 @@ const Entry = () => {
     }, SHARE_REFRESH_INTERVAL);
 
     if (hideHeader === 'true') {
-      setCookie('i18n_langtag', 'zh-Hans');
+      // 嵌入页的默认语言只写缓存，避免覆盖宿主的语言 Cookie。
+      if (window.top !== window.self) {
+        safeLocalStorageSetItem('i18n_langtag', 'zh-Hans');
+      } else {
+        setCookie('i18n_langtag', 'zh-Hans');
+      }
     }
 
     globalEvents();

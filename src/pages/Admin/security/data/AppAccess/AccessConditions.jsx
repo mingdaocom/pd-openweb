@@ -209,7 +209,11 @@ export default function AccessConditions(props) {
         className="accessTypeRadioGroup"
         size="middle"
         value={accessType}
-        options={(ACCESS_CONDITION_ENUM || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+        options={(ACCESS_CONDITION_ENUM || [])
+          .filter(
+            ({ value }) => (window.platformENV.isLocal && !window.platformENV.isPlatform) || value === 0 || value === 3,
+          )
+          .map(({ text, ...option }) => ({ ...option, label: text }))}
         onChange={event => {
           const value = event.target.value;
 

@@ -119,7 +119,7 @@ export function handleDeleteRecord({
   }
 
   if (showRemoveRelation) {
-    Modal.confirm({
+    const dialog = Modal.confirm({
       title: <DangerConfirmTitle className="textError">{_l('注意：此操作将删除原始记录')}</DangerConfirmTitle>,
       content: _l('如果只需要取消与当前记录的关联关系，仍保留原始记录。可以选择仅取消关联关系'),
       okButtonProps: {
@@ -128,10 +128,12 @@ export function handleDeleteRecord({
       okText: _l('删除记录'),
       cancelText: _l('仅取消关联关系'),
       onOk: deleteRow,
-      onCancel: () =>
-        onRemoveRelation({
-          confirm: false,
-        }),
+      cancelButtonProps: {
+        onClick: () => {
+          onRemoveRelation({ confirm: false });
+          dialog.destroy();
+        },
+      },
     });
   } else {
     Modal.confirm({

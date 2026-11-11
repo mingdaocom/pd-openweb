@@ -42,6 +42,7 @@ export default ({ companyId, processId, relationId, selectNodeId, data, selectMs
       open
       width={640}
       className="workflowDialogBox workflowSettings"
+      style={{ overflow: 'visible' }}
       mask={{ closable: false }}
       title={_l('通知设置')}
       onOk={() => {

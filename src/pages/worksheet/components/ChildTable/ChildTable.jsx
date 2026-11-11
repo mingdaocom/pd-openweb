@@ -248,6 +248,7 @@ class ChildTable extends React.Component {
       disableMaskDataControls: {},
       rowsLoadingStatus: {},
       showLoadingMask: false,
+      loadingMaskText: '',
       menuVisible: false,
       layoutDirection: this.defaultDirection,
     };
@@ -268,6 +269,8 @@ class ChildTable extends React.Component {
     this.dataFormatCacheMap = new Map();
     props.registerCell(this);
     this.rowsLoading = {};
+    this.pendingRowWrites = 0;
+    this.loadingMaskDismissed = false;
     this.rowDragManager = new RowDragManager();
   }
   componentDidMount() {
@@ -375,7 +378,15 @@ class ChildTable extends React.Component {
         }
 
         if (get(this.props, 'lastAction.type') === 'CLEAR_AND_SET_ROWS') {
-          this.dataFormatCacheMap.clear();
+          const previousRowIds = new Set(prevProps.rows.map(row => row.rowid));
+          const currentRowIds = new Set(this.props.rows.map(row => row.rowid));
+          // 导入替换的新行已创建计算实例，保留其导入值保护标记和异步回填链路。
+          // 旧行及已移除行的缓存仍需失效，避免外部赋值后复用过期数据。
+          this.dataFormatCacheMap.forEach((dataFormat, rowId) => {
+            if (previousRowIds.has(rowId) || !currentRowIds.has(rowId)) {
+              this.dataFormatCacheMap.delete(rowId);
+            }
+          });
         }
       }
 
@@ -451,6 +462,7 @@ class ChildTable extends React.Component {
   }
   componentWillUnmount() {
     const { mode, control } = this.props;
+    this.pendingRowWrites = 0;
 
     if (mode !== 'dialog' && _.isFunction(control.addRefreshEvents)) {
       control.addRefreshEvents(control.controlId, undefined);
@@ -990,6 +1002,21 @@ class ChildTable extends React.Component {
     addRows(newRows);
     this.triggerCustomEvent();
   }
+  syncLoadingMask() {
+    const showLoadingMask =
+      !this.loadingMaskDismissed && (this.pendingRowWrites > 0 || Object.values(this.rowsLoading).some(Boolean));
+
+    if (showLoadingMask !== this.showLoadingMask) {
+      this.showLoadingMask = showLoadingMask;
+      this.setState({ showLoadingMask });
+    }
+  }
+
+  dismissLoadingMask = () => {
+    this.loadingMaskDismissed = true;
+    this.syncLoadingMask();
+  };
+
   rowUpdate(
     { row, controlId, value, rowId } = {},
     { isCreate = false, isQueryWorksheetFill = false, isImportFromExcel, userTriggerChange = true } = {},
@@ -1013,6 +1040,7 @@ class ChildTable extends React.Component {
         {
           isQueryWorksheetFill,
           asyncUpdate: true,
+          trackLoading: !!row?.needShowLoading,
           userTriggerChange: false,
           updateSuccessCb: needUpdateRow => {
             if (isMobile) {
@@ -1057,40 +1085,25 @@ class ChildTable extends React.Component {
         abortController: this.abortController,
         masterRecordRowId: recordId,
         noAutoSubmit: true,
+        waitForPendingSearchRequests: !!row?.needShowLoading,
         updateLoadingItems: loadingInfo => {
           if (!row || !row.needShowLoading) return;
           this.rowsLoading[rowId] = !_.every(Object.values(loadingInfo), b => !b);
-          const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
-
-          if (newShowLoadingMask !== this.showLoadingMask) {
-            this.setState({
-              showLoadingMask: newShowLoadingMask,
-            });
-          }
-
-          this.showLoadingMask = newShowLoadingMask;
+          this.syncLoadingMask();
         },
         onAsyncChange: (changes, dataFormat) => {
           flushSync(() => {
-            if (rowId && row && row.needShowLoading) {
-              this.rowsLoading[rowId] = !_.every(Object.values(dataFormat.loadingInfo), b => !b);
-              const newShowLoadingMask = !Object.values(this.rowsLoading).every(v => v === false);
-
-              if (newShowLoadingMask !== this.showLoadingMask) {
-                this.setState({
-                  showLoadingMask: newShowLoadingMask,
-                });
-              }
-
-              this.showLoadingMask = newShowLoadingMask;
-            }
-
             if (!_.isEmpty(changes.controlIds)) {
               changes.controlIds.forEach(cid => {
                 asyncUpdateCell(cid, changes.value);
               });
             } else if (changes.controlId) {
               asyncUpdateCell(changes.controlId, changes.value);
+            }
+
+            if (rowId && row && row.needShowLoading) {
+              this.rowsLoading[rowId] = !_.every(Object.values(dataFormat.loadingInfo), b => !b);
+              this.syncLoadingMask();
             }
           });
         },
@@ -1231,6 +1244,8 @@ class ChildTable extends React.Component {
           return;
         }
 
+        this.loadingMaskDismissed = false;
+        this.setState({ loadingMaskText: _l('正在导入数据...') });
         setTimeout(() => {
           const newRows = data.slice(0, this.settings.maxCount - this.totalRowCount).map(updatedValues =>
             this.newRow(
@@ -1296,6 +1311,8 @@ class ChildTable extends React.Component {
         .concat(this.props.masterData.formData),
       onOk: selectedRecords => {
         const rowsLength = this.totalRowCount;
+        this.loadingMaskDismissed = false;
+        this.setState({ loadingMaskText: _l('正在添加记录...') });
 
         if (rowsLength + selectedRecords.length > this.settings.maxCount) {
           alert(_l('最多输入%0条记录，超出的记录不写入', this.settings.maxCount), 3);
@@ -1304,7 +1321,7 @@ class ChildTable extends React.Component {
         addRows(
           selectedRecords.slice(0, this.settings.maxCount - rowsLength).map(selectedRecord => {
             const row = this.rowUpdate({
-              row: this.newRow(),
+              row: this.newRow({ needShowLoading: true }, { isCreate: true }),
               controlId: relateRecordControl.controlId,
               value: JSON.stringify(formatRecordToRelateRecord(relateRecordControl.relationControls, [selectedRecord])),
             });
@@ -1375,23 +1392,23 @@ class ChildTable extends React.Component {
         control,
       },
     );
+
     const update = debounce(
       () => {
-        if (_.isFunction(options.updateSuccessCb)) {
-          options.updateSuccessCb(newRow);
-        }
+        try {
+          if (_.isFunction(options.updateSuccessCb)) {
+            options.updateSuccessCb(newRow);
+          }
 
-        updateRow(
-          {
-            rowid: row.rowid,
-            value: newRow,
-          },
-          {
-            asyncUpdate: options.asyncUpdate,
-          },
-        );
-        if (!options.asyncUpdate) {
-          this.triggerCustomEvent();
+          updateRow({ rowid: row.rowid, value: newRow }, { asyncUpdate: options.asyncUpdate });
+          if (!options.asyncUpdate) {
+            this.triggerCustomEvent();
+          }
+        } finally {
+          if (options.trackLoading && this.pendingRowWrites > 0) {
+            this.pendingRowWrites -= 1;
+            if (!this.pendingRowWrites) this.syncLoadingMask();
+          }
         }
       },
       isUndefined(options.debounceTime) ? 300 : options.debounceTime,
@@ -1413,11 +1430,11 @@ class ChildTable extends React.Component {
           c.options = _.uniqBy([...control.options, newOption], 'key');
         }
       });
-      update();
-      return;
     }
 
-    update.apply(this);
+    // 遮罩还需要等已经排队的行写入，沿用现有防抖时序。
+    if (options.trackLoading) this.pendingRowWrites += 1;
+    update();
   }
   handleRowDetailSave = (row, updatedControlIds) => {
     const { updateRow, addRow } = this.props;
@@ -1855,6 +1872,7 @@ class ChildTable extends React.Component {
       isAddRowByLine,
       disableMaskDataControls,
       showLoadingMask,
+      loadingMaskText,
       menuVisible,
       layoutDirection,
     } = this.state;
@@ -2587,7 +2605,19 @@ class ChildTable extends React.Component {
                 columnStyles={columnStyles}
                 showLoadingMask={showLoadingMask}
                 showSummary={showSummary}
-                loadingMaskChildren={<span className="childTableIsImportingData">{_l('正在导入数据...')}</span>}
+                loadingMaskChildren={
+                  <div className="childTableLoadingMaskContent flexColumn alignItemsCenter justifyContentCenter w100 h100">
+                    <span className="childTableIsImportingData">{loadingMaskText}</span>
+                    <Button
+                      className="childTableLoadingMaskClose"
+                      type="link"
+                      size="small"
+                      onClick={this.dismissLoadingMask}
+                    >
+                      {_l('关闭遮罩')}
+                    </Button>
+                  </div>
+                }
                 isTreeTableView={isTreeTableView}
                 treeLayerControlId={treeLayerControlId}
                 treeTableViewData={treeTableViewData}

@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import _, { get, isNaN } from 'lodash';
 import qs from 'query-string';
+import { toFixed } from 'src/utils/domain/control/number';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { formatControlValue } from 'src/utils/functionRuntime/functionLibrary';
 import { functions } from './enum';
@@ -187,10 +188,14 @@ function formatFunctionResult(control, value) {
             result = (result || '').match(/^-?[\d.]+/)[0];
           }
 
-          result = (typeof (result || 0) === 'string' ? Number(result || 0) : result || 0)
-            .toFixed(12)
-            .toString()
-            .match(/^-?[\d.]+/)[0];
+          const dot = Number(control.dot);
+          const precision = dot + (_.get(control, 'advancedSetting.numshow') === '1' ? 2 : 0);
+          const hasPrecision =
+            control.dot !== null && control.dot !== '' && Number.isInteger(dot) && dot >= 0 && precision <= 20;
+          const number = typeof (result || 0) === 'string' ? Number(result || 0) : result || 0;
+
+          // 函数赋值直接按目标字段精度写入，避免仅展示舍入、保存仍提交原始小数。
+          result = (hasPrecision ? toFixed(number, precision) : number.toFixed(12)).toString().match(/^-?[\d.]+/)[0];
           result = (result || '').replace(/\.([0-9]*[1-9])0+$|\.0+$/, (match, group) => {
             return group ? `.${group}` : '';
           });

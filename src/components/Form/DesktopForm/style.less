@@ -242,8 +242,8 @@
         }
 
         .descText::after {
-          content: '更多';
-          color: var(--color-white);
+          content: attr(data-toggle-text);
+          visibility: hidden;
           padding-left: 6px;
           word-wrap: break-word;
           word-break: break-all;

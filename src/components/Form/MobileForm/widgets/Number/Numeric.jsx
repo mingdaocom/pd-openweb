@@ -144,7 +144,8 @@ const Numeric = props => {
 
     setCurrentValue(resValue);
 
-    if (inputRef.current) {
+    // number 输入框同值回写也会重置末尾小数点等原生编辑状态及光标。
+    if (inputRef.current && inputRef.current.value !== resValue) {
       inputRef.current.value = resValue;
     }
 

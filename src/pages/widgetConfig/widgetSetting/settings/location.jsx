@@ -4,29 +4,31 @@ import { getAdvanceSetting, handleAdvancedSettingChange } from 'src/utils/domain
 import { updateConfig } from 'src/utils/domain/control/editorSetting';
 import { SettingItem } from '../../styled';
 
-const LOCATION_RANGE = [
+const getLocationRange = () => [
   { value: 0, label: _l('不限制') },
   { value: 1, label: _l('当前位置周围') },
   // { value: 2, text: '指定定位地点' },
 ];
 
-const LOCATION_RANGE_TYPE = [
-  { value: '0', text: _l('定位地图上的位置') },
+const getLocationRangeType = () => [
+  { value: '0', label: _l('定位地图上的位置') },
   {
     value: '1',
-    text: _l('获取当前位置经纬度'),
-    children: (
-      <Tooltip
-        placement="bottom"
-        title={_l('通过手机 GPS 获取当前位置，并自动将WGS84转换为GCJ-02 坐标系，用于在地图上精准定位。')}
-      >
-        <i className="icon-help textTertiary Font16 pointer mLeft8"></i>
-      </Tooltip>
+    label: (
+      <Fragment>
+        {_l('获取当前位置经纬度')}
+        <Tooltip
+          placement="bottom"
+          title={_l('通过手机 GPS 获取当前位置，并自动将WGS84转换为GCJ-02 坐标系，用于在地图上精准定位。')}
+        >
+          <i className="icon-help textTertiary Font16 pointer mLeft8"></i>
+        </Tooltip>
+      </Fragment>
     ),
   },
 ];
 
-const DISTANCE_CONFIG = [
+const getDistanceConfig = () => [
   {
     value: 100,
     label: _l('100米'),
@@ -69,7 +71,7 @@ export default function Location({ data, onChange }) {
           size="middle"
           vertical={true}
           value={strDefault[0]}
-          options={(LOCATION_RANGE_TYPE || []).map(({ text, ...option }) => ({ ...option, label: text }))}
+          options={getLocationRangeType()}
           onChange={event => {
             const value = event.target.value;
 
@@ -94,7 +96,7 @@ export default function Location({ data, onChange }) {
             <Select
               className="w100"
               value={enumDefault2}
-              options={LOCATION_RANGE}
+              options={getLocationRange()}
               onChange={value => {
                 if (value === 1) {
                   onChange({ ...handleAdvancedSettingChange(data, { distance: 100 }), enumDefault2: 1 });
@@ -109,7 +111,7 @@ export default function Location({ data, onChange }) {
             <Select
               className="w100 mTop10"
               value={+distance || undefined}
-              options={DISTANCE_CONFIG}
+              options={getDistanceConfig()}
               onChange={value => {
                 onChange(handleAdvancedSettingChange(data, { distance: value }));
               }}

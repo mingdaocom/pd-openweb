@@ -392,7 +392,11 @@ export default class StepItem extends Component {
         ) : opinion ? (
           <div className="info textSecondary">{opinion}</div>
         ) : null}
-        {signature && <div className="infoSignature" style={{ backgroundImage: `url(${signature.server})` }} />}
+        {signature && (
+          <div className="infoSignature">
+            <div className="infoSignatureImage" style={{ backgroundImage: `url(${signature.server})` }} />
+          </div>
+        )}
         {files && this.renderFiles(files)}
         {action !== UNNECESSARY_OPERATION_CODE && (
           <div className="timeAction flexRow textSecondary">

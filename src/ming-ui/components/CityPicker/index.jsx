@@ -263,7 +263,7 @@ export default function CityPicker(props) {
       .getCitysByParentID({
         parentId: parentId,
         keywords: keywords,
-        layer: level,
+        layer: !chooserange && keywords ? level - 1 : level,
         textSplit: '/',
         isLast: mustLast,
         projectId: projectId,

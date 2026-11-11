@@ -50,6 +50,12 @@
     font-size: 13px;
     line-height: 34px;
   }
+  @media (hover: hover) {
+    .childTableLoadingMaskContent:not(:hover) .childTableLoadingMaskClose:not(:focus) {
+      opacity: 0;
+      pointer-events: none;
+    }
+  }
   .sheetViewTable {
     position: relative;
     background-color: transparent;

@@ -79,13 +79,16 @@ const _bindPopstateOnce = () => {
         console.error('[mobileNavigation] popstate onClose error', err);
       }
     },
-    // 页面级监听可能更早注册；捕获阶段先完成事件标记，确保后续监听能够正确识别。
+    // 尽早标记事件；window 作为事件目标时仍需兼容更早注册的页面监听。
     true,
   );
 };
 
-/** 判断本次 popstate 是否由移动端弹层返回栈消费 */
-export const isHistoryLayerPopstate = event => Boolean(event && _historyLayerPopstateEvents.has(event));
+/** 判断本次 popstate 是否已被消费，或即将由移动端弹层返回栈消费。 */
+export const isHistoryLayerPopstate = event =>
+  Boolean(
+    event && (_historyLayerPopstateEvents.has(event) || _pendingHistoryLayerPopstates > 0 || _layerStack.length > 0),
+  );
 
 /**
  * 把弹层入栈，并 push 一帧 history，state 中带唯一 __layerSeq 用于 popstate 判定。

@@ -80,6 +80,14 @@ const getGunterExportPeriodType = (viewId, calendartype) => {
 let viewRequest = new WeakMap();
 let fetchRowsRequestSeq = new WeakMap();
 
+// 导出页在工作表及默认筛选初始化完成后恢复快照，由甘特图挂载统一发起查询。
+export const restoreGunterExportFilters = ({ filters, quickFilter }) => {
+  return dispatch => {
+    dispatch({ type: 'WORKSHEET_UPDATE_FILTERS', filters });
+    dispatch({ type: 'WORKSHEET_UPDATE_QUICK_FILTER', filter: quickFilter });
+  };
+};
+
 export const fetchRows = callBackFun => {
   return (dispatch, getState) => {
     const { base, controls, views, filters, quickFilter = [] } = getState().sheet;

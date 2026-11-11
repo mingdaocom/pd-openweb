@@ -10,11 +10,9 @@ body,
   height: 100%;
   overflow-wrap: break-word;
   .publicWorksheetLang {
-    position: absolute;
-  }
-  .publicWorksheetLangInForm {
-    top: 32px;
-    right: 42px;
+    display: flex;
+    justify-content: flex-end;
+    padding: 16px 32px 0;
     height: auto;
   }
   .publicWorksheetQr {
@@ -57,7 +55,28 @@ body,
     box-shadow: 0px 1px 4px #00000029;
 
     .infoCon {
+      position: relative;
       padding: 32px 32px 0px 32px;
+
+      .publicWorksheetLang {
+        padding: 0;
+      }
+
+      &.hasHeader {
+        .publicWorksheetLang {
+          position: absolute;
+          top: 32px;
+          right: 32px;
+        }
+
+        .publicWorksheetLang + .publicWorksheetLogo {
+          max-width: calc(100% - 44px);
+        }
+
+        .publicWorksheetLang + .mdEditor {
+          padding-right: 44px;
+        }
+      }
     }
     .worksheetName {
       white-space: break-spaces;
@@ -206,8 +225,15 @@ body,
   }
 
   .publicWorksheet {
+    .publicWorksheetLang {
+      padding-inline: 24px;
+    }
     .infoCon {
       padding: 24px 24px 0px 24px !important;
+    }
+    .formContent .infoCon.hasHeader .publicWorksheetLang {
+      top: 24px;
+      right: 24px;
     }
     .formMain {
       padding: 0 24px !important;

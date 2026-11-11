@@ -79,12 +79,15 @@ const Tag = styled.div`
   position: relative;
   display: inline-block;
   line-height: 21px;
-  background-color: var(--color-primary-transparent);
+  background-color: var(--color-background-overlay-light);
   border-radius: 3px;
   padding: 0 10px;
   margin: 6px 0 0 6px;
   &.isediting.allowRemove {
     padding-right: 24px;
+  }
+  &.allowOpenRecord {
+    background-color: var(--color-primary-transparent);
   }
   &.allowOpenRecord:hover {
     color: var(--color-primary);

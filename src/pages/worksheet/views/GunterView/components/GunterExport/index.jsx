@@ -4,9 +4,12 @@ import { bindActionCreators } from 'redux';
 import DocumentTitle from 'react-document-title';
 import _ from 'lodash';
 import moment from 'moment';
+import qs from 'query-string';
 import { LoadDiv } from 'ming-ui';
 import { loadWorksheet, updateBase } from 'worksheet/redux/actions';
+import { restoreGunterExportFilters } from 'worksheet/redux/actions/gunterview';
 import Gunter from 'src/pages/worksheet/views/GunterView';
+import { takeGunterExportFilters } from './filterSnapshot';
 import printGunter from './print';
 import './index.less';
 
@@ -15,40 +18,87 @@ let GunterExport = class GunterExport extends Component {
     super(props);
     this.state = {
       error: false,
+      ready: false,
     };
   }
 
   componentDidMount() {
     const { match } = this.props;
+
+    this.mounted = true;
+    try {
+      this.filterSnapshot = takeGunterExportFilters(qs.parse(location.search).exportId, match.params);
+    } catch {
+      this.setState({ error: _l('导出条件已失效，请返回视图重新导出') });
+      return;
+    }
+
     this.props.updateBase(match.params);
     this.props.loadWorksheet(match.params.worksheetId);
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps !== this.props) {
-      const { loading, views, base } = this.props;
+    const { loading, views, base, worksheetInfo, worksheetError, restoreGunterExportFilters } = this.props;
 
-      if (loading !== prevProps.loading) {
-        setTimeout(() => {
-          const view = _.find(views, {
-            viewId: base.viewId,
-          });
+    if (this.state.error) return;
 
-          const name = `${view.name}${moment().format('_YYYYMMDDHHmmSS')}`;
-          printGunter(name).then(error => {
-            if (error) {
-              this.setState({
-                error: true,
-              });
-            }
-          });
-        }, 1000);
-      }
+    if (worksheetError) {
+      this.setState({ error: _l('导出失败，请返回视图重新导出') });
+      return;
     }
+
+    const view = _.find(views, { viewId: base.viewId });
+
+    if (!this.state.ready) {
+      if (
+        worksheetInfo.worksheetId !== this.props.match.params.worksheetId ||
+        worksheetInfo.isRequestingRelationControls !== false ||
+        this.restoringFilters
+      ) {
+        return;
+      }
+
+      if (!view) {
+        this.setState({ error: _l('导出失败，请返回视图重新导出') });
+        return;
+      }
+
+      this.restoringFilters = true;
+      if (this.filterSnapshot) restoreGunterExportFilters(this.filterSnapshot);
+      this.setState({ ready: true });
+      return;
+    }
+
+    if (!view || !prevProps.loading || loading || this.printStarted) return;
+
+    this.printStarted = true;
+    this.printTimer = setTimeout(() => {
+      const name = `${view.name}${moment().format('_YYYYMMDDHHmmSS')}`;
+
+      Promise.resolve()
+        .then(() => printGunter(name))
+        .then(error => {
+          if (error) this.handlePrintError();
+        })
+        .catch(this.handlePrintError);
+    }, 1000);
   }
+
+  componentWillUnmount() {
+    this.mounted = false;
+    clearTimeout(this.printTimer);
+  }
+
+  handlePrintError = () => {
+    if (this.mounted) {
+      this.setState({ error: _l('导出失败，请缩小视图类型再尝试~') });
+    }
+  };
 
   renderContent() {
     const { base, views } = this.props;
+
+    if (!this.state.ready) return null;
 
     if (views.length) {
       const view = _.find(views, {
@@ -79,7 +129,7 @@ let GunterExport = class GunterExport extends Component {
         <div className="flexColumn">
           {error ? (
             <Fragment>
-              <div className="mTop10 textSecondary">{_l('导出失败，请缩小视图类型再尝试~')}</div>
+              <div className="mTop10 textSecondary">{error}</div>
               <DocumentTitle title={_l('导出失败')} />
             </Fragment>
           ) : (
@@ -103,12 +153,17 @@ let GunterExport = class GunterExport extends Component {
   }
 };
 GunterExport = connect(
-  state => ({ ..._.pick(state.sheet, ['base', 'views']), ..._.pick(state.sheet.gunterView, ['loading']) }),
+  state => ({
+    ..._.pick(state.sheet, ['base', 'views', 'worksheetInfo']),
+    worksheetError: state.sheet.error,
+    ..._.pick(state.sheet.gunterView, ['loading']),
+  }),
   dispatch =>
     bindActionCreators(
       {
         updateBase,
         loadWorksheet,
+        restoreGunterExportFilters,
       },
       dispatch,
     ),

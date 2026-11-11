@@ -110,8 +110,14 @@
         margin-top: 6px;
         height: 64px;
         background-color: var(--color-background-primary);
-        background-repeat: no-repeat;
-        background-size: contain;
+        .infoSignatureImage {
+          height: 100%;
+          background-repeat: no-repeat;
+          background-size: contain;
+          [data-theme='dark'] & {
+            filter: brightness(0) invert(1);
+          }
+        }
       }
 
       .waitInfo {

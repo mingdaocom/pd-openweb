@@ -17,6 +17,7 @@ import { getSwitchItemNames } from 'src/utils/domain/control/options';
 import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import { checkCellIsEmpty } from 'src/utils/domain/control/value';
 import { transferValue } from 'src/utils/domain/control/value';
+import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 import { dateConvertToServerZone, dateServerZoneToAppZone } from 'src/utils/platform/runtime/timeZone';
 import { getEmbedValue } from 'src/utils/services/app/embed';
@@ -737,7 +738,11 @@ export function calcDefaultValueFunction({ formData, fnControl, forceSyncRun }) 
   if (result.error) {
     console.log(result);
   } else {
-    return String(_.isUndefined(result.value) ? '' : result.value);
+    const { type, enumDefault2 } = fnControl;
+    const resultType = type === WIDGETS_TO_API_TYPE_ENUM.FORMULA_FUNC ? enumDefault2 : type;
+    const { value } = result;
+    const isEmptyText = resultType === WIDGETS_TO_API_TYPE_ENUM.TEXT && _.isNull(value);
+    return String(_.isUndefined(value) || isEmptyText ? '' : value);
   }
 }
 

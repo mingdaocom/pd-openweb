@@ -66,7 +66,7 @@ const SingleRelateRecordTag = styled.span`
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
-  background-color: var(--color-primary-transparent);
+  background-color: var(--hap-relate-record-tag-background, var(--color-background-overlay-light));
   border-radius: 3px;
 `;
 class RelateRecord extends React.Component {
@@ -597,6 +597,8 @@ class RelateRecord extends React.Component {
             // 不必靠 flex 收缩限制宽度（见 CellControls.less）；
             // 二来编辑态若按内容撑开（width: auto），没有关联记录时整个输入区只剩搜索框那几个像素。
             selectedStyle={{
+              '--hap-relate-record-tag-background':
+                allowlink === '1' ? 'var(--color-primary-transparent)' : 'var(--color-background-overlay-light)',
               width: isMultiple && !singleLine ? 'calc(100% - 10px)' : '100%',
               // 编辑态撑满单元格：大行高下 Select 只有一行控件高，激活边框会框不住整个单元格
               minHeight: isediting ? style.height : undefined,
@@ -637,7 +639,8 @@ class RelateRecord extends React.Component {
                 },
                 item: {
                   '--color-link': 'var(--hap-select-color)',
-                  '--hap-select-multi-item-background': 'var(--color-primary-transparent)',
+                  '--hap-select-multi-item-background':
+                    allowlink === '1' ? 'var(--color-primary-transparent)' : 'var(--color-background-overlay-light)',
                 },
                 content: {
                   '--color-link': 'var(--hap-select-color)',

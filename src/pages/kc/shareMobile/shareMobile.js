@@ -96,7 +96,7 @@ MobileSharePreview.prototype = {
     }
 
     this.file = this.formatToFile();
-    if (window.isWeiXin) {
+    if (window.isWeiXin && window.platformENV.isHap) {
       MSP.loadWeiXinShare();
     }
 

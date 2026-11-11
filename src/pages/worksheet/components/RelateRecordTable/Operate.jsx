@@ -456,7 +456,7 @@ function Operate(props) {
                 }
 
                 if (allowRemoveRelation) {
-                  Modal.confirm({
+                  const dialog = Modal.confirm({
                     title: (
                       <span
                         style={{
@@ -478,7 +478,12 @@ function Operate(props) {
                         recordIds: allowDeleteRowIds,
                       });
                     },
-                    onCancel: () => handleRemoveRelation(selectedRowIds),
+                    cancelButtonProps: {
+                      onClick: () => {
+                        handleRemoveRelation(selectedRowIds);
+                        dialog.destroy();
+                      },
+                    },
                   });
                 } else {
                   Modal.confirm({

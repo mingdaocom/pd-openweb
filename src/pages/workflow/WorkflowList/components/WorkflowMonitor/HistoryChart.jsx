@@ -19,12 +19,100 @@ export default class HistoryChart extends PureComponent {
   }
 
   componentDidMount() {
+    this.unmounted = false;
+    this.themeObserver = new MutationObserver(this.updateChartTheme);
+    this.themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    this.chantRef.addEventListener('click', this.handleTooltipClick);
     import('@antv/g2plot').then(data => {
+      if (this.unmounted) return;
+
       this.g2plotComponent = data;
       this.renderChart();
     });
     this.getChartData();
   }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+    this.themeObserver.disconnect();
+    this.chantRef.removeEventListener('click', this.handleTooltipClick);
+    this.lineChart?.destroy();
+    this.lineChart = null;
+  }
+
+  getChartThemeOptions = () => {
+    // Canvas 需要实际色值，从图表容器读取以保留所在作用域的主题变量。
+    const style = getComputedStyle(this.chantRef);
+    const color = name => style.getPropertyValue(name).trim();
+    const textColor = color('--color-text-secondary');
+    const borderColor = color('--color-border-primary');
+    const gridColor = color('--color-border-secondary');
+
+    return {
+      xAxis: {
+        label: { style: { fill: textColor, opacity: 1 } },
+        line: { style: { stroke: borderColor, opacity: 1, lineWidth: 0.5 } },
+        tickLine: { style: { stroke: borderColor, opacity: 1 } },
+      },
+      yAxis: {
+        label: { style: { fill: textColor, opacity: 1 } },
+        grid: { line: { style: { stroke: gridColor, lineWidth: 0.5 } } },
+      },
+      legend: {
+        itemName: { style: { fill: textColor } },
+      },
+      slider: {
+        textStyle: { fill: textColor, opacity: 1 },
+        // Slider 背景绘制在趋势图上方，保持透明，避免只露出底边的折线。
+        backgroundStyle: { opacity: 0 },
+        foregroundStyle: { fill: color('--color-primary-transparent'), opacity: 1 },
+        handlerStyle: {
+          fill: color('--color-background-card'),
+          stroke: borderColor,
+          highLightFill: color('--color-background-hover'),
+        },
+        trendCfg: {
+          backgroundStyle: { fill: color('--color-background-tertiary'), opacity: 1 },
+          lineStyle: { stroke: color('--color-text-tertiary'), strokeOpacity: 1 },
+          areaStyle: { fill: gridColor },
+        },
+      },
+    };
+  };
+
+  updateChartTheme = () => {
+    if (!this.lineChart) return;
+
+    // G2Plot 更新配置会重建图表，需保留用户实际拖选的时间范围。
+    const slider = this.lineChart.chart.getController('slider').getComponents()[0]?.component;
+    const [start, end] = slider
+      ? slider.getValue()
+      : [this.lineChart.options.slider.start, this.lineChart.options.slider.end];
+    const categoryFilter = this.lineChart.chart.getOptions().filters?.category;
+    const options = this.getChartThemeOptions();
+
+    this.lineChart.update({ ...options, slider: { ...options.slider, start, end } });
+    if (categoryFilter) {
+      this.lineChart.chart.filter('category', categoryFilter);
+      this.lineChart.chart.render(true);
+    }
+  };
+
+  handleTooltipClick = event => {
+    const target = event.target.closest('.customContent');
+
+    if (!target || !this.chantRef.contains(target)) return;
+
+    const dateStr = target.dataset.date;
+    const temp = this.state.historyChartData.filter(
+      item =>
+        moment(new Date(dateStr)) <= moment(item.lastModifiedDate) &&
+        moment(item.lastModifiedDate) < moment(new Date(dateStr)).add(5, 'm'),
+    );
+    const historyIds = temp.map(it => it.id);
+
+    this.props.updateHistoryDetail({ showHistoryDetail: true, dateStr, historyIds });
+  };
 
   getChartData = () => {
     const { projectId } = this.props;
@@ -35,6 +123,8 @@ export default class HistoryChart extends PureComponent {
         endDate: moment().format('YYYY-MM-DD HH:mm:ss'),
       })
       .then(res => {
+        if (this.unmounted) return;
+
         if (res && _.isArray(res)) {
           this.setState({ historyChartData: res }, this.getHistoryAccumulateData);
           this.dealChartData(res);
@@ -45,7 +135,6 @@ export default class HistoryChart extends PureComponent {
   };
 
   renderChart = () => {
-    const _this = this;
     let initChartData = [];
     const currentDate = moment();
     currentDate.add(5 - (currentDate.minute() % 5), 'm');
@@ -63,7 +152,7 @@ export default class HistoryChart extends PureComponent {
     }
 
     initChartData.push({ value: 50 });
-    this.lineChart = new Line(this.chantRef, {
+    const options = {
       data: initChartData,
       xField: 'date',
       yField: 'value',
@@ -73,24 +162,7 @@ export default class HistoryChart extends PureComponent {
       color: ['#F51744', '#1677ff', '#61DDAA'],
       xAxis: {
         label: {
-          style: {
-            fill: '#2C3542',
-            opacity: 0.45,
-          },
           formatter: date => moment(date).format('HH:mm'),
-        },
-        line: {
-          style: {
-            stroke: '#416180',
-            opacity: 0.45,
-            lineWidth: 0.5,
-          },
-        },
-        tickLine: {
-          style: {
-            fill: '#BDBDBD',
-            opacity: 1,
-          },
         },
       },
       yAxis: {
@@ -99,18 +171,6 @@ export default class HistoryChart extends PureComponent {
           offsetY: -3,
           // 数值格式化为千分位
           formatter: v => `${v}`.replace(/\d{1,3}(?=(\d{3})+$)/g, s => `${s},`),
-          style: {
-            fill: '#2C3542',
-            opacity: 0.45,
-          },
-          grid: {
-            line: {
-              style: {
-                stroke: 'rgba(65, 97, 128, 0.15)',
-                lineWidth: 0.5,
-              },
-            },
-          },
         },
       },
       legend: {
@@ -169,39 +229,14 @@ export default class HistoryChart extends PureComponent {
         height: 16,
         start: 23 / 24,
         end: 1,
-        foregroundStyle: {
-          fill: '#1677ff',
-          opacity: 0.11,
-        },
-        TrendCfg: {
-          backgroundStyle: {
-            fill: '#F5F7F9',
-            opacity: 1,
-          },
-          lineStyle: {
-            fill: '#DBDBDB',
-            opacity: 1,
-          },
-        },
       },
-    });
+    };
+
+    this.lineChart = new Line(this.chantRef, _.merge(options, this.getChartThemeOptions()));
     this.lineChart.on('slider:click', () => {
       this.setState({ showDate: undefined });
     });
     this.lineChart.render();
-
-    $(this.chantRef).on('click', '.customContent', () => {
-      const ele = $('.customContent');
-      const dateStr = ele.data('date');
-      let temp = _this.state.historyChartData.filter(
-        item =>
-          moment(new Date(dateStr)) <= moment(item.lastModifiedDate) &&
-          moment(item.lastModifiedDate) < moment(new Date(dateStr)).add(5, 'm'),
-      );
-      const historyIds = temp.map(it => it.id);
-
-      this.props.updateHistoryDetail({ showHistoryDetail: true, dateStr, historyIds });
-    });
   };
 
   // 整理chart数据
@@ -293,6 +328,7 @@ export default class HistoryChart extends PureComponent {
                 this.lineChart.update({
                   slider: {
                     start: (24 - value) / 24,
+                    end: 1,
                   },
                 });
               }}

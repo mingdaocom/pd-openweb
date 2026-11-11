@@ -212,7 +212,7 @@ export default class Card extends Component {
             />
             <span className="fullName Font13 pLeft5 pRight10">{createAccount.fullName}</span>
           </div>
-          <span className="flex">{item.title || _l('未命名')}</span>
+          <span className="processTitle flex">{item.title || _l('未命名')}</span>
         </div>
         {stateTab === TABS.WAITING_EXAMINE ? (
           <span className="textSecondary Font13 mTop8 overflow_ellipsis">{item.workItem.opinion}</span>

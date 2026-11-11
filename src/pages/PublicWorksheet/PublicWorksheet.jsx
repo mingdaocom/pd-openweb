@@ -219,7 +219,7 @@ export default class PublicWorksheet extends React.Component {
     const { loading, publicWorksheetInfo = {}, formData, rules, status, qrurl, pageConfigKey, submitRes } = this.state;
     const { worksheetId, writeScope, appId, projectId } = publicWorksheetInfo;
     const request = getRequest();
-    const { bg, cover } = request;
+    const { bg, cover, header } = request;
     const hideBg = bg === 'no';
     const config = getPageConfig(_.get(publicWorksheetInfo, 'extendDatas.pageConfigs'), pageConfigKey);
     const { themeBgColor, layout, cover: coverPic, showQrcode, themeColor } = config;
@@ -233,6 +233,16 @@ export default class PublicWorksheet extends React.Component {
       return <RestrictAccessStatus />;
     }
 
+    const isFill = _.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status);
+    const langDropdown = !loading && header !== 'no' && window.top === window.self && (
+      <PublicAppLangDropdown
+        className="publicWorksheetLang"
+        appId={appId}
+        projectId={projectId}
+        placement="bottomRight"
+      />
+    );
+
     const renderContent = () => {
       return (
         <React.Fragment>
@@ -241,14 +251,6 @@ export default class PublicWorksheet extends React.Component {
               mTop10: bgShowTop,
             })}
           >
-            {!_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status) && (
-              <PublicAppLangDropdown
-                className="publicWorksheetLang publicWorksheetLangInForm"
-                appId={appId}
-                projectId={projectId}
-                placement="bottomRight"
-              />
-            )}
             {bgShowTop && coverPic && cover !== 'no' && (
               <FormTopImgCon>
                 <img src={coverPic} />
@@ -289,6 +291,8 @@ export default class PublicWorksheet extends React.Component {
                 />
               </React.Fragment>
             )}
+
+            {!isFill && langDropdown}
 
             {loading && (
               <div
@@ -333,7 +337,7 @@ export default class PublicWorksheet extends React.Component {
             )}
 
             {!loading &&
-              (!_.includes([FILL_STATUS.NORMAL, FILL_STATUS.NOT_IN_FILL_TIME], status) ? (
+              (!isFill ? (
                 <NotFillStatus
                   publicWorksheetInfo={publicWorksheetInfo}
                   status={status}
@@ -356,6 +360,7 @@ export default class PublicWorksheet extends React.Component {
                 />
               ) : (
                 <FillWorksheet
+                  langDropdown={langDropdown}
                   rules={rules}
                   isPreview={isPreview}
                   loading={loading}

@@ -73,7 +73,12 @@ export default function CreateBackupModal(props) {
     if (!countInfo.appItemTotal) return;
 
     if (validLimit !== -1 && currentValid >= validLimit) {
-      alert(_l('备份文件已达上限，升级旗舰版可以无限备份'), 3);
+      alert(
+        window.platformENV.isHap
+          ? _l('备份文件已达上限，升级旗舰版可以无限备份')
+          : _l('备份文件已达上限，升级至付费版可以无限备份'),
+        3,
+      );
       props.closeDialog();
       props.openManageBackupDrawer();
       return;
@@ -88,7 +93,12 @@ export default function CreateBackupModal(props) {
         if (res === 1) {
           getList();
         } else if (res === 2) {
-          alert(_l('备份文件已达上限，升级旗舰版可以无限备份'), 3);
+          alert(
+            window.platformENV.isHap
+              ? _l('备份文件已达上限，升级旗舰版可以无限备份')
+              : _l('备份文件已达上限，升级至付费版可以无限备份'),
+            3,
+          );
         }
       });
 

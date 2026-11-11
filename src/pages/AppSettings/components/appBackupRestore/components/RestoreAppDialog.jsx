@@ -97,7 +97,12 @@ export const RestoreContent = props => {
           checked={backupCurrentVersion}
           onChange={event => {
             if (validLimit !== -1 && currentValid >= validLimit) {
-              alert(_l('备份文件已达上限，升级旗舰版可以无限备份'), 3);
+              alert(
+                window.platformENV.isHap
+                  ? _l('备份文件已达上限，升级旗舰版可以无限备份')
+                  : _l('备份文件已达上限，升级至付费版可以无限备份'),
+                3,
+              );
               return;
             }
 
