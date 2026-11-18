@@ -103,6 +103,7 @@ function Mingo(props) {
   // 当前会话默认标题（首条用户消息，随 SESSION_ACTIVE 广播而来）：供「分享」弹窗标题默认值
   const [agentSessionTitle, setAgentSessionTitle] = useState('');
   const [shareVisible, setShareVisible] = useState(false);
+  const [taskInstanceKey, setTaskInstanceKey] = useState(0);
   const contentRef = useRef(null);
   const [taskType, setTaskType] = useState(
     (pendingStartTask && pendingStartTask.type) ||
@@ -161,6 +162,13 @@ function Mingo(props) {
       if (window.mingoPendingStartTask) {
         if (window.mingoPendingStartTask.base) {
           setBase(window.mingoPendingStartTask.base);
+        }
+
+        if (window.mingoPendingStartTask.type === MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT) {
+          // 已打开 Agent 时任务类型不会变化，重建任务实例才能消费新的首条需求。
+          setTaskInstanceKey(key => key + 1);
+          setAgentSessionId(null);
+          setAgentSessionTitle('');
         }
 
         setIsChatting(true);
@@ -356,6 +364,7 @@ function Mingo(props) {
         </div>
       )}
       <MingoEntry
+        key={taskInstanceKey}
         allowEdit
         base={{ ...base, worksheetInfo: base.worksheetInfo || worksheetInfo }}
         sheetList={sheetList}

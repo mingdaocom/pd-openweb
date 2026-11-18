@@ -38,10 +38,11 @@ class Header extends React.Component {
     }
   };
 
-  exportWord = () => {
+  exportWord = async () => {
     try {
       this.richTextImgHandle();
-      const { printData } = this.props;
+      const { printData, params } = this.props;
+      const { worksheetId, viewId } = params;
       const { layout, paperSizeOption, paperDirectionOption } = getPrintLayoutConfig(printData.advanceSettings);
       const isHorizontal = paperDirectionOption.value === 'horizontal';
       let contentNode = document.getElementById('printItemsBox').cloneNode(true);
@@ -104,18 +105,18 @@ class Header extends React.Component {
         promiseList.push(promise);
       });
 
-      Promise.all(promiseList).then(() => {
-        if (isTainted) {
-          alert(_l('检测到跨域附件，已跳过导出，可在记录中直接下载'), 3);
-        }
+      await Promise.all(promiseList);
+      if (isTainted) {
+        alert(_l('检测到跨域附件，已跳过导出，可在记录中直接下载'), 3);
+      }
 
-        let content = (contentNode.innerHTML || '')
-          // 导出word只支持旧属性，浏览器自动将旧属性转成新属性，需要手动转回来
-          .replace(/break-before:\s*page/gi, 'page-break-before: always')
-          .replace(/figure/g, 'p');
-        let noPrint = document.querySelector('#printItemsBox .noPrint');
+      let content = (contentNode.innerHTML || '')
+        // 导出word只支持旧属性，浏览器自动将旧属性转成新属性，需要手动转回来
+        .replace(/break-before:\s*page/gi, 'page-break-before: always')
+        .replace(/figure/g, 'p');
+      let noPrint = document.querySelector('#printItemsBox .noPrint');
 
-        const str = `<!DOCTYPE html>
+      const str = `<!DOCTYPE html>
                       <html lang="en" style="">
                       <head>
                         <meta charset="UTF-8">
@@ -128,23 +129,21 @@ class Header extends React.Component {
                       </body>
                       </html>`;
 
-        const param = {
-          name: printData.name || printData.formName || _l('打印'),
-          html: str || '',
-          width: isHorizontal ? paperSizeOption.height : paperSizeOption.width,
-          height: isHorizontal ? paperSizeOption.width : paperSizeOption.height,
-        };
+      const param = {
+        name: printData.name || printData.formName || _l('打印'),
+        html: str || '',
+        width: isHorizontal ? paperSizeOption.height : paperSizeOption.width,
+        height: isHorizontal ? paperSizeOption.width : paperSizeOption.height,
+      };
 
-        requestExportWord(param).then(data => {
-          this.setState({ exportLoading: false });
-          const fileName = `${printData.name || printData.formName || _l('打印')}${new Date().getTime()}.docx`;
-          saveAs(data, fileName);
-        });
-      });
+      const data = await requestExportWord(param, { worksheetId, viewId });
+      const fileName = `${printData.name || printData.formName || _l('打印')}${new Date().getTime()}.docx`;
+      saveAs(data, fileName);
     } catch (error) {
       console.error(error);
+      alert(_l('导出失败，请稍后重试'), 2);
+    } finally {
       this.setState({ exportLoading: false });
-      alert(_l('导出数量超出系统上限，请减少数量后重试'), 2);
     }
   };
 

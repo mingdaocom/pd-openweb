@@ -84,7 +84,7 @@ export function loadColumnRules({ worksheetRuleControls, worksheetInfo }) {
 export function initGlobalRuleInfo(props) {
   const { allControls = [], globalSheetInfo = {} } = props;
   const { worksheetId, systemControls = [] } = globalSheetInfo || {};
-  const worksheetControls = allControls.concat(systemControls);
+  const worksheetControls = allControls.filter(control => !_.includes(control.controlId, '-')).concat(systemControls);
 
   return dispatch => {
     dispatch({

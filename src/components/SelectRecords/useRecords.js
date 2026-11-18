@@ -356,6 +356,11 @@ export default function useRecords(props) {
 
   const hasMore = listMode && records.length < total;
 
+  const handleUpdateKeyWords = useCallback(newKeyWords => {
+    setKeyWords(newKeyWords);
+    setPageIndex(1);
+  }, []);
+
   return {
     loading,
     worksheetInfo,
@@ -379,11 +384,7 @@ export default function useRecords(props) {
     loadMore,
     loadMoreLoading,
     hasMore,
-    handleUpdateKeyWords: newKeyWords => {
-      setRecordsLoading(true);
-      setKeyWords(newKeyWords);
-      setPageIndex(1);
-    },
+    handleUpdateKeyWords,
     handleUpdateSortControl: newSortControl => {
       setSortControl(newSortControl);
       setPageIndex(1);

@@ -24,6 +24,10 @@ const PortalWrap = styled.div`
   & > div:first-child {
     margin-top: 0 !important;
   }
+  .labelWrap {
+    display: flex;
+    margin-top: 8px;
+  }
 `;
 
 // 参数data(单个控件详情),globalSheetInfo（appId、groupId、name、projectId、worksheetId）

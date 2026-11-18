@@ -165,7 +165,7 @@ export const invoiceConfig = [
   {
     key: 'email',
     text: _l('Email地址'),
-    verify: /^(\w+)(\.\w+)*@(\w+)(\.\w+)*.(\w+)$/i,
+    verify: /^([\w&]+)(\.[\w&]+)*@(\w+)(\.\w+)*.(\w+)$/i,
     half: true,
     require: true,
   },

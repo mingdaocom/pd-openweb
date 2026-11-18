@@ -447,6 +447,16 @@ export default function MoreOperation(props) {
     }
 
     const showDivider = !isGroup || (isEditApp && appItem.type === 1 && (appItem.urlTemplate ? true : isActive));
+    const copyIdItem = appItem.workSheetId && {
+      key: 'copyID',
+      icon: renderMenuIcon('ID'),
+      label: renderMenuLabel(_l('复制 ID')),
+      onClick: () => {
+        closeMenu();
+        const copied = copy(appItem.workSheetId);
+        alert(copied ? _l('复制成功') : _l('复制失败'), copied ? 1 : 2);
+      },
+    };
 
     return _.flattenDeep([
       !isGroup && getCollectMenuItem(),
@@ -513,16 +523,7 @@ export default function MoreOperation(props) {
               window.open(pathCompletion(`/app/${appId}/logs/${projectId}/${appItem.workSheetId}`, '__blank'));
             },
           },
-          {
-            key: 'copyID',
-            icon: renderMenuIcon('ID'),
-            label: renderMenuLabel(_l('复制 ID')),
-            onClick: () => {
-              closeMenu();
-              copy(appItem.workSheetId);
-              alert(_l('复制成功'));
-            },
-          },
+          copyIdItem,
           isEditApp && { key: 'worksheetDivider', type: 'divider', className: 'mTop5 mBottom5' },
         ],
       isEditApp && [
@@ -535,6 +536,7 @@ export default function MoreOperation(props) {
             closeMenu();
           },
         },
+        !isGroup && [1, 3].includes(appItem.type) && copyIdItem,
         {
           key: 'move',
           icon: renderMenuIcon('swap_horiz'),

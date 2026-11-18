@@ -400,7 +400,18 @@ function NewRecordForm(props) {
             alert(_l('提交成功'), 1);
           }
 
-          if (actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd || notDialog) {
+          const openRecordFromMobilePage =
+            isMobile &&
+            notDialog &&
+            offlineUpload !== '1' &&
+            location.pathname.includes('/mobile/addRecord/') &&
+            actionType === BUTTON_ACTION_TYPE.OPEN_RECORD;
+
+          if (
+            actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD ||
+            continueAdd ||
+            (notDialog && !openRecordFromMobilePage)
+          ) {
             if (
               notDialog &&
               location.pathname.includes('mobile/addRecord') &&

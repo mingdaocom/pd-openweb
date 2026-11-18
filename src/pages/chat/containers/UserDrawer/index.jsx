@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import cx from 'classnames';
 import localForage from 'localforage';
 import _ from 'lodash';
-import { Icon, Support } from 'ming-ui';
+import { Icon } from 'ming-ui';
 import { Modal, Popover, Tooltip } from 'ming-ui/antd-components';
 import accountSettingApi from 'src/api/accountSetting';
 import loginApi from 'src/api/login';
@@ -68,6 +68,7 @@ export default props => {
   const [showDialog, setShowDialog] = useState(false);
   const [helpPopoverVisible, setHelpPopoverVisible] = useState(false);
   const { Account } = md.global;
+  const { isLocal, isOverseas, isPlatform } = window.platformENV;
   const { ss, tr } = getAppFeaturesVisible();
   const sandboxEnvironment = isSandboxEnvironment();
   const currentProject = getCurrentProject(currentProjectId);
@@ -204,7 +205,7 @@ export default props => {
         <div className="divider mTop10 mBottom10" />
         {ss &&
           !md.global.SysSettings.hideHelpTip &&
-          (window.platformENV.isOverseas || window.platformENV.isPlatform ? (
+          (isPlatform && !isLocal ? (
             <Popover
               arrow={true}
               title={null}
@@ -224,12 +225,22 @@ export default props => {
               </div>
             </Popover>
           ) : (
-            <Support href="https://help.mingdao.com">
-              <div className="flexRow alignItemsCenter pointer itemWrap">
-                <Icon className="textTertiary Font22" icon="help" />
-                <div className="flex mLeft15">{_l('帮助')}</div>
-              </div>
-            </Support>
+            <div
+              className="flexRow alignItemsCenter pointer itemWrap"
+              onClick={() => {
+                const url =
+                  md.global.Config.HelpUrl || (isOverseas ? 'https://help.nocoly.com' : 'https://help.mingdao.com');
+
+                if (window.isMingDaoApp) {
+                  location.href = url;
+                } else {
+                  window.open(url);
+                }
+              }}
+            >
+              <Icon className="textTertiary Font22" icon="help" />
+              <div className="flex mLeft15">{_l('帮助')}</div>
+            </div>
           ))}
         <div className="flexRow alignItemsCenter pointer itemWrap" onClick={() => openKeyboardShortcutsDialog()}>
           <Icon className="textTertiary Font22" icon="keyboard" />

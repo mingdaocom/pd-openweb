@@ -4,9 +4,11 @@ import Immutable from 'immutable';
 import _ from 'lodash';
 import { Support } from 'ming-ui';
 import { Button, Modal } from 'ming-ui/antd-components';
+import appManagementController from 'src/api/appManagement';
 import createUploader from 'src/library/plupload/createUploader';
 import { UPLOAD_ERROR, UPLOAD_STATUS } from 'src/pages/kc/constant/enum';
 import * as utils from 'src/pages/kc/utils';
+import { alertIfNotUnauthorized } from 'src/utils/services/request/error';
 import UploadAction from './UploadAction';
 import UploadProgress from './UploadProgress';
 import './index.less';
@@ -176,32 +178,58 @@ export default class ImportExcel extends React.Component {
     }
   };
 
-  onNext = () => {
-    const { hideUploadExcel, worksheetId } = this.props;
-    const requestData = {
-      filePath: this.state.filePaths[0].type === 1 ? this.state.filePaths[0].id : '',
-      fileId: this.state.filePaths[0].type === 2 ? this.state.filePaths[0].id : '',
-      worksheetId,
-    };
+  onNext = async () => {
+    if (this.previewPending) return;
+    const { hideUploadExcel, worksheetId, extendOptions } = this.props;
+    const file = this.state.filePaths[0];
+    if (!file || file.type !== 1) return;
+    const { masterSheetId, masterWorksheetId, rowId, controlId } = extendOptions || {};
+    const filePath = file.id;
+    const isCurrentFile = () => this.state.filePaths[0] === file && this.props.worksheetId === worksheetId;
 
+    this.previewPending = true;
     this.setState({ loading: true });
 
-    window
-      .mdyAPI('', '', requestData, {
-        ajaxOptions: {
-          type: 'GET',
-          url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetPreviewExcel`,
+    try {
+      const token = await appManagementController.getToken(
+        {
+          tokenType: 10,
+          worksheetId,
+          filePath,
+          masterWorksheetId: masterWorksheetId || masterSheetId,
+          rowId,
+          controlId,
         },
-        customParseResponse: true,
-      })
-      .then(data => {
-        const fileInfo = {
-          filePath: this.state.filePaths[0].type === 1 ? this.state.filePaths[0].id : '',
-          fileId: this.state.filePaths[0].type === 2 ? this.state.filePaths[0].id : '',
-          fileName: this.state.filePaths[0].name,
-        };
-        hideUploadExcel(data.data, fileInfo, data.message);
-      });
+        { silent: true },
+      );
+      if (!isCurrentFile()) return;
+      const data = await window.mdyAPI(
+        '',
+        '',
+        { token, filePath, worksheetId, accountId: md.global.Account.accountId },
+        {
+          ajaxOptions: {
+            type: 'GET',
+            url: `${md.global.Config.WorksheetDownUrl}/ExportExcel/GetPreviewExcel`,
+          },
+          customParseResponse: true,
+        },
+      );
+      if (!isCurrentFile()) return;
+      if (data?.status !== 1) {
+        alert(_l('导入失败，请稍后重试'), 2);
+        return;
+      }
+
+      hideUploadExcel(data.data, { filePath, fileName: file.name, token }, data.message);
+    } catch (error) {
+      if (isCurrentFile()) {
+        alertIfNotUnauthorized(error, _l('导入失败，请稍后重试'), 2);
+      }
+    } finally {
+      this.previewPending = false;
+      this.setState({ loading: false });
+    }
   };
 
   render() {

@@ -4,22 +4,17 @@ import { formatQuickFilter } from 'src/utils/domain/worksheet/filter';
 import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
 
 let detailRowsRequest = null;
-let requestViewIds = [];
 
-export const fetchRows = (pageIndex, keyWords) => {
+export const fetchRows = (pageIndex, keyWords, { keepDetails = false } = {}) => {
   return (dispatch, getState) => {
     const { base, filters, detailView, quickFilter, navGroupFilters } = getState().sheet;
     const { appId, viewId, worksheetId } = base;
     let { detailViewRows } = detailView;
 
-    if (detailRowsRequest && detailRowsRequest.abort && requestViewIds.includes(viewId)) {
-      detailRowsRequest.abort();
-    }
-
-    requestViewIds.push(viewId);
+    detailRowsRequest?.abort?.();
 
     dispatch({ type: 'CHANGE_DETAIL_VIEW_PAGE_INDEX', pageIndex });
-    dispatch({ type: 'CHANGE_DETAIL_VIEW_LOADING', loading: true });
+    dispatch({ type: 'CHANGE_DETAIL_VIEW_LOADING', loading: true, keepDetails });
     dispatch({ type: 'CHANGE_DETAIL_VIEW_KEYWORDS', keyWords });
 
     const args = {
@@ -34,19 +29,30 @@ export const fetchRows = (pageIndex, keyWords) => {
       navGroupFilters,
       langType: window.shareState.shareId ? getCurrentLangCode() : undefined,
     };
-    detailRowsRequest = worksheetApi.getFilterRows(getFilledRequestParams(args));
-    detailRowsRequest.then(res => {
+    const request = worksheetApi.getFilterRows(getFilledRequestParams(args));
+    detailRowsRequest = request;
+
+    const finish = () => {
+      if (detailRowsRequest !== request) return;
+
       detailRowsRequest = null;
-      requestViewIds = requestViewIds.filter(o => o !== viewId);
-      dispatch({
-        type: 'CHANGE_DETAIL_VIEW_ROWS',
-        list: pageIndex > 1 ? detailViewRows.concat(res.data) : res.data,
-        resultCode: res.resultCode,
-      });
-      dispatch({ type: 'CHANGE_DETAIL_VIEW_ROWS_COUNT', count: res.count });
-      dispatch({ type: 'CHANGE_DETAIL_VIEW_NO_MORE_ROWS', noMore: res.data.length < 50 });
       dispatch({ type: 'CHANGE_DETAIL_VIEW_LOADING', loading: false });
-    });
+    };
+
+    request
+      .then(res => {
+        if (detailRowsRequest !== request) return;
+
+        dispatch({
+          type: 'CHANGE_DETAIL_VIEW_ROWS',
+          list: pageIndex > 1 ? detailViewRows.concat(res.data) : res.data,
+          resultCode: res.resultCode,
+        });
+        dispatch({ type: 'CHANGE_DETAIL_VIEW_ROWS_COUNT', count: res.count });
+        dispatch({ type: 'CHANGE_DETAIL_VIEW_NO_MORE_ROWS', noMore: res.data.length < 50 });
+      })
+      .finally(finish)
+      .catch(() => {});
   };
 };
 

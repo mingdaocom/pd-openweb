@@ -168,7 +168,7 @@ class TelCon extends React.Component {
   isValidEmail = newAccount => {
     //邮箱验证规则
     var emailReg =
-      /^[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*@[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*\.[\u4e00-\u9fa5\w-]+$/i;
+      /^[\u4e00-\u9fa5\w&-]+(\.[\u4e00-\u9fa5\w&-]+)*@[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*\.[\u4e00-\u9fa5\w-]+$/i;
     return emailReg.test(newAccount);
   };
 

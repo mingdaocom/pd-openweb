@@ -1,5 +1,6 @@
 import React, { Fragment, lazy, Suspense, useEffect, useState } from 'react';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import { pick } from 'lodash';
 import _ from 'lodash';
 import moment from 'moment';
@@ -180,6 +181,12 @@ export default function CustomPageHeader(props) {
       case 'adjustScreen':
         handleUpdatePage(data);
         break;
+      case 'copyId': {
+        const copied = copy(pageId);
+        alert(copied ? _l('复制成功') : _l('复制失败'), copied ? 1 : 2);
+        updateVisible(prevVisible => ({ ...prevVisible, popupVisible: false }));
+        break;
+      }
       case 'copy':
         copyCustomPage({
           appId,

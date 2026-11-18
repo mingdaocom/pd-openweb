@@ -87,6 +87,7 @@ export default class CustomDefaultValue extends Component {
                 rowheight: '0',
                 blankrow: '1',
                 allowcopy: '1',
+                rcsorttype: '1',
                 searchrange: '1',
                 openstatistics: '0',
                 statisticsseting: '[]',

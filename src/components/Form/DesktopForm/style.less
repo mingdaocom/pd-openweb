@@ -127,6 +127,22 @@
     .optionDisabled.hap-select-disabled {
       cursor: text;
     }
+
+    > .customAntSelect.hap-select-single {
+      /* Select 封装通过内联样式固定单选高度，表单选中值需随文字换行撑高。 */
+      height: auto !important;
+      min-height: var(--hap-select-height);
+      padding-block: calc((var(--hap-select-height) - 24px) / 2 - var(--hap-select-border-size));
+
+      .singleSelectLabel {
+        padding-top: 2px;
+        padding-bottom: 2px;
+        line-height: 20px;
+        white-space: normal;
+        word-break: break-all;
+      }
+    }
+
     .scaleContent .scaleText {
       cursor: text !important;
       user-select: all !important;
@@ -610,10 +626,16 @@
           margin-right: 0 !important;
         }
       }
+    }
 
+    .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupRow,
+    .customFormControlBox:not(.cellControlOptionsCheckbox) > .groupColumn,
+    .customFormControlBox.groupRow > .RadioGroup2,
+    .customFormControlBox.groupColumn > .RadioGroup2 {
       .ellipsis {
         max-width: 100% !important;
         white-space: normal;
+        word-break: break-word;
         height: auto !important;
         line-height: 20px !important;
         padding-top: 2px;
@@ -809,6 +831,8 @@
     }
 
     .relationControlAddButton,
+    .RelateRecordDropdown .hap-select:not(.hap-select-disabled),
+    .customFormControlBox.relateRecordBtn:not(.formBoxNoBorder):not(.controlDisabled),
     .location {
       outline: 3px solid var(--color-primary-focus-outer);
       outline-offset: 1px;

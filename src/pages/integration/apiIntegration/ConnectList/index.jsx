@@ -148,7 +148,7 @@ function Con(props) {
     };
 
     if (!sorter.lastModifiedDate && !sorter.apiCount) {
-      sorter = undefined;
+      sorter = { createdDate: 'descend' };
     }
 
     const request =

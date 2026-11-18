@@ -145,6 +145,12 @@ class AddRecord extends Component {
                 showHeader
                 hideHeaderDraft
                 changeWorksheetStatusCode={() => this.setState({ status: STATUS.ERROR })}
+                openRecord={(recordId, openViewId) => {
+                  window.mobileNavigateTo(
+                    `/mobile/record/${params.appId || appId}/${params.worksheetId || worksheetId}${openViewId ? `/${openViewId}` : ''}/${recordId}`,
+                    true,
+                  );
+                }}
                 onAdd={(data, { continueAdd }) => {
                   if (!continueAdd) {
                     this.setState({ status: STATUS.SUCCESS });

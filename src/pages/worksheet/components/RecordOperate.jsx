@@ -226,6 +226,7 @@ function RecordOperate(props) {
     isCharge,
     isAdmin,
     isDevAndOps,
+    allowCopyId = false,
     projectId,
     appId,
     viewId,
@@ -280,7 +281,7 @@ function RecordOperate(props) {
     allowRecreate &&
     (isOpenPermit(permitList.recordRecreateSwitch, sheetSwitchPermit, viewId) || isSubList);
   const isManageView = viewId === worksheetId;
-  const showCopyId = _.includes(shows, 'copyId') && (isCharge || isDevAndOps);
+  const showCopyId = !!recordId && _.includes(shows, 'copyId') && (isCharge || isDevAndOps || allowCopyId);
   const showPrint = _.includes(shows, 'print');
   const showRemoveRelation = _.includes(shows, 'removeRelation');
   const showEditForm = _.includes(shows, 'editform') && isCharge;
@@ -634,8 +635,8 @@ function RecordOperate(props) {
       icon: <Icon className="Font17" icon="ID" />,
       label: _l('复制 ID'),
       onClick: () => {
-        copy(recordId);
-        alert(_l('复制成功'), 1);
+        const copied = copy(recordId);
+        alert(copied ? _l('复制成功') : _l('复制失败'), copied ? 1 : 2);
       },
     });
   }
@@ -849,6 +850,7 @@ RecordOperate.propTypes = {
   viewId: PropTypes.string,
   worksheetId: PropTypes.string,
   recordId: PropTypes.string,
+  allowCopyId: PropTypes.bool,
   workId: PropTypes.string,
   instanceId: PropTypes.string,
   formdata: PropTypes.arrayOf(PropTypes.shape({})),

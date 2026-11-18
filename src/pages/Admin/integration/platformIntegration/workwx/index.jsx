@@ -625,35 +625,25 @@ export default class Workwx extends React.Component {
                   </div>
                   {this.state.customMappingFieldEnabled && (
                     <div className="mLeft32">
-                      <div className="flexRow">
-                        <Radio.Group
-                          className="radioGroupWrapper"
-                          onChange={this.handleChangeJobnumberMappingField}
-                          value={this.state.fieldRadio}
-                        >
-                          <Radio value="workxeixinapp-userid">
-                            <span className="width225"> {_l('企业微信用户账号')}</span>
-                          </Radio>
-                          <Radio value="customField">
-                            <span className="width225">{_l('企业微信自定义信息字段')}</span>
-                          </Radio>
-                        </Radio.Group>
-                        <div className="pTop15">
-                          <div>
-                            <span>{_l('同步到工号字段')}</span>
-                          </div>
-                          <div>
-                            <span>{_l('同步到工号字段')}</span>
-                            <MdLink
-                              to={`/wxappSyncCourse/${projectId}#syncField`}
-                              target="_blank"
-                              className="mTop16 Font14 howApply mLeft10"
-                            >
-                              {_l('如何同步？')}
-                            </MdLink>
-                          </div>
+                      <Radio.Group
+                        className="radioGroupWrapper mTop12"
+                        onChange={this.handleChangeJobnumberMappingField}
+                        value={this.state.fieldRadio}
+                      >
+                        <Radio value="workxeixinapp-userid">{_l('企业微信用户账号')}</Radio>
+                        <span>{_l('同步到工号字段')}</span>
+                        <Radio value="customField">{_l('企业微信自定义信息字段')}</Radio>
+                        <div>
+                          <span>{_l('同步到工号字段')}</span>
+                          <MdLink
+                            to={`/wxappSyncCourse/${projectId}#syncField`}
+                            target="_blank"
+                            className="Font14 howApply mLeft10"
+                          >
+                            {_l('如何同步？')}
+                          </MdLink>
                         </div>
-                      </div>
+                      </Radio.Group>
                       {this.state.fieldRadio == 'customField' && (
                         <div className="flexRow customFieldWrapper mTop12 mLeft25">
                           <Input

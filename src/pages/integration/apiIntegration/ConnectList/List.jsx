@@ -176,7 +176,7 @@ function List(props) {
               info.onChange({ timeSort: info.timeSort === 2 ? 0 : info.timeSort === 0 ? 1 : 2, pageIndex: 1 })
             }
           >
-            <span className="">{_l('创建时间')}</span>
+            <span className="">{_l('最近更新时间')}</span>
             <div className="flexColumn manageListOrder">
               <Icon icon="arrow-up" className={cx('flex', { colorPrimary: info.timeSort === 2 })} />
               <Icon icon="arrow-down" className={cx('flex', { colorPrimary: info.timeSort === 1 })} />
@@ -185,7 +185,7 @@ function List(props) {
         );
       },
       render: item => {
-        return <span className="">{item.createdDate}</span>;
+        return <span className="">{item.lastModifiedDate || '-'}</span>;
       },
     },
     {

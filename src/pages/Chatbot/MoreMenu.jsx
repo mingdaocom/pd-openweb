@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import { Icon, RichText } from 'ming-ui';
 import { DeleteReconfirm as DeleteConfirm, Dropdown, Popover } from 'ming-ui/antd-components';
@@ -99,6 +100,17 @@ export const MoreMenu = props => {
         setPopupVisible(false);
       },
     },
+    isCharge &&
+      data.chatbotId && {
+        key: 'copyId',
+        icon: <Icon icon="ID" className="Font18 textTertiary" />,
+        label: _l('复制 ID'),
+        onClick: () => {
+          setPopupVisible(false);
+          const copied = copy(data.chatbotId);
+          alert(copied ? _l('复制成功') : _l('复制失败'), copied ? 1 : 2);
+        },
+      },
     isCharge &&
       !isLock && {
         key: 'divider',

@@ -548,7 +548,7 @@ export default class SingleControlValue extends Component {
 
     // 邮箱 || 证件
     if (item.type === 5 || item.type === 7) {
-      let reg = /^[\w-]+(\.[\w-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
+      let reg = /^[\w&-]+(\.[\w&-]+)*@[\w-]+(\.[\w-]+)*\.[\w-]+$/i;
       let placeholder = _l('填写邮箱地址');
 
       if (item.type === 7) {

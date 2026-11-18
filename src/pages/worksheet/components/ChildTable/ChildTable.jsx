@@ -94,6 +94,7 @@ import { getEffectedControlIds } from './utils';
 // 子表批量编辑：选中编辑行数超过此值不走联动重算，仅直接更新被改字段（计算字段保存后由后端补算），
 // 避免上百行逐行跑 DataFormat + 他表字段逐行请求造成的性能问题。
 const SUBLIST_BATCH_EFFECT_MAX_ROWS = 100;
+const LOADING_MASK_DISMISS_DELAY = 60 * 1000;
 
 const IconBtn = styled.span`
   color: var(--color-text-tertiary);
@@ -153,13 +154,6 @@ const MAX_COUNT = 1000;
 // 手动排序 / 定位插入行的记录数上限：超过后只见当前页或数据量过大，
 // 跨页手动排序与定位插入都失去意义，一律禁用并隐藏对应的拖拽手柄 / 插入加号
 const MAX_ROW_COUNT_FOR_DRAG_INSERT = 200;
-
-// 从 html 代码创建元素
-const createElementFromHtml = html => {
-  const con = document.createElement('div');
-  con.innerHTML = html;
-  return con.firstElementChild;
-};
 
 const maxAllowFrozenColumnIndex = 10;
 
@@ -248,6 +242,7 @@ class ChildTable extends React.Component {
       disableMaskDataControls: {},
       rowsLoadingStatus: {},
       showLoadingMask: false,
+      canDismissLoadingMask: false,
       loadingMaskText: '',
       menuVisible: false,
       layoutDirection: this.defaultDirection,
@@ -271,9 +266,11 @@ class ChildTable extends React.Component {
     this.rowsLoading = {};
     this.pendingRowWrites = 0;
     this.loadingMaskDismissed = false;
+    this.showLoadingMask = false;
     this.rowDragManager = new RowDragManager();
   }
   componentDidMount() {
+    this.isUnmounted = false;
     const { control, recordId, needResetControls } = this.props;
     this.updateDefsourceOfControl();
     if (recordId) {
@@ -462,6 +459,8 @@ class ChildTable extends React.Component {
   }
   componentWillUnmount() {
     const { mode, control } = this.props;
+    this.isUnmounted = true;
+    clearTimeout(this.loadingMaskDismissTimer);
     this.pendingRowWrites = 0;
 
     if (mode !== 'dialog' && _.isFunction(control.addRefreshEvents)) {
@@ -470,6 +469,7 @@ class ChildTable extends React.Component {
 
     $(this.childTableCon).off('mouseenter', '.cell:not(.row-head)', this.handleMouseEnter);
     $(this.childTableCon).off('mouseleave', '.cell:not(.row-head)', this.handleMouseLeave);
+    this.handleMouseLeave();
     window.removeEventListener('keydown', this.handleKeyDown);
     document.removeEventListener('click', this.hideRowFloats, true);
     this.abortController && this.abortController.abort && this.abortController.abort();
@@ -1003,16 +1003,27 @@ class ChildTable extends React.Component {
     this.triggerCustomEvent();
   }
   syncLoadingMask() {
+    if (this.isUnmounted) return;
+
     const showLoadingMask =
       !this.loadingMaskDismissed && (this.pendingRowWrites > 0 || Object.values(this.rowsLoading).some(Boolean));
 
-    if (showLoadingMask !== this.showLoadingMask) {
-      this.showLoadingMask = showLoadingMask;
-      this.setState({ showLoadingMask });
+    if (showLoadingMask === this.showLoadingMask) return;
+
+    this.showLoadingMask = showLoadingMask;
+    clearTimeout(this.loadingMaskDismissTimer);
+    this.setState({ showLoadingMask, canDismissLoadingMask: false });
+
+    if (showLoadingMask) {
+      this.loadingMaskDismissTimer = setTimeout(() => {
+        this.setState({ canDismissLoadingMask: true });
+      }, LOADING_MASK_DISMISS_DELAY);
     }
   }
 
   dismissLoadingMask = () => {
+    if (!this.showLoadingMask || !this.state.canDismissLoadingMask) return;
+
     this.loadingMaskDismissed = true;
     this.syncLoadingMask();
   };
@@ -1581,59 +1592,43 @@ class ChildTable extends React.Component {
     }
   };
   handleMouseEnter = e => {
-    const { layoutDirection } = this.state;
-    const cell = $(e.target).closest('.cell:not(.focus)')[0];
+    const cell = e.currentTarget;
+    this.handleMouseLeave();
+    if (!cell.matches('.cellControlErrorStatus:not(.focus):not(.isediting):not(.iseditting)')) return;
 
-    if (!cell) {
-      return;
-    }
+    const rowId = cell.className.match(/\brow-id-([^\s]+)/)?.[1];
+    const controlId = cell.className.match(/\bcontrol-val-([^\s]+)/)?.[1];
+    const error = rowId && controlId && this.props.cellErrors[`${rowId}-${controlId}`];
 
-    $(cell).addClass('errorActive');
-    const { rows, cellErrors } = this.props;
-    const columns = this.getShowColumns();
-    const hasError = /cellControlErrorStatus/.test(cell.className);
-    const cellIsEditing = /iseditting/.test(cell.className);
-    const rowIndex = cell.className.match(/ row-([0-9]+) /) && Number(cell.className.match(/ row-([0-9]+) /)[1]);
-    const columnIndex = cell.className.match(/ col-([0-9]+) /) && Number(cell.className.match(/ col-([0-9]+) /)[1]);
-    const dataIndex = layoutDirection === 'horizontal' ? rowIndex : columnIndex - 1;
-    const controlIndex = layoutDirection === 'horizontal' ? columnIndex : rowIndex + 1;
-    const rowId = (rows[dataIndex] || {}).rowid;
-    const controlId = !isUndefined(controlIndex) && (columns[controlIndex - 1] || {}).controlId;
+    if (!error) return;
 
-    if (hasError && !cellIsEditing && rowId && controlId) {
-      const error = cellErrors[rowId + '-' + controlId];
+    const tip = document.createElement('div');
+    tip.className = 'mdTableErrorTip';
+    tip.textContent = error;
+    tip.addEventListener('mouseleave', this.handleMouseLeave);
+    document.body.appendChild(tip);
+    this.cellErrorTip = tip;
 
-      if (error) {
-        const errorEle = createElementFromHtml(`<div
-            class="mdTableErrorTip"
-            style="
-              position: absolute;
-              font-size: 12px;
-              padding: 0px 8px;
-              height: 26px;
-              max-width: 300px;
-              line-height: 26px;
-              white-space: nowrap;
-              background: var(--color-error);
-              z-index: 2;
-              color: var(--color-white)";
-          >
-            <div class="ellipsis" title="${error}">${error}</div>
-          </div>`);
-        document.body.appendChild(errorEle);
-        const top =
-          cell.getBoundingClientRect().y +
-          (/row-0/.test(cell.getAttribute('class')) ? cell.offsetHeight - 1 : -1 * errorEle.offsetHeight);
-        const left = cell.getBoundingClientRect().x;
-        errorEle.style.top = top + 'px';
-        errorEle.style.left = left + 'px';
-        errorEle.style.zIndex = 9999999;
-      }
-    }
+    const cellRect = cell.getBoundingClientRect();
+    const { clientWidth, clientHeight } = document.documentElement;
+    const { width, height } = tip.getBoundingClientRect();
+    const margin = 8;
+    const spaceAbove = cellRect.top - margin;
+    const spaceBelow = clientHeight - cellRect.bottom - margin;
+    const firstRow = cell.classList.contains('row-0');
+    const placeBelow = firstRow
+      ? spaceBelow >= height || spaceBelow >= spaceAbove
+      : spaceAbove < height && spaceBelow > spaceAbove;
+    const top = placeBelow ? cellRect.bottom : cellRect.top - height;
+
+    tip.style.top = `${Math.max(margin, Math.min(top, clientHeight - height - margin))}px`;
+    tip.style.left = `${Math.max(margin, Math.min(cellRect.left, clientWidth - width - margin))}px`;
   };
-  handleMouseLeave = () => {
-    $('.mdTableErrorTip').remove();
-    $('.cell').removeClass('errorActive');
+  handleMouseLeave = e => {
+    if (e?.relatedTarget && this.cellErrorTip?.contains(e.relatedTarget)) return;
+
+    this.cellErrorTip?.remove();
+    this.cellErrorTip = null;
   };
   handleBatchUpdateRecords = ({ tableRows, activeControl } = {}) => {
     const { appId, control, updateRows, rows, clearAndSetRows, updateTreeTableViewData, sortRows, sortConfig } =
@@ -1872,6 +1867,7 @@ class ChildTable extends React.Component {
       isAddRowByLine,
       disableMaskDataControls,
       showLoadingMask,
+      canDismissLoadingMask,
       loadingMaskText,
       menuVisible,
       layoutDirection,
@@ -2606,16 +2602,13 @@ class ChildTable extends React.Component {
                 showLoadingMask={showLoadingMask}
                 showSummary={showSummary}
                 loadingMaskChildren={
-                  <div className="childTableLoadingMaskContent flexColumn alignItemsCenter justifyContentCenter w100 h100">
+                  <div className="flexColumn alignItemsCenter justifyContentCenter w100 h100">
                     <span className="childTableIsImportingData">{loadingMaskText}</span>
-                    <Button
-                      className="childTableLoadingMaskClose"
-                      type="link"
-                      size="small"
-                      onClick={this.dismissLoadingMask}
-                    >
-                      {_l('关闭遮罩')}
-                    </Button>
+                    {canDismissLoadingMask && (
+                      <Button type="link" size="small" onClick={this.dismissLoadingMask}>
+                        {_l('关闭遮罩')}
+                      </Button>
+                    )}
                   </div>
                 }
                 isTreeTableView={isTreeTableView}
@@ -2639,6 +2632,7 @@ class ChildTable extends React.Component {
                 viewId={viewId}
                 onCellEnter={cellEl => this.handleSublistRowHover(cellEl)}
                 onCellLeave={scheduleHideRowFloats}
+                onScroll={this.handleMouseLeave}
                 scrollBarHoverShow
                 ref={this.worksheettable}
                 setHeightAsRowCount={fullShowTable}

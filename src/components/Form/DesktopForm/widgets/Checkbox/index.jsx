@@ -13,15 +13,12 @@ import { useWidgetEvent } from '../../../core/useFormEventManager';
 import OtherInput from './OtherInput';
 
 const CHECKBOX_LABEL_STYLE = { paddingInlineEnd: 0 };
-const CHECKBOX_ICON_STYLE = { marginTop: 3 };
 const HORIZONTAL_CHECKBOX_STYLES = {
-  root: { marginRight: 20, marginBottom: 10 },
-  icon: CHECKBOX_ICON_STYLE,
+  root: { marginRight: 20, marginBottom: 10, alignItems: 'center' },
   label: CHECKBOX_LABEL_STYLE,
 };
 const VERTICAL_CHECKBOX_STYLES = {
-  root: { marginBottom: 10 },
-  icon: CHECKBOX_ICON_STYLE,
+  root: { marginBottom: 10, alignItems: 'center' },
   label: CHECKBOX_LABEL_STYLE,
 };
 const SELECT_LIST_ITEM_STYLE = { padding: '5.5px 12px' };

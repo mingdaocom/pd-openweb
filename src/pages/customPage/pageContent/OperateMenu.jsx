@@ -22,7 +22,7 @@ const AdjustScreenWrap = styled.div`
   }
 `;
 
-const CONFIG = [
+const getConfig = () => [
   {
     type: 'editCanvas',
     text: _l('编辑画布%07005'),
@@ -49,6 +49,11 @@ const CONFIG = [
     text: _l('显示设置%07002'),
     icon: 'desktop',
   },
+  {
+    type: 'copyId',
+    text: _l('复制 ID'),
+    icon: 'ID',
+  },
   { type: 'divider' },
   {
     type: 'delete',
@@ -71,15 +76,20 @@ export const getOperateMenuItems = ({
   moveSheetToOtherGroup = _.noop,
   openOtherAppDialog = _.noop,
 }) =>
-  CONFIG.filter(o => {
-    // 加锁| 运营者=>修改名称和图标(详情页)
-    if (_.get(appPkg, ['isLock']) || _.get(appPkg, ['permissionType']) === APP_ROLE_TYPE.RUNNER_ROLE) {
-      return ['editName', 'editIntro'].includes(o.type);
-    } else {
-      return true;
-    }
-  })
+  getConfig()
     .filter(o => {
+      // 加锁| 运营者=>修改名称和图标(详情页)
+      if (_.get(appPkg, ['isLock']) || _.get(appPkg, ['permissionType']) === APP_ROLE_TYPE.RUNNER_ROLE) {
+        return ['editName', 'editIntro', 'copyId'].includes(o.type);
+      } else {
+        return true;
+      }
+    })
+    .filter(o => {
+      if (o.type === 'copyId') {
+        return !!ids?.worksheetId;
+      }
+
       if (o.type === 'editCanvas' || o.type === 'displaySetting') {
         return !currentSheet.urlTemplate;
       }

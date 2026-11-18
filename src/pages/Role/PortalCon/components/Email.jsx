@@ -17,7 +17,7 @@ export default class EmailInput extends Component {
           onBlur={e => {
             //邮箱验证规则
             var emailReg =
-              /^[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*@[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*\.[\u4e00-\u9fa5\w-]+$/i;
+              /^[\u4e00-\u9fa5\w&-]+(\.[\u4e00-\u9fa5\w&-]+)*@[\u4e00-\u9fa5\w-]+(\.[\u4e00-\u9fa5\w-]+)*\.[\u4e00-\u9fa5\w-]+$/i;
             if (!!e.target.value.trim() && !emailReg.test(e.target.value.trim())) {
               $(this.input).addClass('err');
               this.props.onChange({ value: e.target.value.trim(), isErr: true });

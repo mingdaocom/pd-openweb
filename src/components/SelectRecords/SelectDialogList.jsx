@@ -31,7 +31,8 @@ const ListItemCon = styled.div`
   display: flex;
   align-items: center;
   cursor: pointer;
-  &:hover {
+  &:hover,
+  &.keyboardActive {
     background: var(--color-background-hover);
   }
   &.selected {
@@ -40,6 +41,9 @@ const ListItemCon = styled.div`
       font-size: 18px;
       color: var(--color-app);
     }
+  }
+  &.keyboardActive {
+    box-shadow: inset 0 0 0 1px var(--color-primary);
   }
   .listItemCover {
     width: 32px;
@@ -102,7 +106,17 @@ function getCoverUrl(record, coverControl) {
   if (typeof v === 'object' && v !== null && v.url) return v.url;
   return '';
 }
-function ListItem({ record, control, coverControl, multiple, selected, onSelect, onOpenRecord, noMaskTitle }) {
+function ListItem({
+  record,
+  control,
+  coverControl,
+  multiple,
+  selected,
+  keyboardActive,
+  onSelect,
+  onOpenRecord,
+  noMaskTitle,
+}) {
   // 有些接口会直接返回已渲染的 name（可能是掩码后的展示值）
   // 解码后希望走 renderText + noMask 展示明文，因此在 noMask 时临时屏蔽 name。
   const titleData =
@@ -128,6 +142,7 @@ function ListItem({ record, control, coverControl, multiple, selected, onSelect,
     <ListItemCon
       className={cx({
         selected,
+        keyboardActive,
       })}
       onClick={handleClick}
       onDoubleClick={() => onOpenRecord && onOpenRecord(record)}
@@ -147,6 +162,7 @@ export default function SelectDialogList({
   control,
   multiple,
   selectedRowIds = [],
+  activeRowId,
   needHideRowIds = [],
   noMaskTitle,
   onToggleSelect,
@@ -202,6 +218,7 @@ export default function SelectDialogList({
               coverControl={coverControl}
               multiple={multiple}
               selected={selectedRowIds.includes(record.rowid)}
+              keyboardActive={record.rowid === activeRowId}
               onSelect={onToggleSelect}
               onOpenRecord={onOpenRecord}
               noMaskTitle={noMaskTitle}

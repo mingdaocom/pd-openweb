@@ -1,5 +1,4 @@
 import _, { isEmpty } from 'lodash';
-import appManagement from 'src/api/appManagement';
 import publicWorksheetApi from 'src/api/publicWorksheet';
 import worksheetAjax from 'src/api/worksheet';
 import { getRowDetail } from 'worksheet/api';
@@ -526,24 +525,21 @@ export async function exportRelateRecordRecords({
   filterControls,
   onDownload,
 } = {}) {
-  const token = await appManagement.getToken({ worksheetId, viewId, tokenType: 8 });
-  const args = {
-    token,
-    accountId: md.global.Account.accountId,
-    worksheetId,
-    appId,
-    viewId,
-    projectId,
-    exportControlsId,
-    rowIds,
-  };
-
   if (typeof rowIds !== 'undefined') {
-    postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, tokenType: 8 }, args, {
+    const args = {
+      worksheetId,
+      appId,
+      viewId,
+      projectId,
+      exportControlsId,
+      rowIds,
+    };
+
+    return postWithToken(`${downLoadUrl}/ExportExcel/Export`, { worksheetId, viewId, tokenType: 8 }, args, {
       responseType: 'blob',
     });
   } else {
-    exportSheet({ worksheetId, rowId, controlId, fileName, filterControls, onDownload })();
+    return exportSheet({ worksheetId, rowId, controlId, fileName, filterControls, onDownload })();
   }
 }
 

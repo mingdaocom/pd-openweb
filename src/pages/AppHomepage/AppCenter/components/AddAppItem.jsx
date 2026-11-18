@@ -49,14 +49,10 @@ export default class AddAppItem extends Component {
 
     if (!trimmed && !uploaded.length) return;
     window.mingoInitialMessage = trimmed;
-    if (uploaded.length) {
-      window.mingoInitialAttachments = uploaded;
-    }
+    window.mingoInitialAttachments = uploaded;
 
     // 分组内创建：把分组 id 交接给 Agent，拼进 stream context.groupId，让新建应用归入该分组
-    if (groupId) {
-      window.mingoInitialGroupId = groupId;
-    }
+    window.mingoInitialGroupId = groupId;
 
     window.mingoPendingStartTask = { type: MINGO_TASK_TYPE.CREATE_APP_ASSIGNMENT };
     emitter.emit('SET_MINGO_VISIBLE');

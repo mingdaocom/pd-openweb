@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import DocumentTitle from 'react-document-title';
 import cx from 'classnames';
+import copy from 'copy-to-clipboard';
 import _ from 'lodash';
 import moment from 'moment';
 import qs from 'query-string';
@@ -938,6 +939,15 @@ export class AppWorkflowList extends Component {
             }}
           />
         ),
+      },
+      data.id && {
+        key: 'copyId',
+        icon: <Icon icon="ID" className="Font16" />,
+        label: _l('复制 ID'),
+        onClick: () => {
+          const copied = copy(data.id);
+          alert(copied ? _l('复制成功') : _l('复制失败'), copied ? 1 : 2);
+        },
       },
       canConvert && {
         key: 'convert',

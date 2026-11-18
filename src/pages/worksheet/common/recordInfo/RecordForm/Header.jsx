@@ -17,10 +17,9 @@ import {
 } from 'src/pages/worksheet/components/DiscussLogFile/utils';
 import { permitList } from 'src/utils/domain/control/formEnum';
 import { isOpenPermit } from 'src/utils/domain/permission/worksheet';
-import { VersionProductType } from 'src/utils/domain/shared/productFeatures';
 import { RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
 import { emitter } from 'src/utils/platform/browser/dom';
-import { getCurrentProject, getFeatureStatus } from 'src/utils/services/project';
+import { getCurrentProject } from 'src/utils/services/project';
 import IconBtn from './IconBtn';
 import MoreMenu from './MoreMenu';
 import Operates from './Operates';
@@ -83,7 +82,7 @@ export default function InfoHeader(props) {
     exAccountDiscussEnum = 0, //外部用户的讨论类型 0：所有讨论 1：不可见内部讨论
     approved = false, //允许外部用户允许查看审批流转详情
   } = props;
-  const { projectId = localStorage.getItem('currentProjectId') } = recordinfo;
+  const { projectId } = recordinfo;
   let { renderHeader } = props;
   const { isSmall, worksheetId, recordId, notDialog, workId, instanceId } = recordbase;
   const rowId = useRef(recordId);
@@ -470,10 +469,7 @@ export default function InfoHeader(props) {
               {..._.pick(recordbase, ['appId', 'workId', 'instanceId', 'worksheetId', 'viewId', 'recordId'])}
               projectId={projectId}
               controls={_.get(recordinfo, 'formData') || []}
-              printCountEnabled={
-                getFeatureStatus(projectId, VersionProductType.printCountLimit) !== '2' &&
-                _.get(worksheetInfo, 'advancedSetting.print_count_enabled') === '1'
-              }
+              printCountEnabled={_.get(worksheetInfo, 'advancedSetting.print_count_enabled') === '1'}
             />
           )}
           {showFav && favBtn()}

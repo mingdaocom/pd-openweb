@@ -72,6 +72,18 @@ export const wsexcelSocketInit = () => {
   );
 };
 
+function getInitialImportState() {
+  return {
+    showImportConfigDialog: false,
+    showConfigControl: false,
+    fileList: [], // 上传文件的预览数据
+    fileInfo: {}, // fileName、filePath、token
+    fileKey: '', // 预览返回的 randomKey
+    importSheetInfo: {},
+    selectRow: {},
+  };
+}
+
 export default class ImportDataFromExcel extends Component {
   static propTypes = {
     isCharge: PropTypes.bool,
@@ -82,20 +94,9 @@ export default class ImportDataFromExcel extends Component {
     hideControlIds: PropTypes.array,
     extendOptions: PropTypes.object,
   };
-  constructor(props) {
-    super(props);
-    this.state = {
-      showUploadExcel: true, // 上传excel
-      showImportConfigDialog: false, // 导入配置弹层
-      showConfigControl: false, // 映射控件弹层
+  state = getInitialImportState();
 
-      fileList: [], // 上传的excel文件行列信息
-      fileInfo: {}, // 上传的excel信息 fileName名称 filePath链接 fileId知识文件Id
-      fileKey: '', // 后端的excelKey
-      importSheetInfo: {}, // 导入的sheet内容
-      selectRow: {}, // 导入的sheet表头行信息
-    };
-  }
+  resetImport = () => this.setState(getInitialImportState());
 
   render() {
     const {
@@ -129,8 +130,8 @@ export default class ImportDataFromExcel extends Component {
           isFromRelateRecord={isFromRelateRecord}
           appId={appId}
           worksheetId={worksheetId}
+          token={fileInfo.token}
           filePath={fileInfo.filePath}
-          fileId={fileInfo.fileId}
           fileKey={fileKey}
           onSave={key => {
             Notification.info({
@@ -141,6 +142,7 @@ export default class ImportDataFromExcel extends Component {
             });
           }}
           onCancel={hideImportDataFromExcel}
+          onReset={this.resetImport}
           selectRow={selectRow}
           importSheetInfo={importSheetInfo}
           hideControlIds={hideControlIds}
@@ -157,17 +159,18 @@ export default class ImportDataFromExcel extends Component {
         hideUploadExcel={(fileList, fileInfo, fileKey) => {
           if (!fileList) {
             hideImportDataFromExcel();
+            return;
           }
 
           this.setState({
-            showUploadExcel: false,
-            showImportConfigDialog: !!fileList,
-            fileList: fileList ? fileList.filter(item => item.rows.length) : [],
+            showImportConfigDialog: true,
+            fileList: fileList.filter(item => item.rows.length),
             fileInfo,
             fileKey,
           });
         }}
         worksheetId={worksheetId}
+        extendOptions={extendOptions}
       />
     );
   }

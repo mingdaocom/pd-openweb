@@ -422,7 +422,14 @@ function RelateSheet(props) {
             // 使用关联控件
             if (!_.isEmpty(control)) {
               const nextData = update(control, {
-                advancedSetting: { hide: { $set: '' } },
+                advancedSetting: {
+                  hide: { $set: '' },
+                  // 建立双向关联时，将旧列表和标签页表格统一转换为普通表格。
+                  ...(_.includes(['2', '6'], _.get(control, 'advancedSetting.showtype'))
+                    ? { showtype: { $set: '5' } }
+                    : {}),
+                },
+                sectionId: { $set: data.sectionId || '' },
                 row: { $set: path[0] },
                 col: { $set: path[1] },
                 size: { $set: isFullLineControl(control) ? WHOLE_SIZE : data.size },

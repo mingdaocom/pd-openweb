@@ -1,4 +1,4 @@
-﻿import React, { Fragment } from 'react';
+﻿import React, { createRef, Fragment } from 'react';
 import { Modal } from 'ming-ui/antd-components';
 import { generateRandomPassword } from 'src/utils/core/string';
 import './index.less';
@@ -44,13 +44,49 @@ export default function captcha(callback = () => {}, onCancel = () => {}) {
   };
 
   if (md.global.getCaptchaType() === 1) {
-    Modal.confirm({
+    const inputRef = createRef();
+    let submitted = false;
+    const handleSubmit = () =>
+      new Promise((resolve, reject) => {
+        if (submitted) {
+          resolve();
+          return;
+        }
+
+        const value = inputRef.current.value.trim();
+
+        if (!value) {
+          alert(_l('请输入验证码'), 3);
+          reject(true);
+        } else {
+          submitted = true;
+          callback({ ret: 0, ticket: value, randstr });
+          resolve();
+        }
+      });
+    const dialog = Modal.confirm({
       title: _l('请输入验证码'),
       closable: false,
       width: 368,
       content: (
         <Fragment>
-          <input type="text" className="captchaInput" autoFocus placeholder={_l('不区分大小写')} />
+          <input
+            ref={inputRef}
+            type="text"
+            className="captchaInput"
+            autoFocus
+            placeholder={_l('不区分大小写')}
+            onKeyDown={event => {
+              if (event.key !== 'Enter' || event.repeat || event.defaultPrevented || event.nativeEvent.isComposing)
+                return;
+              event.preventDefault();
+              event.stopPropagation();
+              handleSubmit().then(
+                () => dialog.destroy(),
+                () => {},
+              );
+            }}
+          />
           <div className="captchaImg">
             <img src={getImgLink()} />
           </div>
@@ -66,22 +102,7 @@ export default function captcha(callback = () => {}, onCancel = () => {}) {
           </div>
         </Fragment>
       ),
-      onOk: () => {
-        return new Promise(function (reslove, reject) {
-          const value = $('.captchaInput').val().trim();
-          if (!value) {
-            alert(_l('请输入验证码'), 3);
-            reject(true);
-          } else {
-            callback({
-              ret: 0,
-              ticket: value,
-              randstr: randstr,
-            });
-            reslove();
-          }
-        });
-      },
+      onOk: handleSubmit,
       onCancel,
     });
     return;

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { bool, func, node, number, string } from 'prop-types';
 import styled from 'styled-components';
 import { VerifyPasswordInput } from 'ming-ui';
@@ -73,20 +73,6 @@ export default function VerifyPasswordConfirm(props) {
     onOk,
   ]);
 
-  useEffect(() => {
-    function handleKeyDown(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        handleConfirm();
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleConfirm]);
-
   return (
     <Modal
       open
@@ -112,14 +98,33 @@ export default function VerifyPasswordConfirm(props) {
       }
     >
       {description && <Description>{description}</Description>}
-      <VerifyPasswordInput
-        showSubTitle={false}
-        autoFocus={focusReady}
-        isRequired={isRequired}
-        showVerifyType={showVerifyType}
-        allowNoVerify={allowNoVerify}
-        onChange={setVerifyInfo}
-      />
+      <div
+        onKeyDown={event => {
+          if (
+            event.key !== 'Enter' ||
+            event.repeat ||
+            event.defaultPrevented ||
+            event.nativeEvent.isComposing ||
+            event.target.tagName !== 'INPUT' ||
+            event.target.getAttribute('role') === 'combobox' ||
+            !event.currentTarget.contains(event.target)
+          )
+            return;
+
+          event.preventDefault();
+          event.stopPropagation();
+          handleConfirm();
+        }}
+      >
+        <VerifyPasswordInput
+          showSubTitle={false}
+          autoFocus={focusReady}
+          isRequired={isRequired}
+          showVerifyType={showVerifyType}
+          allowNoVerify={allowNoVerify}
+          onChange={setVerifyInfo}
+        />
+      </div>
     </Modal>
   );
 }

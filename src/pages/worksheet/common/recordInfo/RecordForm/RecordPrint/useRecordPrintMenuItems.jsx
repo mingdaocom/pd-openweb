@@ -169,12 +169,10 @@ export default function useRecordPrintMenuItems({
   const [printStatus, setPrintStatus] = useState({ contextKey: '', templateId: '', printLoading: false });
   const [managePrintCountContext, setManagePrintCountContext] = useState();
   const { open: openGeneratePdf, holder: generatePdfHolder } = useGeneratePdf();
-  const printCountFeatureAvailable = getFeatureStatus(projectId, VersionProductType.printCountLimit) !== '2';
   const tempList = templateState.contextKey === contextKey ? templateState.list : EMPTY_LIST;
   const templateLoading = templateState.contextKey === contextKey && templateState.loading;
   const templateLoaded = templateState.contextKey === contextKey && templateState.loaded;
-  const printCountInfo =
-    printCountFeatureAvailable && printCountState.contextKey === contextKey ? printCountState.value : EMPTY_OBJECT;
+  const printCountInfo = printCountState.contextKey === contextKey ? printCountState.value : EMPTY_OBJECT;
   const currentPrintStatus = printStatus.contextKey === contextKey ? printStatus : EMPTY_OBJECT;
 
   const loadPrintList = useCallback(
@@ -227,14 +225,17 @@ export default function useRecordPrintMenuItems({
 
   const loadPrintCount = useCallback(
     ({ force = false, templates } = {}) => {
-      const currentProjectId = projectId || localStorage.getItem('currentProjectId');
       const currentTemplates =
         templates || (templateRequest.current.contextKey === contextKey ? templateRequest.current.list : EMPTY_LIST);
-      const printCountSupported =
-        currentProjectId && getFeatureStatus(currentProjectId, VersionProductType.printCountLimit) !== '2';
       const printCountRequired = printCountEnabled || hasPrintLimitTemplate(currentTemplates);
+      const printCountSupported =
+        mode !== 'system' &&
+        worksheetId &&
+        projectId &&
+        printCountRequired &&
+        getFeatureStatus(projectId, VersionProductType.printCountLimit) !== '2';
 
-      if (mode === 'system' || !worksheetId || !printCountSupported || !printCountRequired) {
+      if (!printCountSupported) {
         printCountRequest.current = { contextKey: '', loaded: false, promise: null };
         setPrintCountState(current => (current.contextKey === contextKey ? { contextKey: '', value: {} } : current));
         return Promise.resolve();
@@ -252,7 +253,7 @@ export default function useRecordPrintMenuItems({
 
       let request;
       request = worksheetAjax
-        .getRowPrintCount({ projectId: currentProjectId, worksheetId, rowIds: [recordId].filter(Boolean) })
+        .getRowPrintCount({ projectId, worksheetId, rowIds: [recordId].filter(Boolean) })
         .then(([value = {}]) => {
           if (printCountRequest.current.promise !== request) {
             return;
@@ -408,15 +409,13 @@ export default function useRecordPrintMenuItems({
 
   const printCountTemplates = useMemo(
     () =>
-      printCountFeatureAvailable
-        ? tempList
-            .map(template => {
-              const printCount = _.find(printCountInfo.templates, { printId: template.id });
-              return printCount?.printLimitEnabled && { ...template, ...printCount };
-            })
-            .filter(Boolean)
-        : [],
-    [printCountFeatureAvailable, printCountInfo.templates, tempList],
+      tempList
+        .map(template => {
+          const printCount = _.find(printCountInfo.templates, { printId: template.id });
+          return printCount?.printLimitEnabled && { ...template, ...printCount };
+        })
+        .filter(Boolean),
+    [printCountInfo.templates, tempList],
   );
 
   const printTemplateMenuItems = useMemo(() => {
@@ -439,7 +438,7 @@ export default function useRecordPrintMenuItems({
           const isDownloadable = DEFAULT_TEMPLATE_TYPES.includes(template.type);
           const showSizeDetail = CODE_TEMPLATE_TYPES.includes(template.type);
           const templatePrintCount = _.find(printCountInfo.templates, { printId: template.id });
-          const isPrintLimitEnabled = printCountFeatureAvailable && !!templatePrintCount?.printLimitEnabled;
+          const isPrintLimitEnabled = !!templatePrintCount?.printLimitEnabled;
           const isPrintLimitReached = isPrintLimitEnabled && !templatePrintCount.leftPrintCount;
           const showDownloadDetail =
             isDownloadable && !isPrintLimitReached && (isCharge || !template.allowDownloadPermission) && showDownload;
@@ -505,7 +504,7 @@ export default function useRecordPrintMenuItems({
     );
 
     return [
-      ...(printCountFeatureAvailable && printCountEnabled && totalPrintCount > 0
+      ...(printCountEnabled && totalPrintCount > 0
         ? [
             {
               key: 'recordPrintCountSummary',
@@ -548,7 +547,6 @@ export default function useRecordPrintMenuItems({
     handleTemplatePrint,
     isCharge,
     printCountEnabled,
-    printCountFeatureAvailable,
     printCountInfo.templates,
     printCountInfo.totalPrintCount,
     printCountTemplates.length,

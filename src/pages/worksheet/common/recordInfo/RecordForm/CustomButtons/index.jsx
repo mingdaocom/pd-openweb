@@ -401,7 +401,7 @@ class CustomButtonActionController extends React.Component {
       });
   };
 
-  handleAddRecordCallback = () => {
+  handleAddRecordCallback = (_row, { continueAdd } = {}) => {
     const { reloadRecord, loadBtns, triggerCallback } = this.props;
     const { activeBtn = {} } = this;
     const btnTypeStr = activeBtn.writeObject + '' + activeBtn.writeType;
@@ -416,7 +416,7 @@ class CustomButtonActionController extends React.Component {
       reloadRecord();
     }
 
-    triggerCallback();
+    triggerCallback({ continueAdd });
   };
 
   fillRecordControls = (newControls, targetOptions, customwidget, cb = () => {}) => {

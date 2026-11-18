@@ -164,49 +164,55 @@ export default class Widgets extends Component {
 
   filesChanged = (files, key) => {
     const enumDefault = this.props.enumDefault || 3;
-    const value = JSON.parse(this.state.value || '[]');
-    const isArray = _.isArray(value);
+    this.setState(
+      prev => {
+        const value = JSON.parse(prev.value || '[]');
+        const isArray = _.isArray(value);
 
-    const newValue = {
-      attachments: isArray ? [] : value.attachments,
-      knowledgeAtts: isArray ? [] : value.knowledgeAtts,
-      attachmentData: isArray ? value : value.attachmentData,
-    };
+        const newValue = {
+          attachments: isArray ? [] : value.attachments,
+          knowledgeAtts: isArray ? [] : value.knowledgeAtts,
+          attachmentData: isArray ? value : value.attachmentData,
+        };
 
-    newValue[key] = files;
+        newValue[key] = files.map(file => ({ ...file }));
 
-    // 补充 index
-    if ([2, 3].includes(enumDefault)) {
-      // 旧的在前
-      newValue.attachmentData.forEach((data, index) => {
-        data.index = index;
-      });
-      newValue.attachments.forEach((data, index) => {
-        data.index = newValue.attachmentData.length + index;
-      });
-      newValue.knowledgeAtts.forEach((data, index) => {
-        data.index = newValue.attachmentData.length + newValue.attachments.length + index;
-      });
-    } else {
-      // 新的在前
-      newValue.attachments.forEach((data, index) => {
-        data.index = index;
-      });
-      newValue.knowledgeAtts.forEach((data, index) => {
-        data.index = newValue.attachments.length + index;
-      });
-      newValue.attachmentData.forEach((data, index) => {
-        data.index = newValue.attachments.length + newValue.knowledgeAtts.length + index;
-      });
-    }
+        // 补充 index
+        if ([2, 3].includes(enumDefault)) {
+          // 旧的在前
+          newValue.attachmentData.forEach((data, index) => {
+            data.index = index;
+          });
+          newValue.attachments.forEach((data, index) => {
+            data.index = newValue.attachmentData.length + index;
+          });
+          newValue.knowledgeAtts.forEach((data, index) => {
+            data.index = newValue.attachmentData.length + newValue.attachments.length + index;
+          });
+        } else {
+          // 新的在前
+          newValue.attachments.forEach((data, index) => {
+            data.index = index;
+          });
+          newValue.knowledgeAtts.forEach((data, index) => {
+            data.index = newValue.attachments.length + index;
+          });
+          newValue.attachmentData.forEach((data, index) => {
+            data.index = newValue.attachments.length + newValue.knowledgeAtts.length + index;
+          });
+        }
 
-    const nextValue =
-      newValue.attachments.length + newValue.knowledgeAtts.length + newValue.attachmentData.length === 0
-        ? ''
-        : JSON.stringify(newValue);
+        const nextValue =
+          newValue.attachments.length + newValue.knowledgeAtts.length + newValue.attachmentData.length === 0
+            ? ''
+            : JSON.stringify(newValue);
 
-    this.setState({ value: nextValue });
-    this.props.onChange(nextValue);
+        return { value: nextValue };
+      },
+      () => {
+        this.props.onChange(this.state.value);
+      },
+    );
   };
 
   filesChangedAll = files => {
@@ -351,27 +357,29 @@ export default class Widgets extends Component {
                 const nomalAttrs = completed.filter(v => !v.refId);
 
                 if (attrs.length) {
-                  const newKnowledgeAtts = _.uniqBy(knowledgeAtts, 'fileID')
-                    .concat(attrs)
-                    .map(item => ({
-                      allowDown: item.allowDown,
-                      fileExt: item.fileExt,
-                      fileID: item.fileID,
-                      fileSize: item.fileSize,
-                      originalFileName: item.originalFileName,
-                      refId: item.refId,
-                      viewUrl: item.viewUrl,
-                    }));
-                  this.setState({ knowledgeAtts: newKnowledgeAtts }, () => {
-                    this.filesChanged(this.state.knowledgeAtts, 'knowledgeAtts');
-                  });
+                  this.setState(
+                    prev => ({
+                      knowledgeAtts: _.uniqBy(prev.knowledgeAtts.concat(attrs), 'fileID').map(item => ({
+                        allowDown: item.allowDown,
+                        fileExt: item.fileExt,
+                        fileID: item.fileID,
+                        fileSize: item.fileSize,
+                        originalFileName: item.originalFileName,
+                        refId: item.refId,
+                        viewUrl: item.viewUrl,
+                      })),
+                    }),
+                    () => {
+                      this.filesChanged(this.state.knowledgeAtts, 'knowledgeAtts');
+                    },
+                  );
                 }
 
                 if (nomalAttrs.length) {
                   this.setState(
-                    {
-                      mobileFiles: _.uniqBy(this.state.mobileFiles.concat(completed), 'fileName'),
-                    },
+                    prev => ({
+                      mobileFiles: _.uniqBy(prev.mobileFiles.concat(nomalAttrs), 'fileName'),
+                    }),
                     () => {
                       this.handleMobileChangeFiles();
                     },

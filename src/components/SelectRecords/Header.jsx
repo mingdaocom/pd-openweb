@@ -48,6 +48,7 @@ export default function Header(props) {
     controls,
     searchConfig,
     onSearch,
+    onSearchFocus,
     onKeyDown,
     onNewRecord,
     onExpandFastFilters,
@@ -70,6 +71,7 @@ export default function Header(props) {
         ref={inputRef}
         autoFocus
         value={keyword}
+        onFocus={onSearchFocus}
         onChange={event => {
           const value = event.target.value;
           setKeyword(value);

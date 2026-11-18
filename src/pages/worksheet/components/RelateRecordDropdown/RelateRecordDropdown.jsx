@@ -52,6 +52,7 @@ class RelateRecordDropdown extends React.Component {
     isediting: PropTypes.bool,
     disabled: PropTypes.bool,
     multiple: PropTypes.bool,
+    doNotClearKeywordsWhenChange: PropTypes.bool,
     allowOpenRecord: PropTypes.bool, // 是否允许查看记录
     className: PropTypes.string,
     controls: PropTypes.arrayOf(PropTypes.shape({})),
@@ -124,6 +125,7 @@ class RelateRecordDropdown extends React.Component {
       // 表格内退出编辑态，提交面板内累积的变更
       if (prevProps.isediting && !this.props.isediting) {
         this.commitChange();
+        this.setState({ keywords: '' });
       }
 
       if (!_.isEqual(prevProps.selected, this.props.selected)) {
@@ -293,6 +295,7 @@ class RelateRecordDropdown extends React.Component {
     this.setState(
       {
         listvisible: false,
+        keywords: '',
       },
       () => {
         onVisibleChange(false);
@@ -471,7 +474,7 @@ class RelateRecordDropdown extends React.Component {
   };
 
   handleChange({ defer } = {}) {
-    const { multiple, doNotClearKeywordsWhenChange } = this.props;
+    const { multiple, doNotClearKeywordsWhenChange = multiple } = this.props;
 
     if (multiple) {
       this.focusInput();
@@ -998,7 +1001,7 @@ class RelateRecordDropdown extends React.Component {
                   }
                 } else {
                   this.commitChange();
-                  this.setState({ listvisible: false });
+                  this.setState({ listvisible: false, keywords: '' });
                 }
 
                 onVisibleChange(visible);

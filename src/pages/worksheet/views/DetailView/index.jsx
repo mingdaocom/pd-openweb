@@ -107,7 +107,14 @@ function DetailView(props) {
     controls,
     updateWorksheetSomeControls,
   } = props;
-  const { detailViewRows = [], detailViewLoading, detailPageIndex, detailKeyWords, noMoreRows } = detailView;
+  const {
+    detailViewRows = [],
+    detailViewLoading,
+    keepDetailRecordWhileLoading,
+    detailPageIndex,
+    detailKeyWords,
+    noMoreRows,
+  } = detailView;
   const currentView = views.find(o => o.viewId === viewId) || {};
   const coverCid = currentView.coverCid || _.get(worksheetInfo, ['advancedSetting', 'coverid']);
   const { showtoolbar, showtitle } = getAdvanceSetting(currentView);
@@ -123,7 +130,8 @@ function DetailView(props) {
     isOpenGroup ? cardWidth || window.localStorage.getItem(`detailGroupWidth_${viewId}`) || (coverCid ? 335 : 240) : 32,
   );
   const [flag, setFlag] = useState(+new Date());
-  const isLoading = (detailViewLoading && detailPageIndex === 1) || worksheetInfo.isRequestingRelationControls;
+  const isLoadingFirstPage = detailViewLoading && detailPageIndex === 1;
+  const isLoading = (isLoadingFirstPage && !keepDetailRecordWhileLoading) || worksheetInfo.isRequestingRelationControls;
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
@@ -391,9 +399,10 @@ function DetailView(props) {
               }}
               isCharge={isCharge}
               updateWorksheetControls={updateWorksheetSomeControls}
-              customBtnTriggerCb={() => {
+              customBtnTriggerCb={({ continueAdd } = {}) => {
                 setTimeout(() => {
-                  fetchRows(1, detailKeyWords);
+                  // 自定义按钮的创建弹窗挂在记录详情下，继续创建时刷新列表不能卸载详情。
+                  fetchRows(1, detailKeyWords, { keepDetails: continueAdd });
                 }, 100);
               }}
             />

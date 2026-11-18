@@ -40,6 +40,14 @@ export function detailViewLoading(state = false, action) {
   }
 }
 
+export function keepDetailRecordWhileLoading(state = false, action) {
+  if (action.type === 'CHANGE_DETAIL_VIEW_LOADING') {
+    return action.loading && !!action.keepDetails;
+  }
+
+  return state;
+}
+
 export function detailPageIndex(state = 1, action) {
   const { type } = action;
 

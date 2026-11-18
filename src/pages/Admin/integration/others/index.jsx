@@ -811,7 +811,12 @@ export default class OtherTool extends Component {
                   )}
                   {key === 'orgKey' && (
                     <div>
-                      <Button color="primary" variant="link" onClick={this.checkHasKey}>
+                      <Button
+                        color="primary"
+                        variant="link"
+                        style={{ padding: 0, border: 0 }}
+                        onClick={this.checkHasKey}
+                      >
                         {_l('查看密钥')}
                       </Button>
                     </div>
