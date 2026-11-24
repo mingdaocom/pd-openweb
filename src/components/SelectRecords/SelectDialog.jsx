@@ -272,6 +272,7 @@ export default function SelectDialog({ ...args }) {
   const visibleRecords = records.filter(record => !needHideRowIds.includes(record.rowid));
   const activeRowIndex =
     keyboardRow?.records === records ? visibleRecords.findIndex(record => record.rowid === keyboardRow.id) : -1;
+  const activeRowId = visibleRecords[activeRowIndex]?.rowid;
   const searchRecords = useMemo(() => debounce(handleUpdateKeyWords, 500), [handleUpdateKeyWords]);
   useEffect(() => () => searchRecords.cancel(), [searchRecords]);
   const [selectedRowIds, setSelectedRowIds] = useState([]);
@@ -281,6 +282,10 @@ export default function SelectDialog({ ...args }) {
   const [disableMaskDataControls, setDisableMaskDataControls] = useState({});
   // 弹层里新建记录时新增的选项，工作表模板里还没有，需要在本次弹层内合并使用
   const [newOptionControls, setNewOptionControls] = useState([]);
+  const highlightedRows = {
+    ...(control.type === 29 && Object.fromEntries(selectedRowIds.map(id => [id, true]))),
+    ...(activeRowId && { [activeRowId]: true }),
+  };
   const allowShowIgnoreAllFilters =
     error === ERROR_STATUS.INVALID_CONDITION && isCharge && recordId === 'FAKE_RECORD_ID_FROM_BATCH_EDIT';
   const showNewRecord =
@@ -341,7 +346,11 @@ export default function SelectDialog({ ...args }) {
 
   const coverControl = get(control, 'coverCid') && find(controls, { controlId: get(control, 'coverCid') });
   const tableConfig = getTableConfig(controlsForShow, {
-    titleControl,
+    // 关联记录选择弹窗的表格仅将已显示的标题列置顶，不额外补入。
+    titleControl:
+      control.type === 29 && !listMode && !some(controlsForShow, c => c.controlId === titleControlId)
+        ? undefined
+        : titleControl,
     coverControl: !isRelateRecordTableControl(control) && coverControl,
   });
   const sheetStyles =
@@ -720,9 +729,7 @@ export default function SelectDialog({ ...args }) {
                       )}
                       rowHeight={!isRelateRecordTableControl(control) && coverControl ? 88 : 34}
                       data={visibleRecords}
-                      sheetViewHighlightRows={
-                        activeRowIndex > -1 ? { [visibleRecords[activeRowIndex].rowid]: true } : {}
-                      }
+                      sheetViewHighlightRows={highlightedRows}
                       onCellClick={(clickedControl, clickedRow) => handlePointerSelect(clickedRow.rowid)}
                       renderColumnHead={({ control, ...rest }) => {
                         const { columnIndex } = rest;
@@ -850,7 +857,7 @@ export default function SelectDialog({ ...args }) {
                 control={control}
                 multiple={multiple}
                 selectedRowIds={selectedRowIds}
-                activeRowId={visibleRecords[activeRowIndex]?.rowid}
+                activeRowId={activeRowId}
                 needHideRowIds={needHideRowIds}
                 noMaskTitle={noMaskTitle}
                 onToggleSelect={handlePointerSelect}

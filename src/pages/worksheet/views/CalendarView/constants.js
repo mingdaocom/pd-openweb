@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { getWeekNumber } from 'src/utils/core/date';
+import { getWeekNumber } from 'src/utils/domain/worksheet/calendar';
 
 const formatWeekTitle = ({ start, end }, weekBegin) => {
   const firstDay = moment([start.year, start.month, start.day]);

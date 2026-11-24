@@ -1061,11 +1061,16 @@ export const functionTypes = {
   advanced: _l('高级函数'),
 };
 
+// 此模块也会在 .NET Jint 中初始化，读取环境配置或记录异常前须检查 window 和 console。
 let isSystemExampleName;
+
 try {
-  isSystemExampleName = _.get(window, 'platformENV.isOverseas') || _.get(window, 'platformENV.isLocal');
+  isSystemExampleName =
+    typeof window !== 'undefined' && (_.get(window, 'platformENV.isOverseas') || _.get(window, 'platformENV.isLocal'));
 } catch (err) {
-  console.log(err);
+  if (typeof console !== 'undefined') {
+    console.log(err);
+  }
 }
 
 const uriExampleName = isSystemExampleName ? '系统' : '明道云';

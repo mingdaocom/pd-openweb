@@ -547,7 +547,14 @@ class ChildTable extends React.Component {
       (newControls || get(base, 'controls') || props.controls).map(c => ({
         ...c,
         ...(isWorkflow
-          ? {}
+          ? {
+              // 刷新行接口返回的是工作表权限，审批节点权限以初始化时的工作项字段为准。
+              controlPermissions: get(
+                find(base.originControls, { controlId: c.controlId }),
+                'controlPermissions',
+                c.controlPermissions,
+              ),
+            }
           : {
               controlPermissions:
                 isRelateRecordTableControl(c) || c.type === 34
@@ -1067,9 +1074,19 @@ class ChildTable extends React.Component {
     const cacheKey = isNewRecord ? rowId : row?.rowid;
 
     if (isNewRecord || !cacheKey || !this.dataFormatCacheMap.has(cacheKey)) {
+      // 新行计算默认值时使用当前主表快照，不依赖尚未提交的 setState 更新。
+      const controls = isNewRecord
+        ? handleUpdateDefsourceOfControl({
+            recordId,
+            relateRecordControl: this.props.control,
+            masterData,
+            controls: this.state.controls.map(c => ({ ...c })),
+          })
+        : this.state.controls;
+
       formdata = new DataFormat({
         requestPool: this.requestPool,
-        data: this.state.controls.map(c => {
+        data: controls.map(c => {
           const importedValue = (row || {})[c.controlId];
           let controlValue = importedValue;
 

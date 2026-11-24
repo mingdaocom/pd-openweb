@@ -21,6 +21,7 @@ import { controlState, replaceByIndex } from 'src/utils/domain/control/state';
 import { SYSTEM_CONTROL } from 'src/utils/domain/control/widget';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { RECORD_INFO_FROM, RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
+import { FILTER_CONDITION_TYPE } from 'src/utils/domain/worksheet/filterConstants';
 import { getFilter } from 'src/utils/domain/worksheet/filterDynamic';
 import { formatValuesOfCondition } from 'src/utils/domain/worksheet/filterValue';
 import { getFilledRequestParams } from 'src/utils/platform/navigation/query';
@@ -573,9 +574,12 @@ export function search(keywords) {
 }
 
 export function updateRecord(newRecord) {
-  return {
-    type: 'UPDATE_RECORD',
-    newRecord,
+  return dispatch => {
+    dispatch({
+      type: 'UPDATE_RECORD',
+      newRecord,
+    });
+    dispatch(getRelateRecordSummary());
   };
 }
 
@@ -587,7 +591,7 @@ export function updateRecordByRecordId(recordId, changes = {}) {
   };
 }
 
-export function appendRecords(records = [], { afterRecordId } = {}) {
+function appendRecordsToTable(records, afterRecordId) {
   return (dispatch, getState) => {
     const state = getState();
     const { base = {} } = state;
@@ -599,10 +603,20 @@ export function appendRecords(records = [], { afterRecordId } = {}) {
       afterRecordId,
     });
     dispatch(updateTreeTableViewData());
-    // saveSync 模式下新记录已写入服务端（handleAddRelation 走 updateRelateRecords、onNew 走 addRecord 携带 masterRecord 直接落库），需重拉统计；非 saveSync 模式记录仅暂存本地，刷新只会拿到不含新记录的旧值，反而误导。
-    if (base.saveSync) {
-      dispatch(getRelateRecordSummary());
+    dispatch(getRelateRecordSummary());
+  };
+}
+
+export function appendRecords(records = [], { afterRecordId } = {}) {
+  return (dispatch, getState) => {
+    const { base = {} } = getState();
+    const { control, from, saveSync } = base;
+
+    if (afterRecordId && records[0]?.rowid && control?.type === 29 && from === RECORD_INFO_FROM.DRAFT && saveSync) {
+      return dispatch(handleAddRelation(records, { afterRecordId }));
     }
+
+    return dispatch(appendRecordsToTable(records, afterRecordId));
   };
 }
 
@@ -613,15 +627,20 @@ export function appendFakeRecords(records) {
   };
 }
 
-export function deleteRecords(recordIds = []) {
+export function deleteRecords(recordIds = [], { recordsDeleted = false } = {}) {
   return (dispatch, getState) => {
     const state = getState();
-    const { base = {} } = state;
+    const { base = {}, changes = {} } = state;
+    const ids = typeof recordIds === 'string' ? [recordIds] : recordIds;
     dispatch({
       type: 'DELETE_RECORDS',
-      recordIds: typeof recordIds === 'string' ? [recordIds] : recordIds,
+      recordIds: ids,
       saveSync: base.saveSync,
+      recordsDeleted,
+      // 暂存新增的关联尚未计入服务端数量，真实删除时只从展示数量中扣除。
+      savedRecordCount: ids.filter(id => !includes(changes.addedRecordIds, id)).length,
     });
+    dispatch(getRelateRecordSummary());
   };
 }
 
@@ -668,7 +687,6 @@ export function updateCell({ cell, row }, options = {}) {
         }
 
         dispatch(updateRecord({ ...updatedRow, allowedit: true, allowdelete: true }));
-        dispatch(getRelateRecordSummary());
       });
     }
 
@@ -761,9 +779,9 @@ function getStatisticsSettingTypes(control) {
 }
 
 export function getRelateRecordSummary({ reset = false } = {}) {
-  return (dispatch, getState) => {
+  return async (dispatch, getState) => {
     const state = getState();
-    const { base = {}, tableState = {}, rowsSummary = { types: {}, values: {} } } = state;
+    const { base = {}, tableState = {}, changes = {}, rowsSummary = { types: {}, values: {} } } = state;
     const { control = {}, worksheetId, recordId, appId, viewId } = base;
 
     if (get(control, 'advancedSetting.openstatistics') !== '1') return;
@@ -778,35 +796,94 @@ export function getRelateRecordSummary({ reset = false } = {}) {
         rptType: parseInt(types[controlId], 10),
       }));
 
+    const requestId = (rowsSummary.requestId || 0) + 1;
+    dispatch({ type: 'START_ROWS_SUMMARY', requestId, types });
+
     if (!columnRpts.length) {
       dispatch({ type: 'UPDATE_ROWS_SUMMARY', types, values: {} });
       return;
     }
 
-    worksheetAjax
-      .getFilterRowsReport(
-        getFilledRequestParams({
-          worksheetId,
-          appId,
-          viewId,
-          rowId: recordId,
-          controlId: control.controlId,
+    try {
+      let args = {
+        worksheetId,
+        appId,
+        viewId,
+        rowId: recordId,
+        controlId: control.controlId,
+        columnRpts,
+        filterControls: tableState.filterControls || [],
+        keyWords: tableState.keywords || '',
+        searchType: 1,
+        getType: 7,
+        requestParams: { controlId: control.controlId, rowId: recordId },
+      };
+      const { addedRecordIds = [], deletedRecordIds = [], isDeleteAll } = changes;
+      const hasPendingRelations = !base.saveSync && (addedRecordIds.length || deletedRecordIds.length || isDeleteAll);
+      let data;
+
+      if (hasPendingRelations) {
+        // 按完整关联 ID 集合统计，包含暂存增删；不能用当前页的 records 代替全量关联。
+        let savedIds = [];
+
+        if (!isDeleteAll) {
+          const detail = await worksheetAjax.getRowDetail({
+            appId,
+            worksheetId,
+            rowId: recordId,
+            viewId,
+            instanceId: base.instanceId,
+            workId: base.workId,
+            getType: base.isDraft || base.from === RECORD_INFO_FROM.DRAFT ? 21 : 1,
+          });
+
+          if (!detail || !detail.rowData) {
+            throw new Error('Related record IDs are unavailable');
+          }
+
+          const row = safeParse(detail.rowData, 'object');
+          savedIds = safeParse(row[`rc${control.controlId}`] || '[]', 'array');
+          if (!isArray(savedIds) || (row[control.controlId] > 0 && !row[`rc${control.controlId}`])) {
+            throw new Error('Related record IDs are unavailable');
+          }
+        }
+
+        const ids = _.uniq(savedIds.concat(addedRecordIds)).filter(id => !includes(deletedRecordIds, id));
+        args = {
+          worksheetId: control.dataSource,
+          appId: get(base, 'relateWorksheetInfo.appId') || appId,
+          viewId: control.viewId,
           columnRpts,
-          filterControls: tableState.filterControls || [],
+          filterControls: (tableState.filterControls || []).concat({
+            controlId: 'rowid',
+            dataType: 2,
+            filterType: FILTER_CONDITION_TYPE.EQ,
+            spliceType: 1,
+            values: ids,
+          }),
           keyWords: tableState.keywords || '',
           searchType: 1,
-          getType: 7,
-          requestParams: { controlId: control.controlId, rowId: recordId },
-        }),
-      )
-      .then(data => {
+        };
+        // 空集合不能发送空的 ID 筛选，否则会退化为统计整个关联工作表。
+        if (!ids.length) data = [];
+      }
+
+      if (getState().rowsSummary.requestId !== requestId) return;
+      data = data || (await worksheetAjax.getFilterRowsReport(getFilledRequestParams(args)));
+      if (getState().rowsSummary.requestId === requestId) {
         dispatch({
           type: 'UPDATE_ROWS_SUMMARY',
+          requestId,
           types,
           values:
             data && data.length ? [{}, ...data].reduce((a, b) => Object.assign({}, a, { [b.controlId]: b.value })) : {},
         });
-      });
+      }
+    } catch (err) {
+      if (getState().rowsSummary.requestId === requestId) {
+        alertIfNotUnauthorized(err, _l('获取统计失败'), 2);
+      }
+    }
   };
 }
 
@@ -887,7 +964,7 @@ export function handleRecreateRecord(record, { openRecord = () => {}, openAddRec
   return (dispatch, getState) => {
     const state = getState();
     const { base = {}, controls } = state;
-    const { worksheetId, control, recordId, relateWorksheetInfo, formData } = base;
+    const { worksheetId, control, recordId, relateWorksheetInfo, formData, from, saveSync } = base;
     const pid = record.pid;
     handleRowData({
       rowId: record.rowid,
@@ -918,6 +995,10 @@ export function handleRecreateRecord(record, { openRecord = () => {}, openAddRec
             dispatch(appendRecords([_.assign(record, { pid })]));
           }
         },
+        handleAddRelation:
+          control.type === 29 && from === RECORD_INFO_FROM.DRAFT && saveSync
+            ? records => dispatch(handleAddRelation(records.map(item => ({ ...item, pid }))))
+            : undefined,
         openRecord,
       });
     });
@@ -1019,7 +1100,7 @@ export function handleRemoveRelation(recordIds) {
   };
 }
 
-export function handleAddRelation(records) {
+export function handleAddRelation(records, { afterRecordId } = {}) {
   return async (dispatch, getState) => {
     const { base = {} } = getState();
     const { from, saveSync, recordId, appId, viewId, worksheetId, control, instanceId, workId } = base;
@@ -1042,14 +1123,14 @@ export function handleAddRelation(records) {
           workId,
           updateType: from === RECORD_INFO_FROM.DRAFT ? from : undefined,
         });
-        dispatch(appendRecords(records));
+        dispatch(appendRecordsToTable(records, afterRecordId));
         alert(_l('添加记录成功！'));
       } catch (err) {
         console.log(err);
         alertIfNotUnauthorized(err, _l('添加记录失败！'), 2);
       }
     } else {
-      dispatch(appendRecords(records));
+      dispatch(appendRecordsToTable(records, afterRecordId));
     }
   };
 }
@@ -1075,7 +1156,7 @@ export function deleteOriginalRecords({ recordIds = [] } = {}) {
       recordIds: allowDeleteRowIds,
     })
       .then(() => {
-        dispatch(deleteRecords(allowDeleteRowIds));
+        dispatch(deleteRecords(allowDeleteRowIds, { recordsDeleted: true }));
         if (allowDeleteRowIds.length < recordIds.length) {
           alert(_l('存在无权限删除的记录，有权限的已删除'), 3);
         }

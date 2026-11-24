@@ -69,7 +69,7 @@ export default function RelateRecordTableIndex(props) {
   }, [control.controlId, get(control, 'store.version')]);
   useEffect(() => {
     cache.current.storeVersion = store.version;
-    store.subscribe(() => {
+    const unsubscribe = store.subscribe(() => {
       if (cache.current.storeVersion !== store.version) return;
       const state = store.getState();
       const lastAction = get(state, 'lastAction');
@@ -79,8 +79,10 @@ export default function RelateRecordTableIndex(props) {
       }
 
       const keywords = state?.tableState?.keywords;
+      const recordUpdated = lastAction?.type === 'UPDATE_RECORD';
+      const recordsDeleted = lastAction?.type === 'DELETE_RECORDS' && lastAction.recordsDeleted;
 
-      if (keywords) {
+      if (keywords && !recordUpdated && !recordsDeleted) {
         return;
       }
 
@@ -90,19 +92,28 @@ export default function RelateRecordTableIndex(props) {
         changed = true;
       }
 
-      const newCount =
-        !state.base.saveSync && typeof state.tableState.countForShow !== 'undefined'
+      const newCount = keywords
+        ? (cache.current.count ?? state.base.initialCount) - (recordsDeleted ? lastAction.recordIds.length : 0)
+        : !state.base.saveSync && typeof state.tableState.countForShow !== 'undefined'
           ? state.tableState.countForShow
           : state.tableState.count;
 
-      if ((cache.current.count !== newCount || !recordId) && isFunction(onCountChange)) {
-        onCountChange(newCount, get(state, 'base.isTab') ? get(state, 'changes.changed') : changed);
+      if (
+        (cache.current.count !== newCount || !recordId || recordUpdated || recordsDeleted) &&
+        isFunction(onCountChange)
+      ) {
+        onCountChange(
+          newCount,
+          recordUpdated || recordsDeleted || (get(state, 'base.isTab') ? get(state, 'changes.changed') : changed),
+          { recordUpdated, recordsDeleted },
+        );
       }
 
       cache.current.count = newCount;
       cache.current.changes = state.changes;
     });
-  }, [store.version]);
+    return unsubscribe;
+  }, [store, onCountChange, recordId]);
   useEffect(() => {
     if (control.type !== 51) return;
     setFilters(

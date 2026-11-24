@@ -328,7 +328,10 @@ function TableComp(props) {
         isDraft={isDraft}
         from={from}
         removeRecords={rows => {
-          deleteRecords(rows.map(r => r.rowid));
+          deleteRecords(
+            rows.map(r => r.rowid),
+            { recordsDeleted: true },
+          );
         }}
         openRecord={id => handleOpenRecordInfo({ recordId: id })}
         addRecord={(record, afterRecordId) => {

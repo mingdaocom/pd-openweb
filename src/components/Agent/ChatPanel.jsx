@@ -90,7 +90,6 @@ import {
   SessionHistory,
   ThinkingSummary,
   ToolCall,
-  useAgentFeedback,
   WorkPhase,
 } from './ui';
 import {
@@ -106,6 +105,7 @@ import {
 } from './ui/embed';
 import AskEmbed from './ui/embed/Ask';
 import { ChartSaveProvider } from './ui/embed/chartSaveContext';
+import useAgentFeedback, { CopyTraceIdButton } from './ui/Feedback';
 import ModifyPlanComposer from './ui/ModifyPlanComposer';
 import {
   fetchHelpSessionShareUrl,
@@ -2650,9 +2650,9 @@ export default function ChatPanel({ runtime = {}, isSingleMingoPlan = false }) {
                           onRetry={retryAssistant}
                           onRegenerate={regenerateAssistant}
                           onShare={shareFromMessage}
-                          onFeedback={() =>
+                          onFeedback={traceId =>
                             openAgentFeedback({
-                              traceId: message.traceId || message.messageId,
+                              traceId,
                               projectId: getContextProjectId(),
                             })
                           }
@@ -3077,6 +3077,7 @@ function AssistantActions({
   text,
   always,
   shareable,
+  traceId,
   enableFeedback,
   onFeedback,
   submitting,
@@ -3092,6 +3093,7 @@ function AssistantActions({
   const isMobile = browserIsMobile();
   const iconStyle = isMobile ? { fontSize: 22 } : {};
   const hasText = !!text;
+  const showContentActions = hasText || shareable;
 
   // 卸载 / 切换会话时停止朗读，避免遗留语音继续播报
   useEffect(() => {
@@ -3122,8 +3124,8 @@ function AssistantActions({
   return (
     <MessageActionsBar always={always}>
       <BgIconButton.Group className="t-items-center" gap={6}>
-        <CopyButton text={text} />
-        {window.speechSynthesis && (
+        {showContentActions && <CopyButton text={text} />}
+        {showContentActions && window.speechSynthesis && (
           <BgIconButton
             size="small"
             icon="bofang"
@@ -3136,7 +3138,7 @@ function AssistantActions({
             onClick={handleSpeak}
           />
         )}
-        {showRegenerate && (
+        {showContentActions && showRegenerate && (
           <BgIconButton
             size="small"
             icon="ic_refresh_black"
@@ -3166,19 +3168,22 @@ function AssistantActions({
             }}
           />
         )}
-        {enableFeedback && (
-          <BgIconButton
-            size="small"
-            icon="get_help"
-            iconStyle={{
-              ...iconStyle,
-              color: 'var(--color-mingo)',
-            }}
-            popupPlacement="top"
-            tooltip={_l('反馈')}
-            onClick={onFeedback}
-          />
-        )}
+        {traceId &&
+          (enableFeedback ? (
+            <BgIconButton
+              size="small"
+              icon="get_help"
+              iconStyle={{
+                ...iconStyle,
+                color: 'var(--color-mingo)',
+              }}
+              popupPlacement="top"
+              tooltip={_l('反馈')}
+              onClick={() => onFeedback(traceId)}
+            />
+          ) : (
+            <CopyTraceIdButton traceId={traceId} />
+          ))}
       </BgIconButton.Group>
     </MessageActionsBar>
   );
@@ -3229,9 +3234,10 @@ function MessageRow({
   const isConfirmCard = parts.some(p => p.kind === 'rebuild-confirm' || p.kind === 'plan-drift');
 
   // 回复操作栏（复制 / 朗读 / 重新生成 / 分享）：仅 assistant 且非在途、非确认卡时展示。
-  // 复制 / 朗读作用于回复正文；无正文且不可分享时整条操作栏不出。
+  // 有 TraceID 的回复可以单独显示反馈或复制 ID，正文操作仍按正文和分享能力展示。
   const assistantPlainText = message.role === 'assistant' ? getAssistantPlainText(message) : '';
   const userPlainText = message.role === 'user' ? getUserPlainText(message) : '';
+  const traceId = stringValue(message.traceId);
   const shareable = !!enableShare && !!message.messageId;
   // 重新生成（V6.3 服务端重跑）：所有 assistant 回复都提供入口；对中间某条重生成会把其之后的对话
   // 全部物理删除（不管相不相关），由 regenerateAssistant 弹确认兜底。
@@ -3239,7 +3245,10 @@ function MessageRow({
   const showRegenerate =
     !!enableRegenerate && message.role === 'assistant' && isRegenerateSupportedAgent(message.agentName);
   const showAssistantActions =
-    message.role === 'assistant' && !streamingLast && !isConfirmCard && (!!assistantPlainText || shareable);
+    message.role === 'assistant' &&
+    !streamingLast &&
+    !isConfirmCard &&
+    (!!assistantPlainText || shareable || !!traceId);
 
   return (
     <Message role={message.role}>
@@ -3296,6 +3305,7 @@ function MessageRow({
               text={assistantPlainText}
               always={isLast}
               shareable={shareable}
+              traceId={traceId}
               enableFeedback={enableFeedback}
               onFeedback={onFeedback}
               submitting={submitting}

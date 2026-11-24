@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { getWeekNumber } from 'src/utils/core/date';
+import { getWeekNumber } from 'src/utils/domain/worksheet/calendar';
 import { WEEKS } from '../../util';
 
 export const FORMAT = 'YYYY-MM-DD';

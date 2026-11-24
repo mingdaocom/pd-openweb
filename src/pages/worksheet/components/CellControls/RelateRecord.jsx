@@ -54,21 +54,6 @@ const RecordCardCellRelateRecord = styled.div`
   border-radius: 3px;
   margin-right: 6px;
 `;
-const SingleRelateRecordTag = styled.span`
-  display: inline-block;
-  max-width: 100%;
-  height: 21px;
-  line-height: 21px;
-  padding: 0 6px;
-  overflow: hidden;
-  color: var(--color-text-primary);
-  font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
-  background-color: var(--hap-relate-record-tag-background, var(--color-background-overlay-light));
-  border-radius: 3px;
-`;
 class RelateRecord extends React.Component {
   static contextType = SheetContext;
   static propTypes = {
@@ -616,11 +601,7 @@ class RelateRecord extends React.Component {
               labelRender: isMultiple
                 ? undefined
                 : ({ label }) =>
-                    singleLine && React.isValidElement(label) ? (
-                      label
-                    ) : (
-                      <SingleRelateRecordTag className="ellipsis">{label}</SingleRelateRecordTag>
-                    ),
+                    React.isValidElement(label) ? label : <span className="normalSelectedItem">{label}</span>,
               styles: {
                 root: {
                   '--hap-control-height': isMultiple ? undefined : '34px',

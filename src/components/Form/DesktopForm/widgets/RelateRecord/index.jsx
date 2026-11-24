@@ -250,7 +250,23 @@ export default class Widgets extends Component {
           worksheetId={worksheetId}
           formData={formData}
           updateWorksheetControls={updateWorksheetControls}
-          onCountChange={(count, changed) => {
+          onCountChange={(count, changed, { recordUpdated, recordsDeleted } = {}) => {
+            const pendingChanges = _.get(this.props.store?.getState(), 'changes');
+            const hasPendingRelations =
+              pendingChanges?.addedRecordIds?.length ||
+              pendingChanges?.deletedRecordIds?.length ||
+              pendingChanges?.isDeleteAll;
+
+            if (
+              (recordUpdated || recordsDeleted) &&
+              recordId &&
+              !hasPendingRelations &&
+              _.isFunction(updateRelateRecordTableCount)
+            ) {
+              updateRelateRecordTableCount(controlId, count, { changed: true });
+              return;
+            }
+
             if (changed) {
               onChange({
                 isFormTable: true,

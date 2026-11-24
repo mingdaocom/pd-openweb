@@ -247,6 +247,7 @@ function Operate(props) {
     controls,
     formItemId,
     syncRelateRecordSummaryFromCache,
+    onCountChange,
   } = props;
   const { addedRecords } = changes;
   const {
@@ -643,7 +644,11 @@ function Operate(props) {
                     control: { ...control, ...(base.isTab ? { store: undefined } : {}) },
                     allowEdit,
                     formdata: formData,
-                    reloadTable: base.isTab ? refresh : () => {},
+                    reloadTable: base.isTab
+                      ? () => refresh({ doNotResetPageIndex: true, doNotClearKeywords: true })
+                      : () => {},
+                    // 标签表格的全屏实例使用独立 store，需回传修改以刷新主记录汇总。
+                    onUpdateCount: base.isTab ? onCountChange : undefined,
                     // 全屏关闭后读回全屏改过的统计方式，更新内联表格，保持两边一致
                     onClosed: () => syncRelateRecordSummaryFromCache(),
                     updateWorksheetControls: updatedControls => {
@@ -670,7 +675,12 @@ function Operate(props) {
               pageSize={pageSize}
               allCount={getCount({ control, count, direction, searchMaxCount })}
               showCount={!isTreeTableView}
-              countForShow={getCount({ control, count: countForShow || count, direction, searchMaxCount })}
+              countForShow={getCount({
+                control,
+                count: isUndefined(countForShow) ? count : countForShow,
+                direction,
+                searchMaxCount,
+              })}
               changePageIndex={value => {
                 updatePageIndex(value);
               }}
@@ -713,6 +723,7 @@ Operate.propTypes = {
   handleOpenRecordInfo: func,
   updateWorksheetControls: func,
   deleteOriginalRecords: func,
+  onCountChange: func,
 };
 
 export default connect(

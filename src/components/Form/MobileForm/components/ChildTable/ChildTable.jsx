@@ -363,7 +363,14 @@ class ChildTable extends React.Component {
       (newControls || get(base, 'controls') || props.controls).map(c => ({
         ...c,
         ...(isWorkflow
-          ? {}
+          ? {
+              // 刷新行接口返回的是工作表权限，审批节点权限以初始化时的工作项字段为准。
+              controlPermissions: get(
+                _.find(base.originControls, { controlId: c.controlId }),
+                'controlPermissions',
+                c.controlPermissions,
+              ),
+            }
           : {
               controlPermissions:
                 isRelateRecordTableControl(c) || c.type === 34

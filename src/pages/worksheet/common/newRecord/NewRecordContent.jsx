@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Dialog } from 'antd-mobile';
 import cx from 'classnames';
 import _, { find, get, isEmpty } from 'lodash';
@@ -11,6 +11,7 @@ import { openGlobalRecordInfo } from 'worksheet/common/recordInfo';
 import RecordForm from 'worksheet/common/recordInfo/RecordForm';
 import { getFormDataForNewRecord, submitNewRecord } from 'worksheet/controllers/record';
 import { getDynamicValue } from 'src/components/Form/core/formUtils';
+import { formatControlToServer } from 'src/components/Form/core/utils';
 import { usePreviewAttachments } from 'src/components/previewAttachments/previewAttachments';
 import { handleAPPScanCode } from 'src/pages/Mobile/components/RecordInfo/preScanCode';
 import { openMobileRecordInfo } from 'src/pages/Mobile/Record';
@@ -21,7 +22,7 @@ import { ADD_EVENT_ENUM } from 'src/utils/domain/control/formEnum';
 import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import { WIDGETS_TO_API_TYPE_ENUM } from 'src/utils/domain/control/widgetTypes';
 import { canEditData } from 'src/utils/domain/permission/app';
-import { BUTTON_ACTION_TYPE } from 'src/utils/domain/worksheet/constants';
+import { BUTTON_ACTION_TYPE, RECORD_INFO_FROM } from 'src/utils/domain/worksheet/constants';
 import {
   formatRecordToRelateRecord,
   getRecordTempValue,
@@ -165,6 +166,15 @@ function NewRecordForm(props) {
   const [formLoading, setFormLoading] = useState(true);
   const [isSettingTempData, setIsSettingTempData] = useState(false);
   const [restoreVisible, setRestoreVisible] = useState();
+  const { recordBaseInfo: parentRecord } = useContext(RecordInfoContext) || {};
+  const draftRowId = parentRecord?.from === RECORD_INFO_FROM.DRAFT ? parentRecord.recordId : undefined;
+  const isDraftRelatedSheet =
+    draftRowId &&
+    defaultRelatedSheet?.relateSheetControlId &&
+    defaultRelatedSheet?.value?.sid === draftRowId &&
+    defaultRelatedSheet.worksheetId === parentRecord.worksheetId;
+  const isDraftMaster =
+    draftRowId && masterRecord?.rowId === draftRowId && masterRecord.worksheetId === parentRecord.worksheetId;
   const [relateRecordData, setRelateRecordData] = useState({});
   const [worksheetInfo, setWorksheetInfo] = useState(propsWorksheetInfo);
   const [originFormdata, setOriginFormdata] = useState([]);
@@ -189,6 +199,36 @@ function NewRecordForm(props) {
     formdataRef.current = formdata;
   }, [formdata]);
 
+  function submitRecord(args) {
+    // 草稿主记录仍可用于表单取值。只在提交明细时移除该草稿的反向关联。
+    const data = isDraftRelatedSheet
+      ? args.formdata.map(control => {
+          if (
+            control.type !== 29 ||
+            control.sourceControlId !== defaultRelatedSheet.relateSheetControlId ||
+            control.dataSource !== defaultRelatedSheet.worksheetId
+          ) {
+            return control;
+          }
+
+          const { value } = formatControlToServer(control, { isNewRecord: true });
+          const records = safeParse(value, 'array');
+          if (!Array.isArray(records)) return control;
+
+          const retained = records.filter(record => record.sid !== draftRowId && record.rowid !== draftRowId);
+          return retained.length === records.length
+            ? control
+            : { ...control, store: undefined, value: JSON.stringify(retained) };
+        })
+      : args.formdata;
+
+    submitNewRecord({
+      ...args,
+      formdata: data,
+      masterRecord: isDraftMaster ? undefined : args.masterRecord,
+    });
+  }
+
   function newRecord(options = {}) {
     function handleSubmit() {
       if (!customwidget.current?.dataFormat) {
@@ -207,7 +247,7 @@ function NewRecordForm(props) {
         }
 
         setRequesting(true);
-        submitNewRecord({
+        submitRecord({
           appId,
           projectId,
           viewId,
@@ -349,7 +389,7 @@ function NewRecordForm(props) {
 
       setRequesting(true);
       const { autoFill, actionType, continueAdd, isContinue } = cache.current.newRecordOptions || {};
-      submitNewRecord({
+      submitRecord({
         appId,
         projectId,
         viewId,
@@ -421,7 +461,7 @@ function NewRecordForm(props) {
               compatibleMDJS('back', { closeAll: false });
             }
 
-            if (isDraft && _.isFunction(handleAddRelation)) {
+            if ((isDraft || isDraftRelatedSheet || isDraftMaster) && _.isFunction(handleAddRelation)) {
               handleAddRelation([rowData]);
               setErrorVisible(false);
               setRandom(Math.random().toString());
@@ -525,7 +565,7 @@ function NewRecordForm(props) {
           }
 
           if (_.isFunction(onAdd)) {
-            if (isDraft && _.isFunction(handleAddRelation)) {
+            if ((isDraft || isDraftRelatedSheet || isDraftMaster) && _.isFunction(handleAddRelation)) {
               handleAddRelation([rowData]);
             } else {
               onAdd(rowData, { continueAdd: actionType === BUTTON_ACTION_TYPE.CONTINUE_ADD || continueAdd });

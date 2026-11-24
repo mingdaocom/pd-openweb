@@ -134,13 +134,13 @@ export default class Widgets extends Component {
         });
       return;
     } else {
-      const result = content.match(/app\/(.*)\/(.*)\/(.*)\/row\/(.*)/);
+      const result = content.match(/(?:^|\/)app\/([^/?#]+)\/([^/?#]+)\/(?:([^/?#]+)\/)?row\/([^/?#]+)\/?(?:[?#].*)?$/);
 
       if (result) {
         const [, appId, worksheetId, viewId, rowId] = result;
         const { scanlink } = _.get(this.props, 'control.advancedSetting') || {};
 
-        if (appId && worksheetId && viewId && rowId) {
+        if (appId && worksheetId && rowId) {
           if (scanlink !== '1') {
             return;
           }

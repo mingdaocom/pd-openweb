@@ -516,6 +516,23 @@ class RelateRecordDropdown extends React.Component {
     return !!record && allowOpenRecord && !isMobileTable && !/^temp/.test(record.rowid);
   }
 
+  getUnfocusedTagRecordId(target) {
+    const { insheet, multiple } = this.props;
+
+    if (
+      !insheet ||
+      !multiple ||
+      this.active ||
+      target.closest?.('.hap-select-focused, .hap-select-selection-item-remove')
+    ) {
+      return;
+    }
+
+    const tag = target.closest?.('.hap-select-selection-item');
+
+    return tag?.querySelector('.RelateRecordDropdown-recordLabel[data-record-id]')?.dataset.recordId;
+  }
+
   getSelectValue(record, index) {
     return record.rowid || record.sid || `current-record-${index}`;
   }
@@ -582,6 +599,7 @@ class RelateRecordDropdown extends React.Component {
     const label = (
       <span
         className={cx('RelateRecordDropdown-recordLabel', { clickable: canOpenRecord, normalSelectedItem: !multiple })}
+        data-record-id={multiple && this.props.insheet && canOpenRecord ? record.rowid : undefined}
         title={title}
         draggable={canDrag}
         onMouseDown={e => {
@@ -936,7 +954,16 @@ class RelateRecordDropdown extends React.Component {
         }}
       >
         {!(showCards && disabled) && (
-          <div ref={this.cell}>
+          <div
+            ref={this.cell}
+            onMouseDownCapture={e => {
+              // 标签内边距由 Select 渲染。拦截这部分的按下事件，保留标题复制和删除按钮的交互。
+              if (e.target.matches?.('.hap-select-selection-item') && this.getUnfocusedTagRecordId(e.target)) {
+                e.stopPropagation();
+                e.preventDefault();
+              }
+            }}
+          >
             <Select
               {...DEFAULT_SELECT_PROPS}
               {...selectProps}
@@ -982,6 +1009,14 @@ class RelateRecordDropdown extends React.Component {
               }}
               onClear={this.handleClear}
               onClick={e => {
+                const recordId = this.getUnfocusedTagRecordId(e.target);
+
+                if (recordId) {
+                  e.stopPropagation();
+                  this.setState({ previewRecord: { recordId } });
+                  return;
+                }
+
                 if (insheet && !this.active) {
                   this.props.onClick(e);
                 }

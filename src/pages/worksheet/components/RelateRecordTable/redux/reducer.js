@@ -34,7 +34,7 @@ function tableState(
   },
   action,
 ) {
-  if (includes(['APPEND_RECORDS', 'DELETE_RECORDS'], action.type) && !action.saveSync) {
+  if (includes(['APPEND_RECORDS', 'DELETE_RECORDS'], action.type) && !action.saveSync && !action.recordsDeleted) {
     const newCount = typeof state.countForShow === 'undefined' ? state.count : state.countForShow;
 
     if (action.type === 'APPEND_RECORDS') {
@@ -54,7 +54,13 @@ function tableState(
     case 'APPEND_RECORDS':
       return { ...state, count: state.count + action.records.length };
     case 'DELETE_RECORDS':
-      return { ...state, count: state.count - action.recordIds.length };
+      return {
+        ...state,
+        count: state.count - (action.recordsDeleted ? action.savedRecordCount : action.recordIds.length),
+        ...(action.recordsDeleted && typeof state.countForShow !== 'undefined'
+          ? { countForShow: state.countForShow - action.recordIds.length }
+          : {}),
+      };
     case 'RESET':
       return {
         ...initialTableState,
@@ -100,7 +106,7 @@ export const initialChanges = {
 };
 
 function changes(state = cloneDeep(initialChanges), action) {
-  if (action.saveSync) {
+  if (action.saveSync && !action.recordsDeleted) {
     if (includes(['APPEND_RECORDS', 'DELETE_RECORDS'], action.type)) {
       return { ...state, changed: true };
     }
@@ -129,9 +135,13 @@ function changes(state = cloneDeep(initialChanges), action) {
         ...state,
         addedRecordIds: state.addedRecordIds.filter(recordId => !includes(action.recordIds, recordId)),
         addedRecords: state.addedRecords.filter(record => !includes(action.recordIds, record.rowid)),
-        deletedRecordIds: uniq(
-          state.deletedRecordIds.concat(action.recordIds.filter(recordId => !includes(state.addedRecordIds, recordId))),
-        ),
+        deletedRecordIds: action.recordsDeleted
+          ? state.deletedRecordIds.filter(recordId => !includes(action.recordIds, recordId))
+          : uniq(
+              state.deletedRecordIds.concat(
+                action.recordIds.filter(recordId => !includes(state.addedRecordIds, recordId)),
+              ),
+            ),
       };
     case 'DELETE_ALL':
       return {
@@ -149,6 +159,14 @@ function changes(state = cloneDeep(initialChanges), action) {
 
 function originFirstPageResult(state = [], action) {
   switch (action.type) {
+    case 'DELETE_RECORDS':
+      // 已落库的删除同步到撤销基线，取消表单编辑时不能恢复已删除的记录。
+      if (!action.recordsDeleted || !state.records) return state;
+      return {
+        ...state,
+        count: state.count - action.savedRecordCount,
+        records: state.records.filter(record => !includes(action.recordIds, record.rowid)),
+      };
     case 'INIT_FIRST_PAGE_RESULT':
       return action.value;
     default:
@@ -215,13 +233,16 @@ function lastAction(state, action) {
 
 function rowsSummary(state = { types: {}, values: {} }, action) {
   switch (action.type) {
+    case 'START_ROWS_SUMMARY':
+      return { ...state, types: action.types, requestId: action.requestId };
     case 'UPDATE_ROWS_SUMMARY':
       return {
+        ...state,
         types: typeof action.types !== 'undefined' ? action.types : state.types,
         values: typeof action.values !== 'undefined' ? action.values : state.values,
       };
     case 'RESET':
-      return { types: state.types, values: {} };
+      return { types: state.types, values: {}, requestId: (state.requestId || 0) + 1 };
     default:
       return state;
   }

@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Popup } from 'antd-mobile';
+import copy from 'copy-to-clipboard';
 import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
-import { Modal } from 'ming-ui/antd-components';
+import { Button, Modal, Tooltip } from 'ming-ui/antd-components';
 import useFunctionWrapComponent from 'ming-ui/hooks/useFunctionWrapComponent';
 import agentAjax from 'src/api/agent';
 import { browserIsMobile } from 'src/utils/platform/browser/device';
@@ -89,6 +90,27 @@ const MobileFeedbackBody = styled.div`
   }
 `;
 
+export function CopyTraceIdButton({ traceId }) {
+  if (!traceId) return null;
+
+  const label = _l('复制 ID');
+
+  return (
+    <Tooltip title={label} placement="top">
+      <Button
+        type="text"
+        size={browserIsMobile() ? 'middle' : 'small'}
+        aria-label={label}
+        icon={<Icon icon="ID" className="Font18 textSecondary" />}
+        onClick={() => {
+          const copied = copy(traceId);
+          alert(copied ? _l('复制成功') : _l('复制失败'), copied ? 1 : 2);
+        }}
+      />
+    </Tooltip>
+  );
+}
+
 function AgentFeedback({ onClose, traceId, projectId }) {
   const isMobile = browserIsMobile();
   const frameRef = useRef(null);
@@ -164,12 +186,18 @@ function AgentFeedback({ onClose, traceId, projectId }) {
       <LoadDiv />
     </FeedbackHint>
   );
+  const title = (
+    <span className="inlineFlex alignItemsCenter" style={{ gap: 4 }}>
+      {_l('反馈')}
+      <CopyTraceIdButton traceId={traceId} />
+    </span>
+  );
 
   return isMobile ? (
     <Popup visible className="mobileModal topRadius" onMaskClick={onClose}>
       <MobileFeedbackBody>
         <div className="feedbackHeader">
-          <span>{_l('反馈')}</span>
+          {title}
           <Icon className="feedbackClose Font20" icon="close" onClick={onClose} />
         </div>
         {content}
@@ -179,7 +207,7 @@ function AgentFeedback({ onClose, traceId, projectId }) {
     <Modal
       open
       width={640}
-      title={_l('反馈')}
+      title={title}
       keyboard
       mask={{ closable: true }}
       footer={null}

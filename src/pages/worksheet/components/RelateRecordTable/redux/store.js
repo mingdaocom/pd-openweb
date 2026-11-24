@@ -1,11 +1,11 @@
 import { applyMiddleware, compose, createStore } from 'redux';
 import thunk from 'redux-thunk';
-import { find, get, includes, isEmpty } from 'lodash';
+import { find, get, includes, isEmpty, uniqBy } from 'lodash';
 import { v4 } from 'uuid';
 import { isRelateRecordTableControl } from 'src/utils/domain/control/type';
 import { RELATE_RECORD_SHOW_TYPE } from 'src/utils/domain/worksheet/constants';
 import { getRelateRecordTableAllowEdit } from '../utils';
-import { init, updateTreeTableViewData } from './action';
+import { getRelateRecordSummary, init, updateTreeTableViewData } from './action';
 import reducer from './reducer';
 
 export default function generateStore(
@@ -105,6 +105,7 @@ export default function generateStore(
     // 会导致树形结构错乱（已无子记录的节点仍显示展开 icon、节点层级错位等）。
     // 这里必须基于还原后的 records 干净重建：传 resetExpansion 丢弃旧 treeMap，不复用撤销前的展开状态。
     store.dispatch(updateTreeTableViewData({ resetExpansion: true }));
+    store.dispatch(getRelateRecordSummary());
   };
 
   store.init = () => store.dispatch(init());
@@ -115,6 +116,11 @@ export default function generateStore(
   store.reset = () => {
     const state = store.getState();
     const { records = [], tableState = {} } = state;
+    // 普通表格的新增关联暂存在 changes 中，保存后也需纳入撤销基线。
+    const savedRecords =
+      !state.base.saveSync && state.base.recordId
+        ? uniqBy(state.changes.addedRecords.concat(records), 'rowid')
+        : records;
     // 兜底 records.length：若 reset 恰好在 refresh 的 RESET 之后、loadRecords 返回之前执行，
     // tableState.count 已被清零而 records 还是旧数据，直接取 0 会把撤销基线污染成「共0行」
     const count =
@@ -123,12 +129,13 @@ export default function generateStore(
     store.dispatch({ type: 'CLEAR_CHANGES' });
     store.dispatch({
       type: 'INIT_FIRST_PAGE_RESULT',
-      value: { count, records },
+      value: { count, records: savedRecords },
     });
     store.dispatch({
       type: 'UPDATE_TABLE_STATE',
       value: { highlightRows: {}, count },
     });
+    store.dispatch(getRelateRecordSummary());
   };
 
   store.setEmpty = ({ ignoreControlId = [] } = {}) => {

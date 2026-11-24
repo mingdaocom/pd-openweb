@@ -358,7 +358,23 @@
   .hap-select-open {
     background-color: var(--color-background-primary);
   }
-  // 单行行高下标签直接渲染在 Select 内容区里，自身没有宽度上限，
+}
+
+.cellRelateRecordDropdown {
+  &:not(.isediting) .hap-select:not(.hap-select-focused) {
+    .normalSelectedItem.clickable:hover,
+    .hap-select-selection-item:has(.RelateRecordDropdown-recordLabel[data-record-id]):hover {
+      color: var(--color-primary) !important;
+      background-color: rgba(33, 150, 243, 0.16);
+      cursor: pointer;
+    }
+
+    .hap-select-selection-item:hover .RelateRecordDropdown-recordLabel.clickable {
+      color: var(--color-primary);
+    }
+  }
+
+  // 标签直接渲染在 Select 内容区里，自身没有宽度上限，
   // 标题过长时整块胶囊会被内容区裁断（父级的 text-overflow 对溢出的 inline-block 不生效）。
   // 这里限制在单元格宽度内并由标签自己省略。
   .normalSelectedItem {
@@ -375,10 +391,6 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     vertical-align: middle;
-  }
-  .clickable:hover {
-    color: var(--color-primary) !important;
-    background-color: rgba(33, 150, 243, 0.16);
   }
 }
 

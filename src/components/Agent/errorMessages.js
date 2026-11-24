@@ -52,6 +52,14 @@ function getAgentErrorMessageMap() {
     hook_timeout: _l('服务处理超时，请稍后重试'),
     unexpected_error: retryLater,
 
+    // HAP 搭建工具返回的终态业务错误
+    tool_error_300009: _l('应用数量已达到最大值'),
+    tool_error_300010: _l('工作表数量已达到最大值'),
+    tool_error_300005: _l('应用已删除'),
+    tool_error_9998: _l('网络已过期'),
+    tool_error_50013: _l('无操作权限'),
+    tool_error_430024: _l('你还不是应用成员，无权访问此应用'),
+
     // 智能体配置
     dsl_invalid: configError,
     mcp_forbidden_host: configError,

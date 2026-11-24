@@ -350,47 +350,46 @@ export default forwardRef(function RelateRecordTags(props, ref) {
         (record, i) => {
           const text = getTitleTextFromRelateControl(control, record);
           return (
-            <Tag
-              className={cx('ellipsis', {
-                isediting,
-                allowOpenRecord: allowOpenRecord && record.rowid && !/^temp/.test(record.rowid),
-                allowRemove,
-              })}
-              style={{ maxWidth: records.length < count ? 'calc(100% - 40px)' : 'calc(100% - 13px)' }}
-              key={i}
-              title={text}
-              onClick={e => {
-                if (!record.rowid || /^temp/.test(record.rowid) || isMobile) {
-                  return;
-                }
+            <ViewHoverRelateRecordCard key={record.rowid || i} record={record} {...props} formData={rowFormData}>
+              <Tag
+                className={cx('ellipsis', {
+                  isediting,
+                  allowOpenRecord: allowOpenRecord && record.rowid && !/^temp/.test(record.rowid),
+                  allowRemove,
+                })}
+                style={{ maxWidth: records.length < count ? 'calc(100% - 40px)' : 'calc(100% - 13px)' }}
+                title={text}
+                onClick={e => {
+                  if (!record.rowid || /^temp/.test(record.rowid) || isMobile) {
+                    return;
+                  }
 
-                e.stopPropagation();
-                if (allowOpenRecord) {
-                  addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
-                  handleOpenRecord({
-                    viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
-                    worksheetId: control.dataSource,
-                    recordId: record.rowid,
-                  });
-                }
-              }}
-            >
-              <ViewHoverRelateRecordCard record={record} {...props} formData={rowFormData}>
-                <span>{text}</span>
-              </ViewHoverRelateRecordCard>
-              {isediting && allowRemove && (
-                <i
-                  className="icon-close"
-                  onClick={e => {
-                    e.stopPropagation();
-                    setChanged(true);
-                    setRecords(records.filter(r => r.rowid !== record.rowid));
-                    setDeletedIds([...deletedIds, record.rowid]);
-                    setCount(count - 1);
-                  }}
-                ></i>
-              )}
-            </Tag>
+                  e.stopPropagation();
+                  if (allowOpenRecord) {
+                    addBehaviorLog('worksheetRecord', control.dataSource, { rowId: record.rowid }); // 埋点
+                    handleOpenRecord({
+                      viewId: _.get(control, 'advancedSetting.openview') || control.viewId,
+                      worksheetId: control.dataSource,
+                      recordId: record.rowid,
+                    });
+                  }
+                }}
+              >
+                {text}
+                {isediting && allowRemove && (
+                  <i
+                    className="icon-close"
+                    onClick={e => {
+                      e.stopPropagation();
+                      setChanged(true);
+                      setRecords(records.filter(r => r.rowid !== record.rowid));
+                      setDeletedIds([...deletedIds, record.rowid]);
+                      setCount(count - 1);
+                    }}
+                  ></i>
+                )}
+              </Tag>
+            </ViewHoverRelateRecordCard>
           );
         },
       )}

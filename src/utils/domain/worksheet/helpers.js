@@ -332,6 +332,8 @@ export function getFiltersForGroupedView(control, groupKey) {
     };
   }
 
+  const groupType = control.type === WIDGETS_TO_API_TYPE_ENUM.SHEET_FIELD ? control.sourceControlType : control.type;
+
   if (
     includes(
       [
@@ -344,7 +346,7 @@ export function getFiltersForGroupedView(control, groupKey) {
         WIDGETS_TO_API_TYPE_ENUM.DEPARTMENT,
       ],
 
-      control.type,
+      groupType,
     )
   ) {
     return {
@@ -357,7 +359,7 @@ export function getFiltersForGroupedView(control, groupKey) {
     };
   }
 
-  if (control.type === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
+  if (groupType === WIDGETS_TO_API_TYPE_ENUM.SCORE) {
     return {
       controlId: control.controlId,
       dataType: control.type,

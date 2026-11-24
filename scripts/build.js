@@ -333,6 +333,8 @@ async function publish() {
 }
 
 // 生成 mdfunction.bundle.js，并包装成浏览器和 Node 都可消费的格式。
+// 函数库也供 .NET Jint、Swift JavaScriptCore 和 Java 的脚本引擎调用，不能假设存在浏览器全局变量。
+// webpack 模块先于下面的兼容包装执行，发布前须用无 window 和 console 的 .NET Jint 验证产物能初始化和计算。
 async function buildMdFunction() {
   const filePath = resolvePath('build/dist/mdfunction.bundle.js');
 
