@@ -174,6 +174,10 @@ const Attachments = ({ disabled, scanId, scanInfo, defaultAttachments }) => {
                     })),
                   ]);
                 },
+                onError: (up, error) => {
+                  setAttachments(old => old.filter(item => item.id !== error.file?.id));
+                  if (!error.uploadErrorHandled) alert(_l('上传失败，请稍后再试。'), 2);
+                },
                 onUploaded: (up, file) => {
                   setAttachments(old =>
                     old.map(item => (item.id === file.id ? { ...item, loading: false, url: file.url } : item)),

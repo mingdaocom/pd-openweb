@@ -6,6 +6,7 @@ import filterXSS from 'xss';
 import { whiteList } from 'xss/lib/default';
 import autoSize from 'ming-ui/components/AutoSize';
 import RegExpValidator from 'src/utils/domain/validation/expression';
+import { getUploadError } from 'src/utils/services/file/uploadError';
 import { getToken } from 'src/utils/services/request/authenticated';
 import { preventWidgetResizeRedrawRecursion } from './richTextUtils';
 import './less/RichText.less';
@@ -403,10 +404,11 @@ class MyUploadAdapter {
         },
       );
       this.xhr.addEventListener('load', () => {
-        const response = this.xhr.response;
+        const response = safeParse(this.xhr.responseText, 'object');
+        const uploadError = getUploadError(response, result.name);
 
-        if (!response || response.error) {
-          return reject(response && response.error ? response.error.message : "Couldn't upload file");
+        if (!this.xhr.responseText || !response || uploadError || this.xhr.status >= 400 || response.error) {
+          return reject(uploadError?.message || response?.error?.message || _l('上传失败，请稍后再试。'));
         }
 
         // If the upload is successful, resolve the upload promise with an object containing

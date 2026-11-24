@@ -853,7 +853,10 @@ export default function CreateTaxNumber(props) {
                     up.disableBrowse();
                   }}
                   onError={(up, err, errTip) => {
-                    alert(errTip, 2);
+                    if (!err.uploadErrorHandled) {
+                      alert(errTip, 2);
+                    }
+
                     setUploading(false);
                     up.disableBrowse(false);
                   }}

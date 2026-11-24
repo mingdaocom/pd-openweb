@@ -924,6 +924,11 @@
         i;
 
       if (this.state == plupload.STARTED) {
+        // FileUploaded 和 Error 可能重复调度，已有上传中的文件时不能启动下一项或提前结束队列。
+        for (i = 0; i < files.length; i++) {
+          if (files[i].status == plupload.UPLOADING) return;
+        }
+
         // Find first QUEUED file
         for (i = 0; i < files.length; i++) {
           if (!file && files[i].status == plupload.QUEUED) {

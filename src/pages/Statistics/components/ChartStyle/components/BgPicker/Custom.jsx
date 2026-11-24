@@ -154,7 +154,10 @@ export default props => {
             up.disableBrowse();
           }}
           onError={(up, err, errTip) => {
-            alert(errTip, 2);
+            up.disableBrowse(false);
+            if (!err.uploadErrorHandled) {
+              alert(errTip, 2);
+            }
           }}
         >
           <div className="imageUpload flexRow alignItemsCenter justifyContentCenter pointer">

@@ -151,8 +151,12 @@ export default class Dectypt extends Component {
                 this.checkFile,
               );
             }}
-            onError={() => {
-              alert(_l('文件上传失败'), 2);
+            onError={(up, err) => {
+              up.disableBrowse(false);
+              if (!err.uploadErrorHandled) {
+                alert(_l('文件上传失败'), 2);
+              }
+
               this.setState({
                 file: {},
                 url: '',

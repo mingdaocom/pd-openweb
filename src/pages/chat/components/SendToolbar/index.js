@@ -7,6 +7,7 @@ import chatAjax from 'src/api/chat';
 import { SOURCE_TYPE } from 'src/components/comment/config';
 import Emotion from 'src/components/emotion';
 import MentionsInput from 'src/components/MentionsInput';
+import bindUploadErrors from 'src/library/plupload/uploadErrors';
 import RegExpValidator from 'src/utils/domain/validation/expression';
 import { setCaretPosition } from 'src/utils/platform/browser/dom';
 import { getToken } from 'src/utils/services/request/authenticated';
@@ -209,6 +210,7 @@ export default class SendToolbar extends Component {
           _this.props.onSendFileMsg({ file: uploadFile, type }, msg);
         },
         Error(uploader, error) {
+          if (error.uploadErrorHandled) return;
           if (error.code === window.plupload.FILE_SIZE_ERROR) {
             alert(_l('单个文件大小超过%0MB，无法支持上传', fileUploadLimitSize), 2);
           } else {
@@ -219,6 +221,7 @@ export default class SendToolbar extends Component {
     };
 
     const uploader = new plupload.Uploader(config);
+    bindUploadErrors(uploader);
 
     uploader.bind('FilesAdded', config.method.FilesAdded);
     uploader.bind('BeforeUpload', config.method.BeforeUpload);

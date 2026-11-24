@@ -1,6 +1,7 @@
 // 官网免登录漏斗（详见《官网免登录生成应用-前端对接完整文档》§1-§8）：
 // 匿名版 agent 只能由前端显式点名直达，登录后续建换产品版。
 import { v4 as uuidv4 } from 'uuid';
+import { getUploadError } from 'src/utils/services/file/uploadError';
 import { isRecord, readField, stringValue } from './valueUtils';
 
 export const ANON_AGENT = 'app-plan-builder-public'; // §1 匿名版：官网免登录生成 plan
@@ -326,8 +327,11 @@ async function uploadToQiniu(item, file) {
   form.append('file', file, item.fileName || file.name);
   const res = await fetch(md.global.FileStoreConfig.uploadHost, { method: 'POST', body: form });
 
+  const response = await res.json();
+  const uploadError = getUploadError(response, file.name);
+  if (uploadError) throw Object.assign(new Error(uploadError.message), { uploadError });
   if (!res.ok) throw new Error(`qiniu upload failed: ${res.status}`);
-  return res.json();
+  return response;
 }
 
 // §3 完整匿名上传：upload-token → 直传七牛 → 回读 url 组装成 execute 的 attachments[]。
@@ -344,7 +348,7 @@ export async function uploadAnonymousFiles(fileList, sessionId) {
   }));
   const tokens = await requestUploadToken(tokenFiles, sessionId);
 
-  const uploaded = await Promise.all(
+  const results = await Promise.allSettled(
     files.map(async (file, i) => {
       const item = tokens[i];
 
@@ -359,7 +363,25 @@ export async function uploadAnonymousFiles(fileList, sessionId) {
     }),
   );
 
-  return uploaded;
+  const failed = results.filter(result => result.status === 'rejected');
+
+  if (failed.length) {
+    const securityErrors = failed.filter(result => result.reason?.uploadError?.isSecurityError);
+
+    if (securityErrors.length) {
+      const message =
+        securityErrors.length === 1
+          ? securityErrors[0].reason.uploadError.message
+          : _l('%0 个文件检测到安全风险，无法上传', securityErrors.length);
+      throw Object.assign(new Error(message), { uploadErrorMessage: message });
+    }
+
+    const error = failed[0].reason;
+    if (error.uploadError) error.uploadErrorMessage = error.uploadError.message;
+    throw error;
+  }
+
+  return results.map(result => result.value);
 }
 
 // §7 登录后「转正」认领：把匿名会话 + 产物改派到登录账号。返回 { success, artifactId, versionId, sessionId }。

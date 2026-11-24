@@ -195,7 +195,9 @@ class EditPrint extends React.Component {
             error: true,
           });
           if (errTip) {
-            alert(errTip, 2);
+            if (!err.uploadErrorHandled) {
+              alert(errTip, 2);
+            }
           }
         },
       },

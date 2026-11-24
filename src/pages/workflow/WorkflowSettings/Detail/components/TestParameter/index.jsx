@@ -152,7 +152,11 @@ export default ({
               up.disableBrowse();
             }}
             onError={(up, err, errTip) => {
-              alert(errTip, 2);
+              setUploadingIndex('');
+              up.disableBrowse(false);
+              if (!err.uploadErrorHandled) {
+                alert(errTip, 2);
+              }
             }}
           >
             <div className="textSecondary hoverColorPrimary pointer flexRow alignItemsCenter" style={{ height: 20 }}>

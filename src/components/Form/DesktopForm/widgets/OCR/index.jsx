@@ -326,7 +326,10 @@ const OCR = props => {
         up.disableBrowse();
       }}
       onError={(up, err, errorTip) => {
-        alert(errorTip || _l('上传失败'), 2);
+        if (!err.uploadErrorHandled) {
+          alert(errorTip || _l('上传失败'), 2);
+        }
+
         handleClear(up);
       }}
     >

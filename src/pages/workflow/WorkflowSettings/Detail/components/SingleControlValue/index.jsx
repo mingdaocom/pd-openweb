@@ -799,7 +799,11 @@ export default class SingleControlValue extends Component {
                   up.disableBrowse();
                 }}
                 onError={(up, err, errTip) => {
-                  alert(errTip, 2);
+                  this.setState({ isUploading: false });
+                  up.disableBrowse(false);
+                  if (!err.uploadErrorHandled) {
+                    alert(errTip, 2);
+                  }
                 }}
               />
 

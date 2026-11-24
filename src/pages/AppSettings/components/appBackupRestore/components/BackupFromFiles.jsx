@@ -130,9 +130,7 @@ class BackupFromFilesCom extends Component {
           this.setState({ isEncrypt: false, errTip: '' });
         }}
         onBeforeUpload={(up, file) => {
-          setTimeout(() => {
-            this.setState({ file, analyzeLoading: true });
-          }, 200);
+          this.setState({ file, analyzeLoading: true });
         }}
         onUploaded={(up, file, response) => {
           const { key } = response;
@@ -145,12 +143,12 @@ class BackupFromFilesCom extends Component {
             this.checkFile,
           );
         }}
-        onError={() => {
+        onError={(up, err) => {
           this.setState({
             file: {},
             url: '',
             password: '',
-            errTip: _l('文件上传失败'),
+            errTip: err.uploadErrorMessage || _l('文件上传失败'),
             analyzeLoading: false,
           });
         }}

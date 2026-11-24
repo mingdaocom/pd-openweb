@@ -207,14 +207,17 @@ export default function UpgradeFileList(props) {
         onUploaded={(up, file, response) => {
           const { key } = response;
           uploadFiles.current = uploadFiles.current.concat({ ...file, key });
-
-          if (up.files.length === uploadFiles.current.length) {
+        }}
+        onUploadComplete={() => {
+          if (uploadFiles.current.length) {
             batchCheckFiles(uploadFiles.current.slice(0, MAX_FILES - count));
             uploadFiles.current = [];
           }
         }}
-        onError={() => {
-          alert(_l('文件上传失败'), 3);
+        onError={(up, err) => {
+          if (!err.uploadErrorHandled) {
+            alert(_l('文件上传失败'), 3);
+          }
         }}
       >
         <FileItemWrap className="Hand">

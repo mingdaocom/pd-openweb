@@ -1,5 +1,9 @@
 # UploadFiles
 
+#### 上传失败回归验证
+
+手动执行 `node --test src/components/UploadFiles/uploadFailure.test.js`（尚未接入 CI）。测试加载真实组件、上传回调及附件格式转换，模拟 React 批处理，覆盖三个文件中一个失败、连续失败、失败与进度/成功/新增文件回调交错、父级列表与完成状态同步，以及历史附件保留。维护上传状态时同步维护同目录 `uploadFailure.test.js`；上传器队列回归命令见 `src/library/plupload/README.md`。
+
 #### 预览回归验证
 
 手动执行 `node src/components/UploadFiles/temporaryPreview.test.js`（尚未接入 CI）。测试调用真实组件的预览与分享方法，覆盖聊天原图链接、聊天工具栏及图片预览层分享到日程、HEIC/HEIF 缩略图与签名 URL 保留、分享文档的原文件地址、图片预览、链接、历史附件及空列表/上传中/重命名分支。维护位置为同目录 `temporaryPreview.test.js`。

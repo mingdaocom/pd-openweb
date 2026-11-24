@@ -117,6 +117,11 @@ export default class UploadFile extends Component {
       type: 0,
       init: {
         Error: (up, err) => {
+          if (err.file) {
+            up.removeFile(err.file);
+            this.setState(({ files }) => ({ files: files.filter(file => file.id !== err.file.id) }));
+          }
+
           const {
             file: { name },
             code,

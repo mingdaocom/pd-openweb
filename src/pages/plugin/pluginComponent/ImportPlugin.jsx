@@ -218,8 +218,11 @@ function ImportPlugin(props) {
           const url = md.global.FileStoreConfig.documentHost + '/' + response.key;
           onCheckFile(url);
         }}
-        onError={() => {
-          alert(_l('上传失败, 请选择.mdye格式文件'), 2);
+        onError={(up, err) => {
+          if (!err.uploadErrorHandled) {
+            alert(_l('上传失败, 请选择.mdye格式文件'), 2);
+          }
+
           setFile({});
           setUploading(false);
         }}

@@ -92,9 +92,13 @@ export default class ImportExcel extends React.Component {
         },
         Error(up, err, errTip) {
           if (err.code === window.plupload.FILE_SIZE_ERROR) {
-            alert(_l('单个文件大小超过10MB，无法支持上传'), 2);
+            if (!err.uploadErrorHandled) {
+              alert(_l('单个文件大小超过10MB，无法支持上传'), 2);
+            }
           } else {
-            alert(_l('上传失败，请稍后再试。'), 2);
+            if (!err.uploadErrorHandled) {
+              alert(_l('上传失败，请稍后再试。'), 2);
+            }
           }
 
           const fileList = comp.state.fileList.update(err.file.id, fileItem => {

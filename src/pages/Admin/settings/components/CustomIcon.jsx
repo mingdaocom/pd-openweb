@@ -175,7 +175,9 @@ export default class CustomIcon extends Component {
                 }
               }}
               onError={(up, err, errTip) => {
-                alert(errTip, 2);
+                if (!err.uploadErrorHandled) {
+                  alert(errTip, 2);
+                }
               }}
             >
               <Button type="primary" shape="round" icon={<Icon icon="add" />} id="customIconBtn">

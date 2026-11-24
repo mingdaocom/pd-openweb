@@ -79,7 +79,11 @@ export default function UploadCertificate(props) {
           up.disableBrowse();
         }}
         onError={(up, err, errTip) => {
-          alert(errTip, 2);
+          setUploading(false);
+          up.disableBrowse(false);
+          if (!err.uploadErrorHandled) {
+            alert(errTip, 2);
+          }
         }}
       >
         <Button loading={uploading} icon={<Icon icon="attachment" />}>

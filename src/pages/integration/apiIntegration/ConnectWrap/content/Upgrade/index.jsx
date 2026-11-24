@@ -272,13 +272,13 @@ function Upgrade(props) {
                 !analyzeLoading && setState({ file: file, analyzeLoading: true });
               }}
               onUploaded={onUploadComplete}
-              onError={() => {
+              onError={(up, err) => {
                 setState({
                   file: {},
                   files: [],
                   url: '',
                   password: '',
-                  errTip: _l('文件上传失败'),
+                  errTip: err.uploadErrorMessage || _l('文件上传失败'),
                   analyzeLoading: false,
                 });
               }}

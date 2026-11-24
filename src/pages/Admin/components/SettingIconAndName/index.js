@@ -97,7 +97,9 @@ export default class SettingIconAndName extends Component {
         this.setState({ iconUrl: `${serverName}${key}`, icon: fileName, file });
       },
       onError: (up, err, errTip) => {
-        alert(errTip, 2);
+        if (!err.uploadErrorHandled) {
+          alert(errTip, 2);
+        }
       },
     };
 

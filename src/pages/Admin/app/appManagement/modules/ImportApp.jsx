@@ -85,14 +85,16 @@ export default class ImportApp extends React.Component {
             },
           );
         },
-        Error: () => {
+        Error: (up, err) => {
           this.setState({
             file: {},
             url: '',
             password: '',
-            errTip: _l('文件上传失败'),
+            errTip: err.uploadErrorMessage || _l('文件上传失败'),
           });
-          alert(_l('文件上传失败'), 2);
+          if (!err.uploadErrorHandled) {
+            alert(_l('文件上传失败'), 2);
+          }
         },
       },
     });

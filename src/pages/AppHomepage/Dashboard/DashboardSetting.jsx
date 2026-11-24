@@ -334,7 +334,10 @@ export default function DashboardSetting(props) {
                           up.disableBrowse();
                         }}
                         onError={(up, err, errTip) => {
-                          alert(errTip, 2);
+                          up.disableBrowse(false);
+                          if (!err.uploadErrorHandled) {
+                            alert(errTip, 2);
+                          }
                         }}
                       >
                         <span className="Font15 icon-upload_pictures"></span>

@@ -1,6 +1,7 @@
-import { assign, endsWith, find, forEach, trim } from 'lodash';
+import { assign, endsWith, find, forEach, throttle, trim } from 'lodash';
 import RegExpValidator from 'src/utils/domain/validation/expression';
 import { getToken } from 'src/utils/services/request/authenticated';
+import bindUploadErrors from './uploadErrors';
 
 const validateFileName = str => {
   str = trim(str);
@@ -52,12 +53,19 @@ export default option => {
     return !find(option.ext_blacklist, ext => endsWith(file.name.toLowerCase(), ext.toLowerCase()));
   }
 
-  function triggerUploadError(up, file, message) {
+  function triggerUploadError(up, file, message, info = {}) {
     file.status = window.plupload.FAILED;
+    try {
+      localStorage.removeItem(file.name);
+    } catch {
+      // 存储不可用时仍需触发失败回调并清理上传队列。
+    }
     up.trigger('Error', {
       file,
-      code: undefined,
+      code: info.response !== undefined || info.status !== undefined ? plupload.HTTP_ERROR : undefined,
       message,
+      response: info.response,
+      status: info.status,
     });
     up.removeFile(file);
   }
@@ -73,12 +81,10 @@ export default option => {
       return v > 4 ? v : false;
     })();
     let BLOCK_BITS, MAX_CHUNK_SIZE, chunkSize;
+    const { Env } = window.mOxie;
     const isSpecialSafari =
-      (mOxie.Env.browser === 'Safari' &&
-        mOxie.Env.version <= 5 &&
-        mOxie.Env.os === 'Windows' &&
-        mOxie.Env.osVersion === '7') ||
-      (mOxie.Env.browser === 'Safari' && mOxie.Env.os === 'iOS' && mOxie.Env.osVersion === '7');
+      (Env.browser === 'Safari' && Env.version <= 5 && Env.os === 'Windows' && Env.osVersion === '7') ||
+      (Env.browser === 'Safari' && Env.os === 'iOS' && Env.osVersion === '7');
     if (ie && ie <= 9 && option.chunk_size && option.runtimes.indexOf('flash') >= 0) {
       //  link: http://www.plupload.com/docs/Frequently-Asked-Questions#when-to-use-chunking-and-when-not
       //  when plupload chunk_size setting is't null ,it cause bug in ie8/9  which runs  flash runtimes (not support html5) .
@@ -110,6 +116,7 @@ export default option => {
   delete option.init.FilesAdded;
   const uploader = new plupload.Uploader(option);
 
+  bindUploadErrors(uploader);
   uploader.init();
 
   uploader.bind('FilesAdded', function FilesAdded(up, files) {
@@ -234,7 +241,9 @@ export default option => {
       if (file.size && !native.size) {
         file.notExists = true;
       }
-    } catch (e) {}
+    } catch {
+      // 旧上传运行时可能没有原生 File，继续由上传请求判断文件是否可用。
+    }
 
     const fileExt = `.${RegExpValidator.getExtOfFileName(file.name)}`;
 
@@ -323,8 +332,8 @@ export default option => {
 
   uploader.bind('ChunkUploaded', function ChunkUploaded(up, file, info) {
     const res = safeParse(info.response, 'object');
-    if (!res.ctx) {
-      triggerUploadError(up, file, _l('上传失败，请稍后再试。'));
+    if (!res?.ctx) {
+      triggerUploadError(up, file, _l('上传失败，请稍后再试。'), info);
       return;
     }
 
@@ -350,6 +359,12 @@ export default option => {
   });
 
   uploader.bind('Error', function Error(up, err) {
+    if (err.uploadErrorHandled) {
+      if (initFunc.Error) initFunc.Error(up, err, err.uploadErrorMessage);
+      up.refresh();
+      return;
+    }
+
     let errTip = '';
     let maxFileSize, errorObj, errorText;
     switch (err.code) {
@@ -365,12 +380,13 @@ export default option => {
         errTip = _l('无法上传，不支持该格式的文件');
         break;
       case plupload.HTTP_ERROR:
-        if (/limited mimeType/i.test(safeParse(err.response, 'object').error || '')) {
+        errorObj = safeParse(err.response, 'object');
+        errorText = typeof errorObj?.error === 'string' ? errorObj.error : '';
+
+        if (/limited mimeType/i.test(errorText)) {
           errTip = _l('不支持此文件格式，请转换后重试。') + (err.status ? `(${err.status})` : '');
           break;
         }
-        errorObj = JSON.stringify(err.response);
-        errorText = errorObj.error;
         switch (err.status) {
           case 400:
             errTip = _l('上传文件发生错误，请稍后再试。');
@@ -389,12 +405,8 @@ export default option => {
             break;
           case 614:
             errTip = _l('文件服务器已存在同名文件，请重新上传。');
-            try {
-              errorObj = JSON.parse(errorObj.error);
-              errorText = errorObj.error || '';
-            } catch (e) {
-              errorText = errorObj.error || '';
-            }
+            errorObj = safeParse(errorText, 'object');
+            errorText = typeof errorObj?.error === 'string' ? errorObj.error : errorText;
             break;
           case 631:
             errTip = _l('指定空间不存在。');
@@ -411,8 +423,10 @@ export default option => {
               err.message = (err.message || '') + ' ' + errorText + ' ' + err.status;
               errTip = _l('上传失败，请检查网络或稍后再试。');
             }
+
             break;
         }
+
         if (err.status) {
           errTip = errTip + '(' + err.status + (errorText ? '：' + errorText : '') + ')';
         }
@@ -445,8 +459,8 @@ export default option => {
 
   uploader.bind('FileUploaded', function (up, file, info) {
     info.response = safeParse(info.response, 'object');
-    if (!info.response.ctx && !info.response.key) {
-      triggerUploadError(up, file, _l('上传失败，请稍后再试。'));
+    if (!info.response?.ctx && !info.response?.key) {
+      triggerUploadError(up, file, _l('上传失败，请稍后再试。'), info);
       return;
     }
 
@@ -506,43 +520,51 @@ export default option => {
         data: file.ctx,
         processData: false,
         async: false,
-      }).then(response => {
-        if (typeof response === 'string') {
-          response = safeParse(response, 'object');
-        }
+      })
+        // 同步合并请求使用 done/fail，确保 Error/FileUploaded 早于 plupload 的 UploadComplete。
+        .done(response => {
+          if (typeof response === 'string') {
+            response = safeParse(response, 'object');
+          }
 
-        if (!response.key) {
-          triggerUploadError(up, file, _l('上传失败，请稍后再试。'));
-          return;
-        }
+          if (!response?.key) {
+            triggerUploadError(up, file, _l('上传失败，请稍后再试。'), { response });
+            return;
+          }
 
-        const serverFileName = file.fileName || tokenInfo.fileName || '';
-        const fileKey = file.key || tokenInfo.key;
-        const oldKeyDir = fileKey.replace(serverFileName, '');
-        const newKey = response.key || fileKey;
-        const newKeyDir = newKey.replace(serverFileName, '');
-        const url = file.url || tokenInfo.url || '';
+          const serverFileName = file.fileName || tokenInfo.fileName || '';
+          const fileKey = file.key || tokenInfo.key;
+          const oldKeyDir = fileKey.replace(serverFileName, '');
+          const newKey = response.key || fileKey;
+          const newKeyDir = newKey.replace(serverFileName, '');
+          const url = file.url || tokenInfo.url || '';
 
-        response.fileExt = fileExt;
-        response.fileName = RegExpValidator.getNameOfFileName(serverFileName || file.name);
-        response.filePath = newKeyDir;
-        response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
-        response.serverName = file.serverName;
+          response.fileExt = fileExt;
+          response.fileName = RegExpValidator.getNameOfFileName(serverFileName || file.name);
+          response.filePath = newKeyDir;
+          response.originalFileName = encodeURIComponent(RegExpValidator.getNameOfFileName(file.name));
+          response.serverName = file.serverName;
 
-        file.key = response.key;
-        file.url = url.replace(oldKeyDir, newKeyDir) || response.url;
+          file.key = response.key;
+          file.url = url.replace(oldKeyDir, newKeyDir) || response.url;
 
-        if (initFunc.FileUploaded) {
-          initFunc.FileUploaded(up, file, { response });
-        }
-      });
+          if (initFunc.FileUploaded) {
+            initFunc.FileUploaded(up, file, { response });
+          }
+        })
+        .fail(xhr => {
+          triggerUploadError(up, file, _l('上传失败，请稍后再试。'), {
+            response: xhr.responseJSON || xhr.responseText,
+            status: xhr.status,
+          });
+        });
     }
   });
 
   uploader.bind('PostInit', function bindPluploadPaste(up) {
     var paste = document.getElementById(option.paste_element);
     if (paste) {
-      const onPaste = _.throttle(e => {
+      const onPaste = throttle(e => {
         var items = e.originalEvent.clipboardData && e.originalEvent.clipboardData.items;
         var data = { files: [] };
         if (items && items.length) {

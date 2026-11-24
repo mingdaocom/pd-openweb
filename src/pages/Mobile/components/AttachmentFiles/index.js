@@ -270,9 +270,13 @@ export class UploadFileWrapper extends Component {
       },
       onError(uploader, error) {
         if (error.code === window.plupload.FILE_SIZE_ERROR) {
-          alert(_l('单个文件大小超过%0MB，无法支持上传', 1024 * 4), 3);
+          if (!error.uploadErrorHandled) {
+            alert(_l('单个文件大小超过%0MB，无法支持上传', 1024 * 4), 3);
+          }
         } else {
-          alert(_l('上传失败，请稍后再试。'), 3);
+          if (!error.uploadErrorHandled) {
+            alert(_l('上传失败，请稍后再试。'), 3);
+          }
         }
 
         self.setUploadLock(uploader, false);

@@ -24,16 +24,6 @@ import { usePcCamera } from './PcUpload';
 import { checkFileAvailable, findIndex, findIsId, getAttachmentTotalSize, isValid, openMdDialog } from './utils';
 import './index.less';
 
-const errorCode = {
-  40001: _l('鉴权失败'),
-  40002: _l('非法的文件类型'),
-  40003: _l('bucket 不存在'),
-  40004: _l('文件大小错误'),
-  50002: _l('系统错误 metadata error'),
-  50003: _l('系统错误 hash error'),
-  50004: _l('系统错误'),
-};
-
 class UploadFiles extends Component {
   static contextType = RecordInfoContext;
   static propTypes = {
@@ -271,9 +261,16 @@ class UploadFiles extends Component {
   }
 
   removeErrorFile = (uploader, fileId) => {
-    if (fileId && uploader.removeFile) {
+    if (!fileId) return;
+
+    if (uploader.removeFile) {
       uploader.removeFile({ id: fileId });
     }
+
+    this.setState(
+      ({ temporaryData }) => ({ temporaryData: temporaryData.filter(item => item.id !== fileId) }),
+      () => this.props.onTemporaryDataUpdate(this.state.temporaryData),
+    );
   };
 
   onOpenFolderSelectDialog() {
@@ -1000,9 +997,9 @@ class UploadFiles extends Component {
               addFiles.push({ id: item.id, fileSize: item.size || 0, progress: 0.1, base });
             });
 
-            _this.setState({
-              temporaryData: _this.state.temporaryData.concat(addFiles),
-            });
+            _this.setState(({ temporaryData }) => ({
+              temporaryData: temporaryData.concat(addFiles),
+            }));
           }}
           onBeforeUpload={uploader => {
             _this.currentFile = uploader;
@@ -1013,59 +1010,39 @@ class UploadFiles extends Component {
             const uploadPercent = ((loaded / size) * 100).toFixed(1);
 
             // 给当前正在上传的文件设置进度
-            const newTemporaryData = _this.state.temporaryData.map(item => {
-              if (file.id === item.id && 'progress' in item) {
-                item.progress = uploadPercent;
-              }
-
-              return item;
-            });
-
-            _this.setState({
-              temporaryData: newTemporaryData,
-            });
+            _this.setState(({ temporaryData }) => ({
+              temporaryData: temporaryData.map(item =>
+                file.id === item.id && 'progress' in item ? { ...item, progress: uploadPercent } : item,
+              ),
+            }));
           }}
           onUploaded={(uploader, file, response) => {
             // 上传完成，取消进度条
-            const newTemporaryData = _this.state.temporaryData.map(item => {
-              if (file.id == item.id && 'progress' in item) {
-                item = formatResponseData(file, response);
-                item.originalFileName = decodeURIComponent(item.originalFileName);
-                delete item.progress;
-                delete item.base;
-              }
+            _this.setState(
+              ({ temporaryData }) => ({
+                temporaryData: temporaryData.map(item => {
+                  if (file.id == item.id && 'progress' in item) {
+                    item = formatResponseData(file, response);
+                    item.originalFileName = decodeURIComponent(item.originalFileName);
+                  }
 
-              return item;
-            });
-
-            _this.setState({
-              temporaryData: newTemporaryData,
-            });
-
-            _this.props.onTemporaryDataUpdate(newTemporaryData);
+                  return item;
+                }),
+              }),
+              () => _this.props.onTemporaryDataUpdate(_this.state.temporaryData),
+            );
           }}
           onUploadComplete={() => {
-            _this._uploading = false;
-            _this.props.onUploadComplete(true);
+            // 等待成功及失败回调的列表更新提交，避免父级使用旧附件列表结束上传。
+            _this.setState({}, () => {
+              _this._uploading = false;
+              _this.props.onUploadComplete(true);
+            });
           }}
           onError={(uploader, error) => {
             _this.removeErrorFile(uploader, error?.file?.id);
 
-            if ((window.platformENV.isOverseas || window.platformENV.isLocal) && error.response) {
-              try {
-                const res = JSON.parse(error.response);
-
-                if (res.code === 50001) {
-                  alert(res.message, 2);
-                  return;
-                } else if (errorCode[res.code]) {
-                  alert(errorCode[res.code], 2);
-                  return;
-                }
-              } catch (error) {
-                console.error(error);
-              }
-            }
+            if (error.uploadErrorHandled) return;
 
             if (error.code === window.plupload.FILE_SIZE_ERROR) {
               alert(_l('单个文件大小超过%0MB，无法支持上传', maxTotalSize), 2);

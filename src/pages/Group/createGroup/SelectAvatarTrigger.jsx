@@ -122,7 +122,10 @@ export default function SelectAvatarTrigger(props) {
           }}
           onError={(up, err, errTip) => {
             setState({ loading: false });
-            alert(errTip, 2);
+            if (!err.uploadErrorHandled) {
+              alert(errTip, 2);
+            }
+
             up.disableBrowse(false);
           }}
         >

@@ -61,8 +61,12 @@ export default function LoginSet(props) {
         });
         setUploadBgLoading(false);
       },
-      onError: () => {
-        alert(_l('文件上传失败'), 2);
+      onError: (up, err) => {
+        setUploadBgLoading(false);
+        up.disableBrowse(false);
+        if (!err.uploadErrorHandled) {
+          alert(_l('文件上传失败'), 2);
+        }
       },
     };
     return (
@@ -107,8 +111,12 @@ export default function LoginSet(props) {
         setLogoHeightText('40');
         setUploadLoading(false);
       },
-      onError: () => {
-        alert(_l('文件上传失败'), 2);
+      onError: (up, err) => {
+        setUploadLoading(false);
+        up.disableBrowse(false);
+        if (!err.uploadErrorHandled) {
+          alert(_l('文件上传失败'), 2);
+        }
       },
     };
     return (

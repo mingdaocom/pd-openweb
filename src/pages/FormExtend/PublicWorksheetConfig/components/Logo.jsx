@@ -96,7 +96,10 @@ export default class Logo extends React.Component {
               this.setState({ isUploading: true });
               up.disableBrowse();
             }}
-            onError={() => {}}
+            onError={up => {
+              this.setState({ isUploading: false });
+              up.disableBrowse(false);
+            }}
           >
             <Con>{isUploading ? <i className="icon icon-loading_button rotate"></i> : 'LOGO'}</Con>
           </QiniuUpload>

@@ -5,6 +5,7 @@ import styled from 'styled-components';
 import { Icon, LoadDiv } from 'ming-ui';
 import { Dropdown, Input, Modal, Tooltip } from 'ming-ui/antd-components';
 import application from 'src/api/application';
+import bindUploadErrors from 'src/library/plupload/uploadErrors';
 import PageTableCon from 'src/pages/Admin/components/PageTableCon';
 import { handleMask } from 'src/pages/Admin/util';
 import RegExpValidator from 'src/utils/domain/validation/expression';
@@ -171,6 +172,7 @@ class Upload extends Component {
     };
 
     const uploader = new window.plupload.Uploader(config);
+    bindUploadErrors(uploader);
     uploader.bind('FilesAdded', config.method.FilesAdded);
     uploader.bind('BeforeUpload', config.method.BeforeUpload);
     uploader.bind('FileUploaded', config.method.FileUploaded);

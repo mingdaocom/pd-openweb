@@ -121,8 +121,11 @@ function UploadImage(
           up.disableBrowse();
           onBegin();
         }}
-        onError={up => {
-          alert(_l('上传失败'), 2);
+        onError={(up, err) => {
+          if (!err.uploadErrorHandled) {
+            alert(_l('上传失败'), 2);
+          }
+
           handleClear();
           up.disableBrowse(false);
           onError();
